@@ -1,13 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:project_shelf/components/lists/product_list.dart';
-import 'package:project_shelf/models/product_list_model.dart';
-import 'package:provider/provider.dart';
 
 class Products extends StatelessWidget {
-  const Products({super.key});
+  final String? restorationId;
+
+  const Products({this.restorationId, super.key});
 
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      restorationId: restorationId,
+      appBar: AppBar(title: const Text("Products"),),
+      body: TabBarView(children: [
+        ProductList(),
+      ]),
+    );
     return Scaffold(
       appBar: AppBar(
         // TRY THIS: Try changing the color here to a specific color (to
@@ -18,11 +26,12 @@ class Products extends StatelessWidget {
         // the App.build method, and use it to set our appbar title.
         title: const Text("Products"),
       ),
-      body: ChangeNotifierProvider(
-        create: (context) => ProductListModel(),
-        child: Column(
-          children: <Widget>[ProductList()],
-        ),
+      body: Column(
+        children: <Widget>[],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => context.push('/home/products/create'),
+        child: Icon(Icons.add),
       ),
     );
   }

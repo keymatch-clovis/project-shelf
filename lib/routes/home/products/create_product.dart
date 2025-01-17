@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:project_shelf/components/forms/create_product_form.dart';
 
-class CreateProductRoute extends StatefulWidget {
-  const CreateProductRoute({super.key});
+class CreateProduct extends StatefulWidget {
+  const CreateProduct({super.key});
 
   @override
-  State<CreateProductRoute> createState() => _CreateProductRouteState();
+  State<CreateProduct> createState() => _CreateProductState();
 }
 
-class _CreateProductRouteState extends State<CreateProductRoute> {
+class _CreateProductState extends State<CreateProduct> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,7 +16,7 @@ class _CreateProductRouteState extends State<CreateProductRoute> {
         body: Center(
             child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[const CreateProductForm()],
+          children: [CreateProductForm(restorationId: 'create-product-form',)],
         )));
   }
 }

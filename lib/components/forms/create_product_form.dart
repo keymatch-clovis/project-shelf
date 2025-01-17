@@ -1,43 +1,50 @@
 import 'package:ez_validator/ez_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:project_shelf/components/text_fields/custom_text_field.dart';
+import 'package:project_shelf/models/product.dart';
 import 'package:project_shelf/utils/text_formatter.dart';
+import 'package:provider/provider.dart';
 
-// Define the widget.
 class CreateProductForm extends StatefulWidget {
-  const CreateProductForm({super.key});
+  final int? id;
+  final String? restorationId;
+
+  const CreateProductForm({this.id, this.restorationId, super.key});
 
   @override
-  CreateProductFormState createState() {
-    return CreateProductFormState();
-  }
+  State<CreateProductForm> createState() => _CreateProductFormState();
 }
 
-// Define a corresponding state class for the widget.
-// This class holds the data related to the form.
-class CreateProductFormState extends State<CreateProductForm> {
+// Define the widget.
+class _CreateProductFormState extends State<CreateProductForm>
+    with RestorationMixin {
   // Create a global key that uniquely identifies the Form widget
   // and allows validation of the form.
   final _formKey = GlobalKey<FormState>();
+  _RestorableProduct product = _RestorableProduct(Product.empty());
 
-  final nameController = TextEditingController();
-  final valueController = TextEditingController();
-  final codeController = TextEditingController();
-  final stockController = TextEditingController();
+  @override
+  String? get restorationId => widget.restorationId;
+
+  @override
+  void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
+    registerForRestoration(product, 'product');
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Build a Form widget using the _formKey created above.
     return Form(
-        key: _formKey,
-        child: Expanded(
-            child: Container(
+      key: _formKey,
+      child: Expanded(
+        child: Container(
           margin: const EdgeInsets.all(20),
           child: Column(
-            children: <Widget>[
-              TextFormField(
-                controller: nameController,
-                decoration: const InputDecoration(labelText: 'Nombre'),
+            children: [
+              CustomTextField(
+                hintText: 'Nombre',
+                onChanged: (value) => product.value.name = value,
+                initialValue: product.value.name,
                 keyboardType: TextInputType.text,
                 inputFormatters: [UpperCaseTextFormatter()],
                 textCapitalization: TextCapitalization.characters,
@@ -46,9 +53,8 @@ class CreateProductFormState extends State<CreateProductForm> {
                     .build()(value),
                 textInputAction: TextInputAction.next,
               ),
-              TextFormField(
-                controller: valueController,
-                decoration: const InputDecoration(labelText: 'Valor'),
+              CustomTextField(
+                hintText: 'Valor',
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 validator: (value) => EzValidator<String>()
@@ -56,29 +62,27 @@ class CreateProductFormState extends State<CreateProductForm> {
                     .number()
                     .isInt()
                     .build()(value),
+                onChanged: (value) => product.value.value = int.parse(value),
                 textInputAction: TextInputAction.next,
               ),
-              TextFormField(
-                controller: codeController,
-                decoration: const InputDecoration(labelText: 'Código'),
+              CustomTextField(
+                hintText: 'Cantidad',
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                validator: (value) => EzValidator<String>()
+                    .required("Este campo es requerido.")
+                    .number()
+                    .isInt()
+                    .build()(value),
+                onChanged: (value) => product.value.stock = int.parse(value),
+              ),
+              CustomTextField(
+                hintText: 'Código',
                 keyboardType: TextInputType.text,
                 inputFormatters: [UpperCaseTextFormatter()],
                 textCapitalization: TextCapitalization.characters,
-                validator: (value) => EzValidator<String>()
-                    .required("Este campo es requerido.")
-                    .build()(value),
                 textInputAction: TextInputAction.next,
-              ),
-              TextFormField(
-                controller: stockController,
-                decoration: const InputDecoration(labelText: 'Cantidad'),
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                validator: (value) => EzValidator<String>()
-                    .required("Este campo es requerido.")
-                    .number()
-                    .isInt()
-                    .build()(value),
+                onChanged: (value) => product.value.code = value,
               ),
               ElevatedButton(
                   onPressed: () async {
@@ -86,20 +90,41 @@ class CreateProductFormState extends State<CreateProductForm> {
                       ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Creando producto...')));
 
-                      // var database = await getDatabase();
-                      // await insertProduct(
-                      //     database,
-                      //     CreateProduct(
-                      //       name: nameController.text,
-                      //       value: int.parse(valueController.text),
-                      //       code: codeController.text,
-                      //       stock: int.parse(stockController.text),
-                      //     ));
+                      context.read<ProductModel>().add(product.value);
                     }
                   },
                   child: const Text('CREAR PRODUCTO')),
             ],
           ),
-        )));
+        ),
+      ),
+    );
+  }
+}
+
+class _RestorableProduct extends RestorableValue<Product> {
+  final Product _defaultValue;
+
+  _RestorableProduct(this._defaultValue);
+
+  @override
+  Product createDefaultValue() {
+    return _defaultValue;
+  }
+
+  @override
+  void didUpdateValue(Product? oldValue) {
+    notifyListeners();
+  }
+
+  @override
+  Product fromPrimitives(Object? data) {
+    print("primitives $data");
+    return Product.empty();
+  }
+
+  @override
+  Object? toPrimitives() {
+    return value.toMap();
   }
 }
