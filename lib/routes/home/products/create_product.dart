@@ -1,22 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:project_shelf/components/forms/create_product_form.dart';
+import 'package:project_shelf/models/product.dart';
+import 'package:provider/provider.dart';
 
-class CreateProduct extends StatefulWidget {
-  const CreateProduct({super.key});
+class CreateProduct extends StatelessWidget {
+  final String? restorationId;
 
-  @override
-  State<CreateProduct> createState() => _CreateProductState();
-}
+  const CreateProduct({this.restorationId, super.key});
 
-class _CreateProductState extends State<CreateProduct> {
+  static Page<void> pageBuilder(BuildContext context) {
+    return const MaterialPage(
+      restorationId: 'router.create.product',
+      child: CreateProduct(
+        restorationId: 'create.product',
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(title: const Text('Crear Producto')),
-        body: Center(
-            child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [CreateProductForm(restorationId: 'create-product-form',)],
-        )));
+    return RestorationScope(
+        restorationId: restorationId,
+        child: Scaffold(
+          bottomNavigationBar: BottomNavigationBar(items: [
+            BottomNavigationBarItem(icon: Icon(Icons.outbox), label: 'test'),
+            BottomNavigationBarItem(icon: Icon(Icons.abc), label: 'tester'),
+          ]),
+          body: CreateProductForm(),
+        ));
   }
 }

@@ -22,7 +22,8 @@ class _CreateProductFormState extends State<CreateProductForm>
   // Create a global key that uniquely identifies the Form widget
   // and allows validation of the form.
   final _formKey = GlobalKey<FormState>();
-  _RestorableProduct product = _RestorableProduct(Product.empty());
+  _RestorableProduct product =
+      _RestorableProduct({'name': '', 'value': '', 'stock': ''});
 
   @override
   String? get restorationId => widget.restorationId;
@@ -43,8 +44,8 @@ class _CreateProductFormState extends State<CreateProductForm>
             children: [
               CustomTextField(
                 hintText: 'Nombre',
-                onChanged: (value) => product.value.name = value,
-                initialValue: product.value.name,
+                onChanged: (value) => product.value['name'] = value,
+                initialValue: product.value['name'],
                 keyboardType: TextInputType.text,
                 inputFormatters: [UpperCaseTextFormatter()],
                 textCapitalization: TextCapitalization.characters,
@@ -62,7 +63,7 @@ class _CreateProductFormState extends State<CreateProductForm>
                     .number()
                     .isInt()
                     .build()(value),
-                onChanged: (value) => product.value.value = int.parse(value),
+                onChanged: (value) => product.value['value'] = value,
                 textInputAction: TextInputAction.next,
               ),
               CustomTextField(
@@ -74,7 +75,7 @@ class _CreateProductFormState extends State<CreateProductForm>
                     .number()
                     .isInt()
                     .build()(value),
-                onChanged: (value) => product.value.stock = int.parse(value),
+                onChanged: (value) => product.value['stock'] = value,
               ),
               CustomTextField(
                 hintText: 'Código',
@@ -82,7 +83,7 @@ class _CreateProductFormState extends State<CreateProductForm>
                 inputFormatters: [UpperCaseTextFormatter()],
                 textCapitalization: TextCapitalization.characters,
                 textInputAction: TextInputAction.next,
-                onChanged: (value) => product.value.code = value,
+                onChanged: (value) => product.value['code'] = value,
               ),
               ElevatedButton(
                   onPressed: () async {
@@ -102,29 +103,29 @@ class _CreateProductFormState extends State<CreateProductForm>
   }
 }
 
-class _RestorableProduct extends RestorableValue<Product> {
-  final Product _defaultValue;
+class _RestorableProduct extends RestorableValue<Map<String, String?>> {
+  final Map<String, String?> _defaultValue;
 
   _RestorableProduct(this._defaultValue);
 
   @override
-  Product createDefaultValue() {
+  Map<String, String?> createDefaultValue() {
     return _defaultValue;
   }
 
   @override
-  void didUpdateValue(Product? oldValue) {
+  void didUpdateValue(Map<String, String?>? oldValue) {
     notifyListeners();
   }
 
   @override
-  Product fromPrimitives(Object? data) {
+  Map<String, String?> fromPrimitives(Object? data) {
     print("primitives $data");
-    return Product.empty();
+    return {};
   }
 
   @override
   Object? toPrimitives() {
-    return value.toMap();
+    return value;
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project_shelf/database/database.dart';
 import 'package:project_shelf/models/product.dart';
 import 'package:provider/provider.dart';
 
@@ -25,13 +26,11 @@ class _ProductListState extends State<ProductList> {
           future: future,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
-              return Expanded(
-                child: ListView.builder(
-                  itemCount: model.products.length,
-                  prototypeItem: ListTile(title: _ListItem(0)),
-                  itemBuilder: (context, index) =>
-                      ListTile(title: _ListItem(index)),
-                ),
+              return ListView.builder(
+                itemCount: model.products.length,
+                prototypeItem: ListTile(title: _ListItem(0)),
+                itemBuilder: (context, index) =>
+                    ListTile(title: _ListItem(index)),
               );
             } else if (snapshot.hasError) {
               return Text('${snapshot.error}');
@@ -50,8 +49,8 @@ class _ListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var item =
-        context.select<ProductModel, Product>((model) => model.products[index]);
+    var item = context
+        .select<ProductModel, ProductData>((model) => model.products[index]);
 
     return Padding(
       padding: const EdgeInsets.all(5),

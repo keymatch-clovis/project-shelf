@@ -1,0 +1,19 @@
+# build.yaml. This file is quite powerful, see https://pub.dev/packages/build_config
+
+targets:
+  $default:
+    builders:
+      drift_dev:
+        options:
+          # Generated tables contain a significant chunk of code to verify 
+          # integrity of inserted data and report detailed errors when the 
+          # integrity is violated. If you're only using inserts with SQL, or 
+          # don't need this functionality, enabling this flag can help to reduce
+          # the amount generated code.
+          skip_verification_code: true
+
+          sql:
+            dialect: sqlite
+            options:
+              modules:
+                - fts5

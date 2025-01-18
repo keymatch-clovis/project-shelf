@@ -13,6 +13,17 @@ class Home extends StatelessWidget {
     super.key,
   });
 
+  final tabs = const [
+    Tab(
+      text: 'Productos',
+      icon: Icon(Icons.category_rounded),
+    ),
+    Tab(
+      text: 'Facturas',
+      icon: Icon(Icons.receipt_rounded),
+    ),
+  ];
+
   @override
   Widget build(BuildContext context) {
     final index = _getSelectedIndex(GoRouterState.of(context).uri.toString());
@@ -20,18 +31,14 @@ class Home extends StatelessWidget {
       restorationId: restorationId,
       child: DefaultTabController(
         initialIndex: index,
-        length: 1,
-        child: Card(
-          child: Column(
+        length: tabs.length,
+        child: Scaffold(
+          body: Column(
             children: [
               Expanded(child: child),
               TabBar(
                 onTap: onTap,
-                tabs: const [
-                  Tab(
-                    icon: Icon(Icons.home),
-                  ),
-                ],
+                tabs: tabs,
               ),
             ],
           ),
