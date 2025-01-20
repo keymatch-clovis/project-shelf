@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class CustomTextField extends StatefulWidget {
+class CurrencyTextField extends StatefulWidget {
   final String hintText;
   final Function(String) onChanged;
   final TextCapitalization textCapitalization;
@@ -12,7 +12,7 @@ class CustomTextField extends StatefulWidget {
   final FormFieldValidator<String>? validator;
   final TextInputAction? textInputAction;
 
-  const CustomTextField({
+  const CurrencyTextField({
     super.key,
     required this.hintText,
     required this.onChanged,
@@ -25,10 +25,10 @@ class CustomTextField extends StatefulWidget {
   });
 
   @override
-  State<CustomTextField> createState() => _CustomTextFieldState();
+  State<CurrencyTextField> createState() => _CurrencyTextFieldState();
 }
 
-class _CustomTextFieldState extends State<CustomTextField> {
+class _CurrencyTextFieldState extends State<CurrencyTextField> {
   @override
   Widget build(BuildContext context) {
     return TextFormField(

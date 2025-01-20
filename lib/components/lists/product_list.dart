@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:project_shelf/database/database.dart';
 import 'package:project_shelf/models/product.dart';
 import 'package:provider/provider.dart';
@@ -29,14 +30,18 @@ class _ProductListState extends State<ProductList> {
               return ListView.builder(
                 itemCount: model.products.length,
                 prototypeItem: ListTile(title: _ListItem(0)),
-                itemBuilder: (context, index) =>
-                    ListTile(title: _ListItem(index)),
+                itemBuilder: (context, index) => ListTile(
+                  title: _ListItem(index),
+                  onTap: () => debugPrint(index.toString()),
+                ),
               );
             } else if (snapshot.hasError) {
               return Text('${snapshot.error}');
             }
             // By default, show a loading spinner.
-            return const CircularProgressIndicator();
+            return const Center(
+              child: CircularProgressIndicator.adaptive(),
+            );
           }),
     );
   }
@@ -54,7 +59,16 @@ class _ListItem extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.all(5),
-      child: Text(item.name),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(item.name),
+          Text(
+            NumberFormat.currency(name: 'COP').format(item.value),
+            style: TextStyle(fontSize: 12),
+          ),
+        ],
+      ),
     );
   }
 }

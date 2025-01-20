@@ -15,7 +15,9 @@ class CreateProductScreen extends StatelessWidget {
           centerTitle: true,
           title: const Text('Crear Producto'),
         ),
-        body: CreateProductForm(),
+        body: CreateProductForm(
+          restorationId: 'create.product.form',
+        ),
       ),
     );
   }

@@ -19,8 +19,12 @@ class Home extends StatelessWidget {
       icon: Icon(Icons.category_rounded),
     ),
     Tab(
-      text: 'Facturas',
+      text: 'Ventas',
       icon: Icon(Icons.receipt_rounded),
+    ),
+    Tab(
+      text: 'Clientes',
+      icon: Icon(Icons.people_rounded),
     ),
   ];
 

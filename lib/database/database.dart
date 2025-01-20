@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
+import 'package:flutter/foundation.dart';
 
 part 'database.g.dart';
 
@@ -27,14 +28,14 @@ class AppDatabase extends _$AppDatabase {
   Future<List<ProductData>> get products => select(product).get();
 
   Future<List<ProductData>> search(String query) async {
-    var test = await customSelect(
+    var result = await customSelect(
       '''
         select * from product_search(?) order by rank;
       ''',
       variables: [Variable.withString(query)],
       readsFrom: {productSearch},
     ).get();
-    print('search $test');
+    debugPrint('$result');
 
     return Future.value([]);
   }
@@ -42,15 +43,17 @@ class AppDatabase extends _$AppDatabase {
   Future<int> addProduct(ProductCompanion entry) async {
     // Insert the product into the table.
     var id = await into(product).insert(entry);
+    debugPrint('product just added $entry');
 
     // Insert the product data into the product search table.
     await into(productSearch).insert(
-      ProductSearchCompanion(
-        productId: Value(id.toString()),
-        name: entry.name,
-        code: Value(entry.code.value ?? ""),
+      ProductSearchCompanion.insert(
+        productId: id.toString(),
+        name: entry.name.value,
+        code: entry.code.value ?? '',
       ),
     );
+    debugPrint('product search just added: $entry');
 
     return id;
   }
