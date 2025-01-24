@@ -1,70 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:project_shelf/database/database.dart';
-import 'package:project_shelf/models/product.dart';
-import 'package:provider/provider.dart';
 
-class ProductList extends StatefulWidget {
-  const ProductList({super.key});
+class ProductList extends StatelessWidget {
+  final List<ProductData> list;
 
-  @override
-  State<ProductList> createState() => _ProductListState();
-}
-
-class _ProductListState extends State<ProductList> {
-  late Future future;
-
-  @override
-  void initState() {
-    super.initState();
-    future = context.read<ProductModel>().loadProducts();
-  }
+  const ProductList({required this.list, super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ProductModel>(
-      builder: (context, model, child) => FutureBuilder(
-          future: future,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done) {
-              return ListView.builder(
-                itemCount: model.products.length,
-                prototypeItem: ListTile(title: _ListItem(0)),
-                itemBuilder: (context, index) => ListTile(
-                  title: _ListItem(index),
-                  onTap: () => debugPrint(index.toString()),
-                ),
-              );
-            } else if (snapshot.hasError) {
-              return Text('${snapshot.error}');
-            }
-            // By default, show a loading spinner.
-            return const Center(
-              child: CircularProgressIndicator.adaptive(),
-            );
-          }),
+    return ListView.builder(
+      itemCount: list.length,
+      prototypeItem: ListTile(title: _ListItem(list[0])),
+      itemBuilder: (context, index) => ListTile(
+        title: _ListItem(list[index]),
+        onTap: () => debugPrint(index.toString()),
+      ),
     );
   }
 }
 
 class _ListItem extends StatelessWidget {
-  final int index;
+  final ProductData data;
 
-  const _ListItem(this.index);
+  const _ListItem(this.data);
 
   @override
   Widget build(BuildContext context) {
-    var item = context
-        .select<ProductModel, ProductData>((model) => model.products[index]);
-
     return Padding(
       padding: const EdgeInsets.all(5),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(item.name),
+          Text(data.name),
           Text(
-            NumberFormat.currency(name: 'COP').format(item.value),
+            NumberFormat.currency(name: 'COP').format(data.value),
             style: TextStyle(fontSize: 12),
           ),
         ],

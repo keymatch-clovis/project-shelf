@@ -1,9 +1,9 @@
-import 'dart:developer';
-
-import 'package:drift/drift.dart';
 import 'package:ez_validator/ez_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:project_shelf/database/database.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'product.g.dart';
 
 class ProductValidator {
   Map<String, dynamic> fields = {
@@ -13,23 +13,11 @@ class ProductValidator {
   };
 }
 
-class ProductModel extends ChangeNotifier {
-  final AppDatabase _database;
-
-  List<ProductData> products = [];
-
-  ProductModel(this._database);
-
-  Future<void> loadProducts() async {
-    products = await _database.products;
-    print(products);
-
-    notifyListeners();
-  }
-
-  Future<List<ProductData>> search(String query) async {
-    _database.search(query);
-    return [];
+@riverpod
+class ProductModel extends _$ProductModel {
+  @override
+  FutureOr<List<ProductData>> build() {
+    return ref.watch(databaseProvider).getProducts();
   }
 
   Future<void> add({
@@ -39,11 +27,14 @@ class ProductModel extends ChangeNotifier {
     String? code,
   }) async {
     debugPrint('Adding new product');
-    await _database.addProduct(
+    await ref.watch(databaseProvider).addProduct(
       ProductCompanion.insert(name: name, value: value, stock: stock),
     );
 
-    notifyListeners();
-    await loadProducts();
+    // Once the creation is done, we mark the local cache as dirty. This will
+    // cause "build" to be asynchronously be called again.
+    ref.invalidateSelf();
+    // (Optional) Wait for the new state to be computed.
+    // await future;
   }
 }

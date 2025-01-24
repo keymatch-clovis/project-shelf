@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:project_shelf/components/lists/product_list.dart';
 import 'package:project_shelf/database/database.dart';
 import 'package:project_shelf/delegates/product_search_delegate.dart';
 import 'package:project_shelf/models/product.dart';
-import 'package:provider/provider.dart';
 
-class ProductsScreen extends StatelessWidget {
+class ProductsScreen extends ConsumerWidget {
   final String? restorationId;
 
   const ProductsScreen({this.restorationId, super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final model = ref.watch(productModelProvider);
+
     return Scaffold(
       restorationId: restorationId,
       appBar: AppBar(

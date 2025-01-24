@@ -1,17 +1,21 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:flutter/foundation.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'database.g.dart';
+
+const maxPageSize = 100;
 
 @DriftDatabase(
   include: {'tables.drift'},
 )
-class AppDatabase extends _$AppDatabase {
+class ShelfDatabase extends _$ShelfDatabase {
   // After generating code, this class needs to define a `schemaVersion` getter
   // and a constructor telling drift where the database should be stored.
   // These are described in the getting started guide: https://drift.simonbinder.eu/setup/
-  AppDatabase() : super(_openConnection());
+  ShelfDatabase() : super(_openConnection());
 
   @override
   int get schemaVersion => 1;
@@ -25,19 +29,11 @@ class AppDatabase extends _$AppDatabase {
     );
   }
 
-  Future<List<ProductData>> get products => select(product).get();
-
-  Future<List<ProductData>> search(String query) async {
-    var result = await customSelect(
-      '''
-        select * from product_search(?) order by rank;
-      ''',
-      variables: [Variable.withString(query)],
-      readsFrom: {productSearch},
-    ).get();
-    debugPrint('$result');
-
-    return Future.value([]);
+  Future<List<ProductData>> getProducts({int page = 0}) {
+    return (select(product)
+          ..orderBy([(p) => OrderingTerm(expression: p.rowId)])
+          ..limit(maxPageSize, offset: page * maxPageSize))
+        .get();
   }
 
   Future<int> addProduct(ProductCompanion entry) async {
@@ -45,16 +41,11 @@ class AppDatabase extends _$AppDatabase {
     var id = await into(product).insert(entry);
     debugPrint('product just added $entry');
 
-    // Insert the product data into the product search table.
-    await into(productSearch).insert(
-      ProductSearchCompanion.insert(
-        productId: id.toString(),
-        name: entry.name.value,
-        code: entry.code.value ?? '',
-      ),
-    );
-    debugPrint('product search just added: $entry');
-
     return id;
   }
+}
+
+@riverpod
+ShelfDatabase database(Ref ref) {
+  return ShelfDatabase();
 }

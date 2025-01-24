@@ -262,227 +262,15 @@ class ProductCompanion extends UpdateCompanion<ProductData> {
   }
 }
 
-class ProductSearch extends Table
-    with
-        TableInfo<ProductSearch, ProductSearchData>,
-        VirtualTableInfo<ProductSearch, ProductSearchData> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  ProductSearch(this.attachedDatabase, [this._alias]);
-  late final GeneratedColumn<String> productId = GeneratedColumn<String>(
-      'product_id', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: true,
-      $customConstraints: '');
-  late final GeneratedColumn<String> name = GeneratedColumn<String>(
-      'name', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: true,
-      $customConstraints: '');
-  late final GeneratedColumn<String> code = GeneratedColumn<String>(
-      'code', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: true,
-      $customConstraints: '');
-  @override
-  List<GeneratedColumn> get $columns => [productId, name, code];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'product_search';
-  @override
-  Set<GeneratedColumn> get $primaryKey => const {};
-  @override
-  ProductSearchData map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return ProductSearchData(
-      productId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}product_id'])!,
-      name: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
-      code: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}code'])!,
-    );
-  }
-
-  @override
-  ProductSearch createAlias(String alias) {
-    return ProductSearch(attachedDatabase, alias);
-  }
-
-  @override
-  bool get dontWriteConstraints => true;
-  @override
-  String get moduleAndArgs =>
-      'fts5(product_id, name, code, tokenize="trigram case_sensitive 0 remove_diacritics 1")';
-}
-
-class ProductSearchData extends DataClass
-    implements Insertable<ProductSearchData> {
-  final String productId;
-  final String name;
-  final String code;
-  const ProductSearchData(
-      {required this.productId, required this.name, required this.code});
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['product_id'] = Variable<String>(productId);
-    map['name'] = Variable<String>(name);
-    map['code'] = Variable<String>(code);
-    return map;
-  }
-
-  ProductSearchCompanion toCompanion(bool nullToAbsent) {
-    return ProductSearchCompanion(
-      productId: Value(productId),
-      name: Value(name),
-      code: Value(code),
-    );
-  }
-
-  factory ProductSearchData.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return ProductSearchData(
-      productId: serializer.fromJson<String>(json['product_id']),
-      name: serializer.fromJson<String>(json['name']),
-      code: serializer.fromJson<String>(json['code']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'product_id': serializer.toJson<String>(productId),
-      'name': serializer.toJson<String>(name),
-      'code': serializer.toJson<String>(code),
-    };
-  }
-
-  ProductSearchData copyWith({String? productId, String? name, String? code}) =>
-      ProductSearchData(
-        productId: productId ?? this.productId,
-        name: name ?? this.name,
-        code: code ?? this.code,
-      );
-  ProductSearchData copyWithCompanion(ProductSearchCompanion data) {
-    return ProductSearchData(
-      productId: data.productId.present ? data.productId.value : this.productId,
-      name: data.name.present ? data.name.value : this.name,
-      code: data.code.present ? data.code.value : this.code,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('ProductSearchData(')
-          ..write('productId: $productId, ')
-          ..write('name: $name, ')
-          ..write('code: $code')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(productId, name, code);
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is ProductSearchData &&
-          other.productId == this.productId &&
-          other.name == this.name &&
-          other.code == this.code);
-}
-
-class ProductSearchCompanion extends UpdateCompanion<ProductSearchData> {
-  final Value<String> productId;
-  final Value<String> name;
-  final Value<String> code;
-  final Value<int> rowid;
-  const ProductSearchCompanion({
-    this.productId = const Value.absent(),
-    this.name = const Value.absent(),
-    this.code = const Value.absent(),
-    this.rowid = const Value.absent(),
-  });
-  ProductSearchCompanion.insert({
-    required String productId,
-    required String name,
-    required String code,
-    this.rowid = const Value.absent(),
-  })  : productId = Value(productId),
-        name = Value(name),
-        code = Value(code);
-  static Insertable<ProductSearchData> custom({
-    Expression<String>? productId,
-    Expression<String>? name,
-    Expression<String>? code,
-    Expression<int>? rowid,
-  }) {
-    return RawValuesInsertable({
-      if (productId != null) 'product_id': productId,
-      if (name != null) 'name': name,
-      if (code != null) 'code': code,
-      if (rowid != null) 'rowid': rowid,
-    });
-  }
-
-  ProductSearchCompanion copyWith(
-      {Value<String>? productId,
-      Value<String>? name,
-      Value<String>? code,
-      Value<int>? rowid}) {
-    return ProductSearchCompanion(
-      productId: productId ?? this.productId,
-      name: name ?? this.name,
-      code: code ?? this.code,
-      rowid: rowid ?? this.rowid,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (productId.present) {
-      map['product_id'] = Variable<String>(productId.value);
-    }
-    if (name.present) {
-      map['name'] = Variable<String>(name.value);
-    }
-    if (code.present) {
-      map['code'] = Variable<String>(code.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('ProductSearchCompanion(')
-          ..write('productId: $productId, ')
-          ..write('name: $name, ')
-          ..write('code: $code, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
-abstract class _$AppDatabase extends GeneratedDatabase {
-  _$AppDatabase(QueryExecutor e) : super(e);
-  $AppDatabaseManager get managers => $AppDatabaseManager(this);
+abstract class _$ShelfDatabase extends GeneratedDatabase {
+  _$ShelfDatabase(QueryExecutor e) : super(e);
+  $ShelfDatabaseManager get managers => $ShelfDatabaseManager(this);
   late final Product product = Product(this);
-  late final ProductSearch productSearch = ProductSearch(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [product, productSearch];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [product];
 }
 
 typedef $ProductCreateCompanionBuilder = ProductCompanion Function({
@@ -500,7 +288,7 @@ typedef $ProductUpdateCompanionBuilder = ProductCompanion Function({
   Value<String?> code,
 });
 
-class $ProductFilterComposer extends Composer<_$AppDatabase, Product> {
+class $ProductFilterComposer extends Composer<_$ShelfDatabase, Product> {
   $ProductFilterComposer({
     required super.$db,
     required super.$table,
@@ -524,7 +312,7 @@ class $ProductFilterComposer extends Composer<_$AppDatabase, Product> {
       column: $table.code, builder: (column) => ColumnFilters(column));
 }
 
-class $ProductOrderingComposer extends Composer<_$AppDatabase, Product> {
+class $ProductOrderingComposer extends Composer<_$ShelfDatabase, Product> {
   $ProductOrderingComposer({
     required super.$db,
     required super.$table,
@@ -548,7 +336,7 @@ class $ProductOrderingComposer extends Composer<_$AppDatabase, Product> {
       column: $table.code, builder: (column) => ColumnOrderings(column));
 }
 
-class $ProductAnnotationComposer extends Composer<_$AppDatabase, Product> {
+class $ProductAnnotationComposer extends Composer<_$ShelfDatabase, Product> {
   $ProductAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -573,7 +361,7 @@ class $ProductAnnotationComposer extends Composer<_$AppDatabase, Product> {
 }
 
 class $ProductTableManager extends RootTableManager<
-    _$AppDatabase,
+    _$ShelfDatabase,
     Product,
     ProductData,
     $ProductFilterComposer,
@@ -581,10 +369,10 @@ class $ProductTableManager extends RootTableManager<
     $ProductAnnotationComposer,
     $ProductCreateCompanionBuilder,
     $ProductUpdateCompanionBuilder,
-    (ProductData, BaseReferences<_$AppDatabase, Product, ProductData>),
+    (ProductData, BaseReferences<_$ShelfDatabase, Product, ProductData>),
     ProductData,
     PrefetchHooks Function()> {
-  $ProductTableManager(_$AppDatabase db, Product table)
+  $ProductTableManager(_$ShelfDatabase db, Product table)
       : super(TableManagerState(
           db: db,
           table: table,
@@ -630,7 +418,7 @@ class $ProductTableManager extends RootTableManager<
 }
 
 typedef $ProductProcessedTableManager = ProcessedTableManager<
-    _$AppDatabase,
+    _$ShelfDatabase,
     Product,
     ProductData,
     $ProductFilterComposer,
@@ -638,155 +426,35 @@ typedef $ProductProcessedTableManager = ProcessedTableManager<
     $ProductAnnotationComposer,
     $ProductCreateCompanionBuilder,
     $ProductUpdateCompanionBuilder,
-    (ProductData, BaseReferences<_$AppDatabase, Product, ProductData>),
+    (ProductData, BaseReferences<_$ShelfDatabase, Product, ProductData>),
     ProductData,
     PrefetchHooks Function()>;
-typedef $ProductSearchCreateCompanionBuilder = ProductSearchCompanion Function({
-  required String productId,
-  required String name,
-  required String code,
-  Value<int> rowid,
-});
-typedef $ProductSearchUpdateCompanionBuilder = ProductSearchCompanion Function({
-  Value<String> productId,
-  Value<String> name,
-  Value<String> code,
-  Value<int> rowid,
-});
 
-class $ProductSearchFilterComposer
-    extends Composer<_$AppDatabase, ProductSearch> {
-  $ProductSearchFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<String> get productId => $composableBuilder(
-      column: $table.productId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get name => $composableBuilder(
-      column: $table.name, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get code => $composableBuilder(
-      column: $table.code, builder: (column) => ColumnFilters(column));
-}
-
-class $ProductSearchOrderingComposer
-    extends Composer<_$AppDatabase, ProductSearch> {
-  $ProductSearchOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<String> get productId => $composableBuilder(
-      column: $table.productId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get name => $composableBuilder(
-      column: $table.name, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get code => $composableBuilder(
-      column: $table.code, builder: (column) => ColumnOrderings(column));
-}
-
-class $ProductSearchAnnotationComposer
-    extends Composer<_$AppDatabase, ProductSearch> {
-  $ProductSearchAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<String> get productId =>
-      $composableBuilder(column: $table.productId, builder: (column) => column);
-
-  GeneratedColumn<String> get name =>
-      $composableBuilder(column: $table.name, builder: (column) => column);
-
-  GeneratedColumn<String> get code =>
-      $composableBuilder(column: $table.code, builder: (column) => column);
-}
-
-class $ProductSearchTableManager extends RootTableManager<
-    _$AppDatabase,
-    ProductSearch,
-    ProductSearchData,
-    $ProductSearchFilterComposer,
-    $ProductSearchOrderingComposer,
-    $ProductSearchAnnotationComposer,
-    $ProductSearchCreateCompanionBuilder,
-    $ProductSearchUpdateCompanionBuilder,
-    (
-      ProductSearchData,
-      BaseReferences<_$AppDatabase, ProductSearch, ProductSearchData>
-    ),
-    ProductSearchData,
-    PrefetchHooks Function()> {
-  $ProductSearchTableManager(_$AppDatabase db, ProductSearch table)
-      : super(TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $ProductSearchFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $ProductSearchOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $ProductSearchAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback: ({
-            Value<String> productId = const Value.absent(),
-            Value<String> name = const Value.absent(),
-            Value<String> code = const Value.absent(),
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              ProductSearchCompanion(
-            productId: productId,
-            name: name,
-            code: code,
-            rowid: rowid,
-          ),
-          createCompanionCallback: ({
-            required String productId,
-            required String name,
-            required String code,
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              ProductSearchCompanion.insert(
-            productId: productId,
-            name: name,
-            code: code,
-            rowid: rowid,
-          ),
-          withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
-              .toList(),
-          prefetchHooksCallback: null,
-        ));
-}
-
-typedef $ProductSearchProcessedTableManager = ProcessedTableManager<
-    _$AppDatabase,
-    ProductSearch,
-    ProductSearchData,
-    $ProductSearchFilterComposer,
-    $ProductSearchOrderingComposer,
-    $ProductSearchAnnotationComposer,
-    $ProductSearchCreateCompanionBuilder,
-    $ProductSearchUpdateCompanionBuilder,
-    (
-      ProductSearchData,
-      BaseReferences<_$AppDatabase, ProductSearch, ProductSearchData>
-    ),
-    ProductSearchData,
-    PrefetchHooks Function()>;
-
-class $AppDatabaseManager {
-  final _$AppDatabase _db;
-  $AppDatabaseManager(this._db);
+class $ShelfDatabaseManager {
+  final _$ShelfDatabase _db;
+  $ShelfDatabaseManager(this._db);
   $ProductTableManager get product => $ProductTableManager(_db, _db.product);
-  $ProductSearchTableManager get productSearch =>
-      $ProductSearchTableManager(_db, _db.productSearch);
 }
+
+// **************************************************************************
+// RiverpodGenerator
+// **************************************************************************
+
+String _$databaseHash() => r'44d1e3f2fcf3dc92cde9a51d3f7f4b0146cfacfd';
+
+/// See also [database].
+@ProviderFor(database)
+final databaseProvider = AutoDisposeProvider<ShelfDatabase>.internal(
+  database,
+  name: r'databaseProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$databaseHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef DatabaseRef = AutoDisposeProviderRef<ShelfDatabase>;
+// ignore_for_file: type=lint
+// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

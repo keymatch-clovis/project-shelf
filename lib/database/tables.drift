@@ -5,10 +5,3 @@ create table product (
     stock int not null,
     code text
 );
-
-create virtual table product_search using fts5(
-    product_id,
-    name,
-    code,
-    tokenize="trigram case_sensitive 0 remove_diacritics 1"
-);

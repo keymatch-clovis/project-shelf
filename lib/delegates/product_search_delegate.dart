@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:project_shelf/database/database.dart';
 import 'package:project_shelf/models/product.dart';
 
-class ProductSearchDelegate extends SearchDelegate<ProductData?> {
+class ProductSearchDelegate extends SearchDelegate<ProductSearchData?> {
   final ProductModel model;
 
   ProductSearchDelegate({required this.model});
@@ -18,7 +18,7 @@ class ProductSearchDelegate extends SearchDelegate<ProductData?> {
           if (query.isEmpty) {
             close(context, null);
           }
-          query = "";
+          query = '';
         },
       ),
     ];

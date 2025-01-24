@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:project_shelf/database/database.dart';
-import 'package:project_shelf/models/product.dart';
-import 'package:project_shelf/routes/home/home.dart';
-import 'package:project_shelf/screens/create_product.dart';
-import 'package:project_shelf/screens/products.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:project_shelf/helpers/custom_navigation_helper.dart';
 import 'package:project_shelf/state/app.dart';
-import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const RestorationScope(restorationId: 'root', child: ShelfApp()));
-}
+  // Initialize the navigation helper.
+  CustomNavigationHelper.instance;
 
-final _rootNavigatorKey = GlobalKey<NavigatorState>();
-final _shellNavigatorKey = GlobalKey<NavigatorState>();
+  runApp(
+    ProviderScope(
+      child: RestorationScope(
+        restorationId: 'root',
+        child: ShelfApp(),
+      ),
+    ),
+  );
+}
 
 class ShelfApp extends StatefulWidget {
   const ShelfApp({super.key});
@@ -35,74 +37,14 @@ class _ShelfAppState extends State<ShelfApp> with RestorationMixin {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        Provider<AppDatabase>(
-          create: (context) => AppDatabase(),
-          dispose: (context, db) => db.close(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => ProductModel(
-            Provider.of<AppDatabase>(context, listen: false),
-          ),
-        ),
-      ],
-      child: MaterialApp.router(
-        restorationScopeId: 'app',
-        title: 'Project Shelf',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
-        ),
-        routerConfig: GoRouter(
-          navigatorKey: _rootNavigatorKey,
-          restorationScopeId: 'router',
-          initialLocation: '/products',
-          routes: [
-            ShellRoute(
-              navigatorKey: _shellNavigatorKey,
-              pageBuilder: (context, state, child) {
-                return MaterialPage(
-                    restorationId: 'router.shell',
-                    child: Home(
-                      restorationId: 'home',
-                      child: child,
-                      onTap: (index) {
-                        if (index == 0) {
-                          context.go('/products');
-                        }
-                      },
-                    ));
-              },
-              routes: [
-                GoRoute(
-                  path: '/products',
-                  pageBuilder: (context, state) => MaterialPage(
-                    restorationId: 'route.products',
-                    child: ProductsScreen(
-                      restorationId: 'products',
-                      key: state.pageKey,
-                    ),
-                  ),
-                  routes: [
-                    GoRoute(
-                      parentNavigatorKey: _rootNavigatorKey,
-                      path: 'create',
-                      pageBuilder: (context, state) => MaterialPage(
-                        restorationId: 'route.products.create',
-                        child: CreateProductScreen(
-                          restorationId: 'products.create',
-                          key: state.pageKey,
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              ],
-            ),
-          ],
-        ),
+    return MaterialApp.router(
+      restorationScopeId: 'app',
+      title: 'Project Shelf',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
       ),
+      routerConfig: CustomNavigationHelper.router,
     );
   }
 }
@@ -115,7 +57,6 @@ class _RestorableAppState extends RestorableListenable<AppState> {
 
   @override
   AppState fromPrimitives(Object? data) {
-    print("primitives app $data");
     return AppState();
   }
 

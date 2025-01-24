@@ -6,7 +6,6 @@ import 'package:project_shelf/components/text_fields/currency_text_field.dart';
 import 'package:project_shelf/components/text_fields/custom_text_field.dart';
 import 'package:project_shelf/models/product.dart';
 import 'package:project_shelf/utils/text_formatter.dart';
-import 'package:provider/provider.dart';
 
 class CreateProductForm extends StatefulWidget {
   final String? restorationId;
@@ -84,8 +83,6 @@ class _CreateProductFormState extends State<CreateProductForm>
               textInputAction: TextInputAction.next,
               initialValue: _value.value,
               onChanged: (value) => _value.value = value,
-              validator: (value) =>
-                  EzValidator<String>().number().isInt().min(0).build()(value),
             ),
             CustomTextField(
               hintText: 'Cantidad',

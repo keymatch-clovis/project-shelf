@@ -11,9 +11,3 @@ targets:
           # don't need this functionality, enabling this flag can help to reduce
           # the amount generated code.
           skip_verification_code: true
-
-          sql:
-            dialect: sqlite
-            options:
-              modules:
-                - fts5
