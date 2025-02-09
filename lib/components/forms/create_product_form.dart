@@ -1,109 +1,70 @@
-import 'package:ez_validator/ez_validator.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:project_shelf/components/text_fields/currency_text_field.dart';
 import 'package:project_shelf/components/text_fields/custom_text_field.dart';
-import 'package:project_shelf/models/product.dart';
+import 'package:project_shelf/providers/create_product_form.dart';
 import 'package:project_shelf/utils/text_formatter.dart';
 
-class CreateProductForm extends StatefulWidget {
+class CreateProductForm extends ConsumerWidget {
   final String? restorationId;
+  final void Function(Map<String, String?>) onSubmit;
 
-  const CreateProductForm({this.restorationId, super.key});
-
-  @override
-  State<CreateProductForm> createState() => _CreateProductFormState();
-}
-
-// Define the widget.
-class _CreateProductFormState extends State<CreateProductForm>
-    with RestorationMixin {
-  // Create a global key that uniquely identifies the Form widget
-  // and allows validation of the form.
-  final _formKey = GlobalKey<FormState>();
-
-  final RestorableString _name = RestorableString('');
-  final RestorableString _value = RestorableString('');
-  final RestorableString _stock = RestorableString('');
-  final RestorableString _code = RestorableString('');
-
-  submit() async {
-    // This should always be true!
-    if (context.mounted) {
-      if (_formKey.currentState!.validate()) {
-        await context.read<ProductModel>().add(
-              name: _name.value,
-              value: int.parse(_value.value),
-              stock: int.parse(_stock.value),
-              code: _code.value,
-            );
-
-        if (!mounted) return;
-        context.go('/products');
-      }
-    }
-  }
+  const CreateProductForm({
+    required this.onSubmit,
+    this.restorationId,
+    super.key,
+  });
 
   @override
-  String? get restorationId => widget.restorationId;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final value = ref.watch(
+      createProductFormProvider.select((form) => form["value"]!.value),
+    );
 
-  @override
-  void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
-    // All restorable properties MUST be register here with the mixin.
-    registerForRestoration(_name, 'name');
-    registerForRestoration(_value, 'value');
-    registerForRestoration(_stock, 'stock');
-    registerForRestoration(_code, 'code');
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Form(
-      key: _formKey,
       child: Container(
         margin: const EdgeInsets.all(20),
         child: Column(
           children: [
             CustomTextField(
-              hintText: 'Nombre',
+              labelText: 'Nombre',
               keyboardType: TextInputType.text,
               inputFormatters: [UpperCaseTextFormatter()],
               textCapitalization: TextCapitalization.characters,
               textInputAction: TextInputAction.next,
-              initialValue: _name.value,
-              onChanged: (value) => _name.value = value,
-              validator: (value) =>
-                  EzValidator<String>().required().build()(value),
+              onFocusChange: (hasFocus) {
+                if (!hasFocus) {
+                  ref.read(createProductFormProvider.notifier).validate("name");
+                }
+              },
+              onChanged: (value) => ref
+                  .read(createProductFormProvider.notifier)
+                  .update("name", value),
+              errorText: ref.watch(
+                createProductFormProvider.select((form) => form["name"]!.error),
+              ),
             ),
             CurrencyTextField(
-              hintText: 'Valor',
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              textInputAction: TextInputAction.next,
-              initialValue: _value.value,
-              onChanged: (value) => _value.value = value,
+              labelText: "Valor",
+              onAccept: (realValue) {
+                ref
+                    .read(createProductFormProvider.notifier)
+                    .update("value", realValue);
+              },
             ),
             CustomTextField(
-              hintText: 'Cantidad',
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              initialValue: _stock.value,
-              onChanged: (value) => _stock.value = value,
-              validator: (value) =>
-                  EzValidator<String>().number().isInt().min(0).build()(value),
-            ),
-            CustomTextField(
-              hintText: 'Código',
+              labelText: 'Código',
               keyboardType: TextInputType.text,
               inputFormatters: [UpperCaseTextFormatter()],
               textCapitalization: TextCapitalization.characters,
-              textInputAction: TextInputAction.next,
-              initialValue: _code.value,
-              onChanged: (value) => _code.value = value,
+              onChanged: (value) => ref
+                  .read(createProductFormProvider.notifier)
+                  .update("code", value),
             ),
+            Spacer(),
             ElevatedButton(
-              onPressed: submit,
+              onPressed: null,
               child: const Text('CREAR PRODUCTO'),
             ),
           ],

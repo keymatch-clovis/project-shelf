@@ -1,73 +1,80 @@
-import 'package:ez_validator/ez_validator.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
+import 'package:project_shelf/lib/cop_currency.dart';
+import 'package:project_shelf/widgets/numpad.dart';
 
 class CurrencyTextField extends StatefulWidget {
-  final String hintText;
-  final Function(String) onChanged;
-  final TextCapitalization textCapitalization;
+  final String labelText;
+  final dynamic Function(String) onAccept;
 
-  final String? initialValue;
-  final TextInputType? keyboardType;
-  final List<TextInputFormatter>? inputFormatters;
-  final TextInputAction? textInputAction;
+  final TextEditingController controller;
 
-  const CurrencyTextField({
+  CurrencyTextField({
     super.key,
-    required this.hintText,
-    required this.onChanged,
-    this.textCapitalization = TextCapitalization.none,
-    this.initialValue,
-    this.keyboardType,
-    this.inputFormatters,
-    this.textInputAction,
-  });
+    required this.labelText,
+    required this.onAccept,
+  }) : controller = TextEditingController.fromValue(TextEditingValue(text: ""));
 
   @override
   State<CurrencyTextField> createState() => _CurrencyTextFieldState();
 }
 
 class _CurrencyTextFieldState extends State<CurrencyTextField> {
-  NumberFormat formatter = NumberFormat.currency(locale: 'es_CO', name: 'COP');
-  String formattedValue = '';
+  String amount = "";
 
-  onChanged(String value) {
-    var intValue = value.isEmpty ? 0 : int.parse(value);
-
-    // Update the currency visualization.
-    setState(() {
-      formattedValue = formatter.format(intValue);
-    });
-
-    // NOTE: This is very important! Here we are converting from pesos to cents.
-    // This is to store correctly the money value.
-    intValue *= 100;
-
-    widget.onChanged(intValue.toString());
+  onTap(BuildContext context) {
+    showModalBottomSheet(
+      enableDrag: false,
+      context: context,
+      builder: (BuildContext _) => StatefulBuilder(
+        builder: (context, setState) => Column(
+          children: [
+            SizedBox(height: 16),
+            Text(
+              "Añadir Valor",
+              style: TextStyle(
+                color: Theme.of(context).hintColor,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+            Text(amount),
+            Numpad(onValue: (value) {
+              setState(() {
+                amount = CopCurrency(value).formattedValue;
+              });
+            }),
+            ElevatedButton(
+              onPressed: () {
+                widget.controller.text = amount;
+                Navigator.pop(context);
+              },
+              child: Text("ACEPTAR"),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        TextFormField(
-          decoration: InputDecoration(
-            icon: Icon(Icons.attach_money_rounded),
-            hintText: widget.hintText,
-          ),
-          onChanged: onChanged,
-          textCapitalization: widget.textCapitalization,
-          initialValue: widget.initialValue,
-          keyboardType: widget.keyboardType,
-          inputFormatters: widget.inputFormatters,
-          validator: (value) =>
-              EzValidator<String>().number().isInt().min(0).build()(value),
-          textInputAction: widget.textInputAction,
+  build(BuildContext context) {
+    return Focus(
+      // When the text field gains focus, open the modal.
+      onFocusChange: (hasFocus) {
+        if (hasFocus) {
+          onTap(context);
+        }
+      },
+      child: TextFormField(
+        canRequestFocus: false,
+        readOnly: true,
+        controller: widget.controller,
+        onTap: () => onTap(context),
+        decoration: InputDecoration(
+          labelText: widget.labelText,
+          hintText: widget.labelText,
         ),
-        Text('Valor real: $formattedValue'),
-      ],
+      ),
     );
   }
 }

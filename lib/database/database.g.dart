@@ -8,12 +8,11 @@ class Product extends Table with TableInfo<Product, ProductData> {
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   Product(this.attachedDatabase, [this._alias]);
-  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
       'id', aliasedName, false,
-      hasAutoIncrement: true,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      $customConstraints: 'NOT NULL PRIMARY KEY AUTOINCREMENT');
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL PRIMARY KEY');
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
       'name', aliasedName, false,
       type: DriftSqlType.string,
@@ -48,7 +47,7 @@ class Product extends Table with TableInfo<Product, ProductData> {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return ProductData(
       id: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       name: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
       value: attachedDatabase.typeMapping
@@ -70,7 +69,7 @@ class Product extends Table with TableInfo<Product, ProductData> {
 }
 
 class ProductData extends DataClass implements Insertable<ProductData> {
-  final int id;
+  final String id;
   final String name;
   final int value;
   final int stock;
@@ -84,7 +83,7 @@ class ProductData extends DataClass implements Insertable<ProductData> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['id'] = Variable<int>(id);
+    map['id'] = Variable<String>(id);
     map['name'] = Variable<String>(name);
     map['value'] = Variable<int>(value);
     map['stock'] = Variable<int>(stock);
@@ -108,7 +107,7 @@ class ProductData extends DataClass implements Insertable<ProductData> {
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return ProductData(
-      id: serializer.fromJson<int>(json['id']),
+      id: serializer.fromJson<String>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       value: serializer.fromJson<int>(json['value']),
       stock: serializer.fromJson<int>(json['stock']),
@@ -119,7 +118,7 @@ class ProductData extends DataClass implements Insertable<ProductData> {
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
+      'id': serializer.toJson<String>(id),
       'name': serializer.toJson<String>(name),
       'value': serializer.toJson<int>(value),
       'stock': serializer.toJson<int>(stock),
@@ -128,7 +127,7 @@ class ProductData extends DataClass implements Insertable<ProductData> {
   }
 
   ProductData copyWith(
-          {int? id,
+          {String? id,
           String? name,
           int? value,
           int? stock,
@@ -176,33 +175,38 @@ class ProductData extends DataClass implements Insertable<ProductData> {
 }
 
 class ProductCompanion extends UpdateCompanion<ProductData> {
-  final Value<int> id;
+  final Value<String> id;
   final Value<String> name;
   final Value<int> value;
   final Value<int> stock;
   final Value<String?> code;
+  final Value<int> rowid;
   const ProductCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.value = const Value.absent(),
     this.stock = const Value.absent(),
     this.code = const Value.absent(),
+    this.rowid = const Value.absent(),
   });
   ProductCompanion.insert({
-    this.id = const Value.absent(),
+    required String id,
     required String name,
     required int value,
     required int stock,
     this.code = const Value.absent(),
-  })  : name = Value(name),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        name = Value(name),
         value = Value(value),
         stock = Value(stock);
   static Insertable<ProductData> custom({
-    Expression<int>? id,
+    Expression<String>? id,
     Expression<String>? name,
     Expression<int>? value,
     Expression<int>? stock,
     Expression<String>? code,
+    Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -210,21 +214,24 @@ class ProductCompanion extends UpdateCompanion<ProductData> {
       if (value != null) 'value': value,
       if (stock != null) 'stock': stock,
       if (code != null) 'code': code,
+      if (rowid != null) 'rowid': rowid,
     });
   }
 
   ProductCompanion copyWith(
-      {Value<int>? id,
+      {Value<String>? id,
       Value<String>? name,
       Value<int>? value,
       Value<int>? stock,
-      Value<String?>? code}) {
+      Value<String?>? code,
+      Value<int>? rowid}) {
     return ProductCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
       value: value ?? this.value,
       stock: stock ?? this.stock,
       code: code ?? this.code,
+      rowid: rowid ?? this.rowid,
     );
   }
 
@@ -232,7 +239,7 @@ class ProductCompanion extends UpdateCompanion<ProductData> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     if (id.present) {
-      map['id'] = Variable<int>(id.value);
+      map['id'] = Variable<String>(id.value);
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
@@ -246,6 +253,9 @@ class ProductCompanion extends UpdateCompanion<ProductData> {
     if (code.present) {
       map['code'] = Variable<String>(code.value);
     }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
     return map;
   }
 
@@ -256,7 +266,8 @@ class ProductCompanion extends UpdateCompanion<ProductData> {
           ..write('name: $name, ')
           ..write('value: $value, ')
           ..write('stock: $stock, ')
-          ..write('code: $code')
+          ..write('code: $code, ')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
@@ -274,18 +285,20 @@ abstract class _$ShelfDatabase extends GeneratedDatabase {
 }
 
 typedef $ProductCreateCompanionBuilder = ProductCompanion Function({
-  Value<int> id,
+  required String id,
   required String name,
   required int value,
   required int stock,
   Value<String?> code,
+  Value<int> rowid,
 });
 typedef $ProductUpdateCompanionBuilder = ProductCompanion Function({
-  Value<int> id,
+  Value<String> id,
   Value<String> name,
   Value<int> value,
   Value<int> stock,
   Value<String?> code,
+  Value<int> rowid,
 });
 
 class $ProductFilterComposer extends Composer<_$ShelfDatabase, Product> {
@@ -296,7 +309,7 @@ class $ProductFilterComposer extends Composer<_$ShelfDatabase, Product> {
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<int> get id => $composableBuilder(
+  ColumnFilters<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get name => $composableBuilder(
@@ -320,7 +333,7 @@ class $ProductOrderingComposer extends Composer<_$ShelfDatabase, Product> {
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<int> get id => $composableBuilder(
+  ColumnOrderings<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get name => $composableBuilder(
@@ -344,7 +357,7 @@ class $ProductAnnotationComposer extends Composer<_$ShelfDatabase, Product> {
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get id =>
+  GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
   GeneratedColumn<String> get name =>
@@ -383,11 +396,12 @@ class $ProductTableManager extends RootTableManager<
           createComputedFieldComposer: () =>
               $ProductAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
-            Value<int> id = const Value.absent(),
+            Value<String> id = const Value.absent(),
             Value<String> name = const Value.absent(),
             Value<int> value = const Value.absent(),
             Value<int> stock = const Value.absent(),
             Value<String?> code = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
           }) =>
               ProductCompanion(
             id: id,
@@ -395,13 +409,15 @@ class $ProductTableManager extends RootTableManager<
             value: value,
             stock: stock,
             code: code,
+            rowid: rowid,
           ),
           createCompanionCallback: ({
-            Value<int> id = const Value.absent(),
+            required String id,
             required String name,
             required int value,
             required int stock,
             Value<String?> code = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
           }) =>
               ProductCompanion.insert(
             id: id,
@@ -409,6 +425,7 @@ class $ProductTableManager extends RootTableManager<
             value: value,
             stock: stock,
             code: code,
+            rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

@@ -4,19 +4,28 @@ import 'package:project_shelf/database/database.dart';
 
 class ProductList extends StatelessWidget {
   final List<ProductData> list;
+  final void Function(String id) onTapProduct;
 
-  const ProductList({required this.list, super.key});
+  const ProductList({
+    required this.list,
+    required this.onTapProduct,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: list.length,
-      prototypeItem: ListTile(title: _ListItem(list[0])),
-      itemBuilder: (context, index) => ListTile(
-        title: _ListItem(list[index]),
-        onTap: () => debugPrint(index.toString()),
-      ),
-    );
+    if (list.isNotEmpty) {
+      return ListView.builder(
+        itemCount: list.length,
+        prototypeItem: ListTile(title: _ListItem(list[0])),
+        itemBuilder: (context, index) => ListTile(
+          title: _ListItem(list[index]),
+          onTap: () => onTapProduct(list[index].id),
+        ),
+      );
+    }
+
+    return const Text('sin productos boludo');
   }
 }
 
@@ -34,7 +43,7 @@ class _ListItem extends StatelessWidget {
         children: [
           Text(data.name),
           Text(
-            NumberFormat.currency(name: 'COP').format(data.value),
+            NumberFormat.currency(symbol: '\$').format(data.value),
             style: TextStyle(fontSize: 12),
           ),
         ],

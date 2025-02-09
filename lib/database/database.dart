@@ -3,10 +3,9 @@ import 'package:drift_flutter/drift_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:uuid/uuid.dart';
 
 part 'database.g.dart';
-
-const maxPageSize = 100;
 
 @DriftDatabase(
   include: {'tables.drift'},
@@ -30,16 +29,26 @@ class ShelfDatabase extends _$ShelfDatabase {
   }
 
   Future<List<ProductData>> getProducts({int page = 0}) {
-    return (select(product)
-          ..orderBy([(p) => OrderingTerm(expression: p.rowId)])
-          ..limit(maxPageSize, offset: page * maxPageSize))
-        .get();
+    debugPrint('getting products...');
+    return select(product).get();
   }
 
-  Future<int> addProduct(ProductCompanion entry) async {
+  Future<ProductData> getProduct(String id) {
+    return (select(product)..where((p) => p.id.equals(id))).getSingle();
+  }
+
+  Future<int> addProduct(Map<String, String?> data) async {
     // Insert the product into the table.
-    var id = await into(product).insert(entry);
-    debugPrint('product just added $entry');
+    var id = await into(product).insert(
+      ProductCompanion.insert(
+        id: Uuid().v4(),
+        name: data['name']!,
+        value: int.parse(data['value']!),
+        stock: int.parse(data['stock']!),
+        code: Value.absentIfNull(data['code']),
+      ),
+    );
+    debugPrint('product just added $data');
 
     return id;
   }

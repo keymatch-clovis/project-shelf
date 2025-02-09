@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
+// import 'package:flutter/rendering.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:project_shelf/helpers/custom_navigation_helper.dart';
-import 'package:project_shelf/state/app.dart';
+import 'package:project_shelf/navigation/app_navigation.dart';
 
 void main() {
-  // Initialize the navigation helper.
-  CustomNavigationHelper.instance;
+  // debugPaintSizeEnabled = true;
 
   runApp(
     ProviderScope(
       child: RestorationScope(
-        restorationId: 'root',
+        restorationId: 'main',
         child: ShelfApp(),
       ),
     ),
@@ -24,17 +24,7 @@ class ShelfApp extends StatefulWidget {
   State<StatefulWidget> createState() => _ShelfAppState();
 }
 
-class _ShelfAppState extends State<ShelfApp> with RestorationMixin {
-  final _RestorableAppState _appState = _RestorableAppState();
-
-  @override
-  String? get restorationId => 'wrapper';
-
-  @override
-  void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
-    registerForRestoration(_appState, 'state');
-  }
-
+class _ShelfAppState extends State<ShelfApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
@@ -44,24 +34,7 @@ class _ShelfAppState extends State<ShelfApp> with RestorationMixin {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      routerConfig: CustomNavigationHelper.router,
+      routerConfig: AppNavigation.router,
     );
-  }
-}
-
-class _RestorableAppState extends RestorableListenable<AppState> {
-  @override
-  AppState createDefaultValue() {
-    return AppState();
-  }
-
-  @override
-  AppState fromPrimitives(Object? data) {
-    return AppState();
-  }
-
-  @override
-  Object? toPrimitives() {
-    return value;
   }
 }

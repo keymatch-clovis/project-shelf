@@ -1,5 +1,5 @@
 create table product (
-    id int not null primary key autoincrement,
+    id text not null primary key,
     name text not null,
     value int not null,
     stock int not null,

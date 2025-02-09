@@ -2,30 +2,34 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:project_shelf/components/lists/product_list.dart';
-import 'package:project_shelf/database/database.dart';
-import 'package:project_shelf/delegates/product_search_delegate.dart';
-import 'package:project_shelf/models/product.dart';
+import 'package:project_shelf/providers/products.dart';
 
-class ProductsScreen extends ConsumerWidget {
+class ProductsView extends ConsumerWidget {
   final String? restorationId;
 
-  const ProductsScreen({this.restorationId, super.key});
+  const ProductsView({this.restorationId, super.key});
+
+  Widget renderProductList(BuildContext context, WidgetRef ref) {
+    final asyncList = ref.watch(productsProvider);
+
+    return switch (asyncList) {
+      AsyncData(value: final list) => ProductList(
+          list: list,
+          onTapProduct: (id) => context.go('/products/product/$id'),
+        ),
+      _ => Center(child: const CircularProgressIndicator.adaptive()),
+    };
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final model = ref.watch(productModelProvider);
-
     return Scaffold(
       restorationId: restorationId,
       appBar: AppBar(
         centerTitle: true,
         title: const Text('Productos'),
       ),
-      body: TabBarView(
-        children: [
-          ProductList(),
-        ],
-      ),
+      body: SizedBox.expand(child: renderProductList(context, ref)),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
@@ -35,15 +39,6 @@ class ProductsScreen extends ConsumerWidget {
           ),
           SizedBox.square(
             dimension: 10,
-          ),
-          FloatingActionButton(
-            onPressed: () async => await showSearch<ProductData?>(
-              context: context,
-              delegate: ProductSearchDelegate(
-                model: context.read<ProductModel>(),
-              ),
-            ),
-            child: Icon(Icons.search_rounded),
           ),
         ],
       ),

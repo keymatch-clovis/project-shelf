@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:project_shelf/database/database.dart';
-import 'package:project_shelf/models/product.dart';
+import 'package:project_shelf/providers/products.dart';
 
 class ProductSearchDelegate extends SearchDelegate<ProductSearchData?> {
   final ProductModel model;
