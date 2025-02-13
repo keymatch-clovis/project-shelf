@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:project_shelf/database/database.dart';
 
-class ProductView extends ConsumerWidget {
+class ClientView extends ConsumerWidget {
   final String id;
 
-  const ProductView({required this.id, super.key});
+  const ClientView({required this.id, super.key});
 
-  Widget renderProduct(BuildContext context, WidgetRef ref) {
-    final asyncProduct = ref.watch(databaseProvider).getProduct(id);
-    return switch (asyncProduct) {
+  Widget renderClient(BuildContext context, WidgetRef ref) {
+    final asyncClient = ref.watch(databaseProvider).getProduct(id);
+    return switch (asyncClient) {
       AsyncData(:final value) => Text(value.id),
       _ => Center(child: const CircularProgressIndicator.adaptive())
     };
@@ -20,7 +20,7 @@ class ProductView extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(centerTitle: true, title: const Text('aoeu')),
       body: SizedBox.expand(
-        child: renderProduct(context, ref),
+        child: renderClient(context, ref),
       ),
     );
   }

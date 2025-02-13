@@ -5,3 +5,31 @@ create table product (
     stock int not null,
     code text
 );
+
+create table client (
+    id text not null primary key,
+    name text not null,
+    document text not null
+);
+
+create table invoice (
+    id text not null primary key,
+    number int not null autoincrement,
+    date text not null
+);
+
+create table product_invoice (
+    product_id text not null,
+    invoice_id text not null,
+    value int not null,
+    count int not null,
+    foreign key (product_id) references product(id),
+    foreign key (invoice_id) references invoice(id)
+);
+
+create table client_invoice (
+    client_id text not null,
+    invoice_id text not null,
+    foreign key (client_id) references client(id),
+    foreign key (invoice_id) references invoice(id)
+);

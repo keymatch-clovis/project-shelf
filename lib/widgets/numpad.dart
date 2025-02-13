@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:math_expressions/math_expressions.dart';
 
+const BUTTON_SIZE = 70.0;
+
 class Numpad extends StatefulWidget {
   final bool canUseDecimals;
   final void Function(double) onValue;
@@ -78,66 +80,67 @@ class _NumpadState extends State<Numpad> {
   Widget build(BuildContext context) {
     Widget firstRow = Row(
       children: [
-        TextButton(
+        NumpadButton(
           onPressed: () => _add("1"),
-          child: const FaIcon(FontAwesomeIcons.one),
+          icon: FontAwesomeIcons.one,
         ),
-        TextButton(
+        NumpadButton(
           onPressed: () => _add("2"),
-          child: const FaIcon(FontAwesomeIcons.two),
+          icon: FontAwesomeIcons.two,
         ),
-        TextButton(
+        NumpadButton(
           onPressed: () => _add("3"),
-          child: const FaIcon(FontAwesomeIcons.three),
+          icon: FontAwesomeIcons.three,
         ),
       ],
     );
     Widget secondRow = Row(
       children: [
-        TextButton(
+        NumpadButton(
           onPressed: () => _add("4"),
-          child: const FaIcon(FontAwesomeIcons.four),
+          icon: FontAwesomeIcons.four,
         ),
-        TextButton(
+        NumpadButton(
           onPressed: () => _add("5"),
-          child: const FaIcon(FontAwesomeIcons.five),
+          icon: FontAwesomeIcons.five,
         ),
-        TextButton(
+        NumpadButton(
           onPressed: () => _add("6"),
-          child: const FaIcon(FontAwesomeIcons.six),
+          icon: FontAwesomeIcons.six,
         ),
       ],
     );
     Widget thirdRow = Row(
       children: [
-        TextButton(
+        NumpadButton(
           onPressed: () => _add("7"),
-          child: const FaIcon(FontAwesomeIcons.seven),
+          icon: FontAwesomeIcons.seven,
         ),
-        TextButton(
+        NumpadButton(
           onPressed: () => _add("8"),
-          child: const FaIcon(FontAwesomeIcons.eight),
+          icon: FontAwesomeIcons.eight,
         ),
-        TextButton(
+        NumpadButton(
           onPressed: () => _add("9"),
-          child: const FaIcon(FontAwesomeIcons.nine),
+          icon: FontAwesomeIcons.nine,
         ),
       ],
     );
     Widget lastRow = Row(
       children: [
-        TextButton(
+        NumpadButton(
           onPressed: widget.canUseDecimals ? () => _add(".") : null,
-          child: const FaIcon(size: 6, FontAwesomeIcons.solidCircle),
+          icon: FontAwesomeIcons.solidCircle,
+          iconSize: BUTTON_SIZE / 6,
         ),
-        TextButton(
+        NumpadButton(
           onPressed: () => _add("0"),
-          child: const FaIcon(FontAwesomeIcons.zero),
+          icon: FontAwesomeIcons.zero,
         ),
-        TextButton(
+        NumpadButton(
           onPressed: () => _remove(),
           onLongPress: () => _removeAll(),
-          child: const FaIcon(FontAwesomeIcons.deleteLeft),
+          icon: FontAwesomeIcons.deleteLeft,
         ),
       ],
     );
@@ -146,33 +149,33 @@ class _NumpadState extends State<Numpad> {
       children: [
         Row(
           children: [
-            TextButton(
+            NumpadButton(
               onPressed: () => _add("÷"),
-              child: const FaIcon(FontAwesomeIcons.divide),
+              icon: FontAwesomeIcons.divide,
             ),
           ],
         ),
         Row(
           children: [
-            TextButton(
+            NumpadButton(
               onPressed: () => _add("×"),
-              child: const FaIcon(FontAwesomeIcons.xmark),
+              icon: FontAwesomeIcons.xmark,
             ),
           ],
         ),
         Row(
           children: [
-            TextButton(
+            NumpadButton(
               onPressed: () => _add("-"),
-              child: const FaIcon(FontAwesomeIcons.minus),
+              icon: FontAwesomeIcons.minus,
             ),
           ],
         ),
         Row(
           children: [
-            TextButton(
+            NumpadButton(
               onPressed: () => _add("+"),
-              child: const FaIcon(FontAwesomeIcons.plus),
+              icon: FontAwesomeIcons.plus,
             ),
           ],
         )
@@ -220,6 +223,28 @@ class _NumpadState extends State<Numpad> {
       ],
     );
   }
+}
+
+class NumpadButton extends StatelessWidget {
+  final VoidCallback? onPressed;
+  final VoidCallback? onLongPress;
+  final IconData icon;
+  final double iconSize;
+
+  const NumpadButton({
+    required this.icon,
+    this.onPressed,
+    this.onLongPress,
+    this.iconSize = BUTTON_SIZE / 2,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) => TextButton(
+        style: TextButton.styleFrom(minimumSize: Size.square(BUTTON_SIZE)),
+        onPressed: onPressed,
+        child: FaIcon(size: iconSize, icon),
+      );
 }
 
 String operationsWithSpaces(String input) {

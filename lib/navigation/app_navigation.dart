@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:project_shelf/main_wrapper.dart';
+import 'package:project_shelf/views/client_view.dart';
+import 'package:project_shelf/views/clients_view.dart';
+import 'package:project_shelf/views/create_client_view.dart';
+import 'package:project_shelf/views/invoices_view.dart';
 import 'package:project_shelf/views/create_invoice_view.dart';
 import 'package:project_shelf/views/create_product_view.dart';
-import 'package:project_shelf/views/invoices_view.dart';
 import 'package:project_shelf/views/product_view.dart';
 import 'package:project_shelf/views/products_view.dart';
 
@@ -19,6 +22,8 @@ class AppNavigation {
       GlobalKey<NavigatorState>(debugLabel: 'home-shell');
   static final _invoicesNavigatorKey =
       GlobalKey<NavigatorState>(debugLabel: 'invoices-shell');
+  static final _clientsNavigatorKey =
+    GlobalKey<NavigatorState>(debugLabel: 'clients-shell');
 
   /// Go Router Configuration
   static final GoRouter router = GoRouter(
@@ -66,6 +71,29 @@ class AppNavigation {
                     path: 'create',
                     builder: (context, state) =>
                         CreateInvoiceView(key: state.pageKey),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            navigatorKey: _clientsNavigatorKey,
+            routes: [
+              GoRoute(
+                path: '/clients',
+                builder: (context, state) => ClientsView(key: state.pageKey),
+                routes: [
+                  GoRoute(
+                    path: 'create',
+                    builder: (context, state) =>
+                        CreateClientView(key: state.pageKey),
+                  ),
+                  GoRoute(
+                    path: 'client/:id',
+                    builder: (context, state) => ClientView(
+                      key: state.pageKey,
+                      id: state.pathParameters['id']!,
+                    ),
                   ),
                 ],
               ),

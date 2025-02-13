@@ -28,7 +28,24 @@ class ShelfDatabase extends _$ShelfDatabase {
     );
   }
 
-  Future<List<ProductData>> getProducts({int page = 0}) {
+  Future<List<ClientData>> getClients() {
+    debugPrint('getting clients...');
+    return select(client).get();
+  }
+
+  Future<void> addClient(Map<String, String?> data) async {
+    // Insert the product into the table.
+    await into(client).insert(
+      ClientCompanion.insert(
+        id: Uuid().v4(),
+        name: data['name']!,
+        document: data['document']!,
+      ),
+    );
+    debugPrint('client just added $data');
+  }
+
+  Future<List<ProductData>> getProducts() {
     debugPrint('getting products...');
     return select(product).get();
   }
@@ -37,20 +54,28 @@ class ShelfDatabase extends _$ShelfDatabase {
     return (select(product)..where((p) => p.id.equals(id))).getSingle();
   }
 
-  Future<int> addProduct(Map<String, String?> data) async {
+  Future<void> addInvoice(String uuid) async {
+    await into(invoice).insert(
+      InvoiceCompanion.insert(id: uuid, date: DateTime.now().toIso8601String()),
+    );
+  }
+
+  Future<void> removeInvoice(String id) async {
+    await (delete(invoice)..where((i) => i.id.equals(id))).go();
+  }
+
+  Future<void> addProduct(Map<String, String?> data) async {
     // Insert the product into the table.
-    var id = await into(product).insert(
+    await into(product).insert(
       ProductCompanion.insert(
         id: Uuid().v4(),
         name: data['name']!,
-        value: int.parse(data['value']!),
-        stock: int.parse(data['stock']!),
-        code: Value.absentIfNull(data['code']),
+        value: data['value']!.isEmpty ? 0 : int.parse(data['value']!),
+        stock: data['stock']!.isEmpty ? 0 : int.parse(data['stock']!),
+        code: data['code']!.isEmpty ? Value.absent() : Value(data['code']!),
       ),
     );
     debugPrint('product just added $data');
-
-    return id;
   }
 }
 

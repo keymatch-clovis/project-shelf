@@ -39,11 +39,17 @@ class _MainWrapperState extends State<MainWrapper> {
           },
           destinations: [
             NavigationDestination(
-                icon: FaIcon(FontAwesomeIcons.boxesStacked), label: 'Productos'),
+              icon: FaIcon(FontAwesomeIcons.boxesStacked),
+              label: 'Productos',
+            ),
             NavigationDestination(
-                icon: FaIcon(FontAwesomeIcons.receipt), label: 'Facturas'),
+              icon: FaIcon(FontAwesomeIcons.receipt),
+              label: 'Facturas',
+            ),
             NavigationDestination(
-                icon: FaIcon(FontAwesomeIcons.peopleGroup), label: 'Clientes'),
+              icon: FaIcon(FontAwesomeIcons.peopleGroup),
+              label: 'Clientes',
+            ),
           ],
         ),
       ),

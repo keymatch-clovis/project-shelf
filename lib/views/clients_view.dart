@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:project_shelf/components/lists/product_list.dart';
-import 'package:project_shelf/providers/products.dart';
+import 'package:project_shelf/components/lists/client_list.dart';
+import 'package:project_shelf/providers/clients.dart';
 
-class ProductsView extends ConsumerWidget {
+class ClientsView extends ConsumerWidget {
   final String? restorationId;
 
-  const ProductsView({this.restorationId, super.key});
+  const ClientsView({this.restorationId, super.key});
 
-  Widget renderProductList(BuildContext context, WidgetRef ref) {
-    final asyncList = ref.watch(productsProvider);
+  Widget renderClientList(BuildContext context, WidgetRef ref) {
+    final asyncList = ref.watch(clientsProvider);
 
     return switch (asyncList) {
-      AsyncData(value: final list) => ProductList(
+      AsyncData(value: final list) => ClientList(
           list: list,
-          onTap: (id) => context.go('/products/product/$id'),
+          onTap: (id) => context.go('/clients/client/$id'),
         ),
       _ => Center(child: const CircularProgressIndicator.adaptive()),
     };
@@ -27,14 +27,14 @@ class ProductsView extends ConsumerWidget {
       restorationId: restorationId,
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Productos'),
+        title: const Text('Clientes'),
       ),
-      body: SizedBox.expand(child: renderProductList(context, ref)),
+      body: SizedBox.expand(child: renderClientList(context, ref)),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           FloatingActionButton(
-            onPressed: () => context.go('/products/create'),
+            onPressed: () => context.go('/clients/create'),
             child: Icon(Icons.add),
           ),
           SizedBox.square(

@@ -12,6 +12,8 @@ class CustomTextField extends StatelessWidget {
   final List<TextInputFormatter>? inputFormatters;
   final TextInputAction? textInputAction;
   final Function(bool)? onFocusChange;
+  final bool? readOnly;
+  final Widget? icon;
 
   const CustomTextField({
     super.key,
@@ -24,6 +26,8 @@ class CustomTextField extends StatelessWidget {
     this.inputFormatters,
     this.textInputAction,
     this.onFocusChange,
+    this.readOnly = false,
+    this.icon,
   });
 
   @override
@@ -32,10 +36,12 @@ class CustomTextField extends StatelessWidget {
       onFocusChange: onFocusChange,
       child: TextFormField(
         decoration: InputDecoration(
+          icon: icon,
           labelText: labelText,
           hintText: labelText,
           errorText: errorText,
         ),
+        readOnly: readOnly ?? false,
         onChanged: onChanged,
         textCapitalization: textCapitalization,
         initialValue: initialValue,

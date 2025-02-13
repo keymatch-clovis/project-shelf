@@ -4,25 +4,31 @@ import 'package:project_shelf/widgets/numpad.dart';
 
 class CurrencyTextField extends StatefulWidget {
   final String labelText;
-  final dynamic Function(String) onAccept;
+  final dynamic Function(int) onAccept;
 
-  final TextEditingController controller;
+  final String? errorText;
+  final Function(bool)? onFocusChange;
 
-  CurrencyTextField({
+  const CurrencyTextField({
     super.key,
     required this.labelText,
     required this.onAccept,
-  }) : controller = TextEditingController.fromValue(TextEditingValue(text: ""));
+    this.errorText,
+    this.onFocusChange,
+  });
 
   @override
   State<CurrencyTextField> createState() => _CurrencyTextFieldState();
 }
 
 class _CurrencyTextFieldState extends State<CurrencyTextField> {
-  String amount = "";
+  CopCurrency currency = CopCurrency(0);
+  TextEditingController controller =
+      TextEditingController.fromValue(TextEditingValue(text: ""));
 
-  onTap(BuildContext context) {
-    showModalBottomSheet(
+  onTap(BuildContext context) async {
+    widget.onFocusChange!(true);
+    await showModalBottomSheet(
       enableDrag: false,
       context: context,
       builder: (BuildContext _) => StatefulBuilder(
@@ -37,15 +43,16 @@ class _CurrencyTextFieldState extends State<CurrencyTextField> {
                 fontSize: 16,
               ),
             ),
-            Text(amount),
+            Text(currency.formattedValue),
             Numpad(onValue: (value) {
               setState(() {
-                amount = CopCurrency(value).formattedValue;
+                currency = CopCurrency(value);
               });
             }),
             ElevatedButton(
               onPressed: () {
-                widget.controller.text = amount;
+                widget.onAccept(currency.realValue);
+                controller.text = currency.formattedValue;
                 Navigator.pop(context);
               },
               child: Text("ACEPTAR"),
@@ -54,25 +61,22 @@ class _CurrencyTextFieldState extends State<CurrencyTextField> {
         ),
       ),
     );
+    widget.onFocusChange!(false);
   }
 
   @override
   build(BuildContext context) {
     return Focus(
-      // When the text field gains focus, open the modal.
-      onFocusChange: (hasFocus) {
-        if (hasFocus) {
-          onTap(context);
-        }
-      },
+      onFocusChange: widget.onFocusChange,
       child: TextFormField(
         canRequestFocus: false,
         readOnly: true,
-        controller: widget.controller,
+        controller: controller,
         onTap: () => onTap(context),
         decoration: InputDecoration(
           labelText: widget.labelText,
           hintText: widget.labelText,
+          errorText: widget.errorText,
         ),
       ),
     );

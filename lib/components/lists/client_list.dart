@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:project_shelf/database/database.dart';
 
-class ProductList extends StatelessWidget {
-  final List<ProductData> list;
+class ClientList extends StatelessWidget {
+  final List<ClientData> list;
   final void Function(String id) onTap;
 
-  const ProductList({
+  const ClientList({
     required this.list,
     required this.onTap,
     super.key,
@@ -30,7 +29,7 @@ class ProductList extends StatelessWidget {
 }
 
 class _ListItem extends StatelessWidget {
-  final ProductData data;
+  final ClientData data;
 
   const _ListItem(this.data);
 
@@ -42,10 +41,6 @@ class _ListItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(data.name),
-          Text(
-            NumberFormat.currency(symbol: '\$').format(data.value),
-            style: TextStyle(fontSize: 12),
-          ),
         ],
       ),
     );

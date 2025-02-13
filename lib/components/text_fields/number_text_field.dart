@@ -1,61 +1,84 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:project_shelf/widgets/currency_numpad.dart';
+import 'package:project_shelf/widgets/numpad.dart';
 
-class NumberTextField extends HookWidget {
+class NumberTextField extends StatefulWidget {
   final String labelText;
-  final dynamic Function(String) onAccept;
-  final String value;
+  final dynamic Function(int) onAccept;
 
-  final TextEditingController controller;
+  final String? errorText;
+  final Function(bool)? onFocusChange;
 
-  NumberTextField({
+  const NumberTextField({
     super.key,
     required this.labelText,
     required this.onAccept,
-    required this.value,
-  }) : controller = TextEditingController.fromValue(TextEditingValue(text: ""));
+    this.errorText,
+    this.onFocusChange,
+  });
+
+  @override
+  State<NumberTextField> createState() => _NumberTextFieldState();
+}
+
+class _NumberTextFieldState extends State<NumberTextField> {
+  int amount = 0;
+  TextEditingController controller =
+      TextEditingController.fromValue(TextEditingValue(text: ""));
 
   onTap(BuildContext context) async {
+    widget.onFocusChange!(true);
     await showModalBottomSheet(
       enableDrag: false,
       context: context,
-      builder: (BuildContext context) => Column(
-        children: [
-          SizedBox(height: 16),
-          Text(
-            "Añadir Cantidad",
-            style: TextStyle(
-              color: Theme.of(context).hintColor,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
+      builder: (BuildContext _) => StatefulBuilder(
+        builder: (context, setState) => Column(
+          children: [
+            SizedBox(height: 16),
+            Text(
+              "Añadir Valor",
+              style: TextStyle(
+                color: Theme.of(context).hintColor,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
             ),
-          ),
-          CurrencyNumpad(onAccept: onAccept),
-        ],
+            Text(amount.toString()),
+            Numpad(
+              canUseDecimals: false,
+              onValue: (value) {
+                setState(() {
+                  amount = value.round();
+                });
+              },
+            ),
+            ElevatedButton(
+              onPressed: () {
+                widget.onAccept(amount);
+                controller.text = amount.toString();
+                Navigator.pop(context);
+              },
+              child: Text("ACEPTAR"),
+            ),
+          ],
+        ),
       ),
     );
+    widget.onFocusChange!(false);
   }
 
   @override
   build(BuildContext context) {
-    controller.value = TextEditingValue(text: value.toString());
-
     return Focus(
-      // When the text field gains focus, open the modal.
-      onFocusChange: (hasFocus) {
-        if (hasFocus) {
-          onTap(context);
-        }
-      },
+      onFocusChange: widget.onFocusChange,
       child: TextFormField(
         canRequestFocus: false,
         readOnly: true,
         controller: controller,
         onTap: () => onTap(context),
         decoration: InputDecoration(
-          labelText: labelText,
-          hintText: labelText,
+          labelText: widget.labelText,
+          hintText: widget.labelText,
+          errorText: widget.errorText,
         ),
       ),
     );

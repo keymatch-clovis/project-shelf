@@ -1,29 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:project_shelf/components/text_fields/currency_text_field.dart';
 import 'package:project_shelf/components/text_fields/custom_text_field.dart';
-import 'package:project_shelf/components/text_fields/number_text_field.dart';
 import 'package:project_shelf/lib/custom_form_state.dart';
 import 'package:project_shelf/lib/form_entry.dart';
 import 'package:project_shelf/utils/text_formatter.dart';
 
-class CreateProductForm extends StatefulWidget {
+class CreateClientForm extends StatefulWidget {
   final String? restorationId;
   final void Function(Map<String, FormEntry>) onSubmit;
 
-  const CreateProductForm({
+  const CreateClientForm({
     required this.onSubmit,
     this.restorationId,
     super.key,
   });
 
   @override
-  CreateProductFormState createState() => CreateProductFormState();
+  CreateClientFormState createState() => CreateClientFormState();
 }
 
-class CreateProductFormState extends State<CreateProductForm>
+class CreateClientFormState extends State<CreateClientForm>
     with CustomFormState {
-
   @override
   var formState = {
     "name": FormEntry(
@@ -31,17 +28,11 @@ class CreateProductFormState extends State<CreateProductForm>
         FormBuilderValidators.required(),
       ]),
     ),
-    "value": FormEntry(
+    "document": FormEntry(
       validator: FormBuilderValidators.compose([
-        FormBuilderValidators.min(0, checkNullOrEmpty: false),
+        FormBuilderValidators.required(),
       ]),
     ),
-    "stock": FormEntry(
-      validator: FormBuilderValidators.compose([
-        FormBuilderValidators.min(0, checkNullOrEmpty: false),
-      ]),
-    ),
-    "code": FormEntry(),
   };
 
   @override
@@ -65,32 +56,19 @@ class CreateProductFormState extends State<CreateProductForm>
               onChanged: (value) => update("name", value),
               errorText: formState["name"]!.error,
             ),
-            CurrencyTextField(
-              labelText: "Valor",
-              onAccept: (value) => update("value", value.toString()),
-              onFocusChange: (hasFocus) {
-                if (!hasFocus) {
-                  validate("value");
-                }
-              },
-              errorText: formState["value"]!.error,
-            ),
-            NumberTextField(
-              labelText: "Cantidad",
-              onAccept: (value) => update("stock", value.toString()),
-              onFocusChange: (hasFocus) {
-                if (!hasFocus) {
-                  validate("stock");
-                }
-              },
-              errorText: formState["stock"]!.error,
-            ),
             CustomTextField(
-              labelText: 'Código',
+              labelText: 'Documento',
               keyboardType: TextInputType.text,
               inputFormatters: [UpperCaseTextFormatter()],
               textCapitalization: TextCapitalization.characters,
-              onChanged: (value) => update("code", value),
+              textInputAction: TextInputAction.next,
+              onFocusChange: (hasFocus) {
+                if (!hasFocus) {
+                  validate("document");
+                }
+              },
+              onChanged: (value) => update("document", value),
+              errorText: formState["document"]!.error,
             ),
             Spacer(),
             ElevatedButton(
@@ -99,7 +77,7 @@ class CreateProductFormState extends State<CreateProductForm>
                   widget.onSubmit(formState);
                 }
               },
-              child: const Text('CREAR PRODUCTO'),
+              child: const Text('CREAR CLIENTE'),
             ),
           ],
         ),
