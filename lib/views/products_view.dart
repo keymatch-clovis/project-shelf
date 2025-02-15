@@ -9,27 +9,27 @@ class ProductsView extends ConsumerWidget {
 
   const ProductsView({this.restorationId, super.key});
 
-  Widget renderProductList(BuildContext context, WidgetRef ref) {
-    final asyncList = ref.watch(productsProvider);
-
-    return switch (asyncList) {
-      AsyncData(value: final list) => ProductList(
-          list: list,
-          onTap: (id) => context.go('/products/product/$id'),
-        ),
-      _ => Center(child: const CircularProgressIndicator.adaptive()),
-    };
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    Widget renderProductList() {
+      final asyncList = ref.watch(productsProvider);
+
+      return switch (asyncList) {
+        AsyncData(value: final list) => ProductList(
+            list: list,
+            onTap: (id) => context.go('/products/product/$id'),
+          ),
+        _ => Center(child: const CircularProgressIndicator.adaptive()),
+      };
+    }
+
     return Scaffold(
       restorationId: restorationId,
       appBar: AppBar(
         centerTitle: true,
         title: const Text('Productos'),
       ),
-      body: SizedBox.expand(child: renderProductList(context, ref)),
+      body: SizedBox.expand(child: renderProductList()),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [

@@ -44,7 +44,6 @@ class CreateInvoiceViewState extends ConsumerState<CreateInvoiceView> {
                 labelText: "Número de Factura",
                 icon: FaIcon(FontAwesomeIcons.hashtag),
                 initialValue: "1234",
-                onChanged: (_) {},
                 readOnly: true,
               ),
               Row(

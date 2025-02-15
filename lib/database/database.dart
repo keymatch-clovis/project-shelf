@@ -50,25 +50,18 @@ class ShelfDatabase extends _$ShelfDatabase {
     return select(product).get();
   }
 
-  Future<ProductData> getProduct(String id) {
-    return (select(product)..where((p) => p.id.equals(id))).getSingle();
+  Future<ProductData> getProduct(String id) async {
+    debugPrint("Getting product with id: $id");
+    return await (select(product)..where((p) => p.id.equals(id))).getSingle();
   }
 
-  Future<void> addInvoice(String uuid) async {
-    await into(invoice).insert(
-      InvoiceCompanion.insert(id: uuid, date: DateTime.now().toIso8601String()),
-    );
-  }
+  Future<ProductData> addProduct(Map<String, String> data) async {
+    final id = Uuid().v4();
 
-  Future<void> removeInvoice(String id) async {
-    await (delete(invoice)..where((i) => i.id.equals(id))).go();
-  }
-
-  Future<void> addProduct(Map<String, String?> data) async {
     // Insert the product into the table.
     await into(product).insert(
       ProductCompanion.insert(
-        id: Uuid().v4(),
+        id: id,
         name: data['name']!,
         value: data['value']!.isEmpty ? 0 : int.parse(data['value']!),
         stock: data['stock']!.isEmpty ? 0 : int.parse(data['stock']!),
@@ -76,6 +69,22 @@ class ShelfDatabase extends _$ShelfDatabase {
       ),
     );
     debugPrint('product just added $data');
+
+    return getProduct(id);
+  }
+
+  Future<void> addInvoice(Map<String, String> data) async {
+    await into(invoice).insert(
+      InvoiceCompanion.insert(
+        id: data['uuid']!,
+        number: 1,
+        date: DateTime.now().toIso8601String(),
+      ),
+    );
+  }
+
+  Future<void> removeInvoice(String id) async {
+    await (delete(invoice)..where((i) => i.id.equals(id))).go();
   }
 }
 

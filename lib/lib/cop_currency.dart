@@ -10,6 +10,10 @@ class CopCurrency {
     return formatter.format(realValue / 100);
   }
 
+  static fromCents(int cents) {
+    return CopCurrency(cents / 100.0);
+  }
+
   CopCurrency(this.rawValue)
       : formatter = NumberFormat.currency(symbol: "\$"),
         realValue = (rawValue * 100).round();

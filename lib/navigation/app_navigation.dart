@@ -9,6 +9,7 @@ import 'package:project_shelf/views/create_invoice_view.dart';
 import 'package:project_shelf/views/create_product_view.dart';
 import 'package:project_shelf/views/product_view.dart';
 import 'package:project_shelf/views/products_view.dart';
+import 'package:project_shelf/views/settings_view.dart';
 
 class AppNavigation {
   // Set the default constructor to private.
@@ -18,12 +19,14 @@ class AppNavigation {
 
   /// Private navigator keys
   static final _rootNavigatorKey = GlobalKey<NavigatorState>();
-  static final _homeNavigatorKey =
-      GlobalKey<NavigatorState>(debugLabel: 'home-shell');
+  static final _productsNavigatorKey =
+      GlobalKey<NavigatorState>(debugLabel: 'products-shell');
   static final _invoicesNavigatorKey =
       GlobalKey<NavigatorState>(debugLabel: 'invoices-shell');
   static final _clientsNavigatorKey =
-    GlobalKey<NavigatorState>(debugLabel: 'clients-shell');
+      GlobalKey<NavigatorState>(debugLabel: 'clients-shell');
+  static final _settingsNavigatorKey =
+      GlobalKey<NavigatorState>(debugLabel: 'settings-shell');
 
   /// Go Router Configuration
   static final GoRouter router = GoRouter(
@@ -37,7 +40,7 @@ class AppNavigation {
         ),
         branches: <StatefulShellBranch>[
           StatefulShellBranch(
-            navigatorKey: _homeNavigatorKey,
+            navigatorKey: _productsNavigatorKey,
             routes: [
               GoRoute(
                 path: '/products',
@@ -96,6 +99,15 @@ class AppNavigation {
                     ),
                   ),
                 ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            navigatorKey: _settingsNavigatorKey,
+            routes: [
+              GoRoute(
+                path: '/settings',
+                builder: (context, state) => SettingsView(key: state.pageKey),
               ),
             ],
           ),

@@ -1,32 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:project_shelf/widgets/numpad.dart';
+import 'package:oxidized/oxidized.dart';
 
 class NumberTextField extends StatefulWidget {
   final String labelText;
-  final dynamic Function(int) onAccept;
+  final int initialValue;
+  final bool readOnly;
+  final bool showEditButton;
 
-  final String? errorText;
-  final Function(bool)? onFocusChange;
+  final Option<String> errorText;
+  final Option<Function(bool)> onFocusChange;
+  final Option<dynamic Function(int)> onAccept;
 
-  const NumberTextField({
+  NumberTextField({
     super.key,
     required this.labelText,
-    required this.onAccept,
-    this.errorText,
-    this.onFocusChange,
-  });
+    this.initialValue = 0,
+    this.readOnly = false,
+    this.showEditButton = false,
+    String? errorText,
+    Function(bool)? onFocusChange,
+    dynamic Function(int)? onAccept,
+  })  : this.errorText = Option.from(errorText),
+        this.onFocusChange = Option.from(onFocusChange),
+        this.onAccept = Option.from(onAccept);
 
   @override
   State<NumberTextField> createState() => _NumberTextFieldState();
 }
 
 class _NumberTextFieldState extends State<NumberTextField> {
-  int amount = 0;
-  TextEditingController controller =
-      TextEditingController.fromValue(TextEditingValue(text: ""));
+  late int amount;
+  late TextEditingController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    amount = widget.initialValue;
+    controller = TextEditingController.fromValue(
+      TextEditingValue(text: amount.toString()),
+    );
+  }
 
   onTap(BuildContext context) async {
-    widget.onFocusChange!(true);
+    if (widget.onFocusChange.isSome()) widget.onFocusChange.unwrap()(true);
+
     await showModalBottomSheet(
       enableDrag: false,
       context: context,
@@ -53,7 +72,7 @@ class _NumberTextFieldState extends State<NumberTextField> {
             ),
             ElevatedButton(
               onPressed: () {
-                widget.onAccept(amount);
+                if (widget.onAccept.isSome()) widget.onAccept.unwrap()(amount);
                 controller.text = amount.toString();
                 Navigator.pop(context);
               },
@@ -63,22 +82,38 @@ class _NumberTextFieldState extends State<NumberTextField> {
         ),
       ),
     );
-    widget.onFocusChange!(false);
+
+    if (widget.onFocusChange.isSome()) widget.onFocusChange.unwrap()(false);
   }
 
   @override
   build(BuildContext context) {
-    return Focus(
-      onFocusChange: widget.onFocusChange,
-      child: TextFormField(
-        canRequestFocus: false,
-        readOnly: true,
-        controller: controller,
-        onTap: () => onTap(context),
-        decoration: InputDecoration(
-          labelText: widget.labelText,
-          hintText: widget.labelText,
-          errorText: widget.errorText,
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 8),
+      child: Focus(
+        onFocusChange: widget.onFocusChange.toNullable(),
+        child: TextFormField(
+          decoration: InputDecoration(
+            border: OutlineInputBorder(),
+            labelText: widget.labelText,
+            hintText: widget.labelText,
+            errorText: widget.errorText.toNullable(),
+            suffixIcon: widget.showEditButton
+                ? IconButton(
+                    onPressed: () => onTap(context),
+                    icon: FaIcon(
+                      FontAwesomeIcons.pen,
+                    ),
+                  )
+                : null,
+          ),
+          readOnly: true,
+          controller: controller,
+          onTap: () {
+            if (!widget.readOnly) {
+              onTap(context);
+            }
+          },
         ),
       ),
     );

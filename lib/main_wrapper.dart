@@ -50,6 +50,10 @@ class _MainWrapperState extends State<MainWrapper> {
               icon: FaIcon(FontAwesomeIcons.peopleGroup),
               label: 'Clientes',
             ),
+            NavigationDestination(
+              icon: FaIcon(FontAwesomeIcons.cog),
+              label: 'Configuración',
+            ),
           ],
         ),
       ),

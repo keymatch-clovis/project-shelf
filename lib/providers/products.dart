@@ -11,7 +11,7 @@ class Products extends _$Products {
     return ref.watch(databaseProvider).getProducts();
   }
 
-  Future<void> add(Map<String, String?> data) async {
+  Future<void> add(Map<String, String> data) async {
     debugPrint('Adding new product');
     debugPrint('$data');
     await ref.watch(databaseProvider).addProduct(data);

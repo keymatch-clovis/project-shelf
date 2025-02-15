@@ -487,13 +487,18 @@ class Invoice extends Table with TableInfo<Invoice, InvoiceData> {
       type: DriftSqlType.string,
       requiredDuringInsert: true,
       $customConstraints: 'NOT NULL PRIMARY KEY');
+  late final GeneratedColumn<int> number = GeneratedColumn<int>(
+      'number', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
   late final GeneratedColumn<String> date = GeneratedColumn<String>(
       'date', aliasedName, false,
       type: DriftSqlType.string,
       requiredDuringInsert: true,
       $customConstraints: 'NOT NULL');
   @override
-  List<GeneratedColumn> get $columns => [id, date];
+  List<GeneratedColumn> get $columns => [id, number, date];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -507,6 +512,8 @@ class Invoice extends Table with TableInfo<Invoice, InvoiceData> {
     return InvoiceData(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      number: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}number'])!,
       date: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}date'])!,
     );
@@ -523,12 +530,15 @@ class Invoice extends Table with TableInfo<Invoice, InvoiceData> {
 
 class InvoiceData extends DataClass implements Insertable<InvoiceData> {
   final String id;
+  final int number;
   final String date;
-  const InvoiceData({required this.id, required this.date});
+  const InvoiceData(
+      {required this.id, required this.number, required this.date});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
+    map['number'] = Variable<int>(number);
     map['date'] = Variable<String>(date);
     return map;
   }
@@ -536,6 +546,7 @@ class InvoiceData extends DataClass implements Insertable<InvoiceData> {
   InvoiceCompanion toCompanion(bool nullToAbsent) {
     return InvoiceCompanion(
       id: Value(id),
+      number: Value(number),
       date: Value(date),
     );
   }
@@ -545,6 +556,7 @@ class InvoiceData extends DataClass implements Insertable<InvoiceData> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return InvoiceData(
       id: serializer.fromJson<String>(json['id']),
+      number: serializer.fromJson<int>(json['number']),
       date: serializer.fromJson<String>(json['date']),
     );
   }
@@ -553,17 +565,20 @@ class InvoiceData extends DataClass implements Insertable<InvoiceData> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
+      'number': serializer.toJson<int>(number),
       'date': serializer.toJson<String>(date),
     };
   }
 
-  InvoiceData copyWith({String? id, String? date}) => InvoiceData(
+  InvoiceData copyWith({String? id, int? number, String? date}) => InvoiceData(
         id: id ?? this.id,
+        number: number ?? this.number,
         date: date ?? this.date,
       );
   InvoiceData copyWithCompanion(InvoiceCompanion data) {
     return InvoiceData(
       id: data.id.present ? data.id.value : this.id,
+      number: data.number.present ? data.number.value : this.number,
       date: data.date.present ? data.date.value : this.date,
     );
   }
@@ -572,50 +587,64 @@ class InvoiceData extends DataClass implements Insertable<InvoiceData> {
   String toString() {
     return (StringBuffer('InvoiceData(')
           ..write('id: $id, ')
+          ..write('number: $number, ')
           ..write('date: $date')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, date);
+  int get hashCode => Object.hash(id, number, date);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is InvoiceData && other.id == this.id && other.date == this.date);
+      (other is InvoiceData &&
+          other.id == this.id &&
+          other.number == this.number &&
+          other.date == this.date);
 }
 
 class InvoiceCompanion extends UpdateCompanion<InvoiceData> {
   final Value<String> id;
+  final Value<int> number;
   final Value<String> date;
   final Value<int> rowid;
   const InvoiceCompanion({
     this.id = const Value.absent(),
+    this.number = const Value.absent(),
     this.date = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   InvoiceCompanion.insert({
     required String id,
+    required int number,
     required String date,
     this.rowid = const Value.absent(),
   })  : id = Value(id),
+        number = Value(number),
         date = Value(date);
   static Insertable<InvoiceData> custom({
     Expression<String>? id,
+    Expression<int>? number,
     Expression<String>? date,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (number != null) 'number': number,
       if (date != null) 'date': date,
       if (rowid != null) 'rowid': rowid,
     });
   }
 
   InvoiceCompanion copyWith(
-      {Value<String>? id, Value<String>? date, Value<int>? rowid}) {
+      {Value<String>? id,
+      Value<int>? number,
+      Value<String>? date,
+      Value<int>? rowid}) {
     return InvoiceCompanion(
       id: id ?? this.id,
+      number: number ?? this.number,
       date: date ?? this.date,
       rowid: rowid ?? this.rowid,
     );
@@ -626,6 +655,9 @@ class InvoiceCompanion extends UpdateCompanion<InvoiceData> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<String>(id.value);
+    }
+    if (number.present) {
+      map['number'] = Variable<int>(number.value);
     }
     if (date.present) {
       map['date'] = Variable<String>(date.value);
@@ -640,6 +672,7 @@ class InvoiceCompanion extends UpdateCompanion<InvoiceData> {
   String toString() {
     return (StringBuffer('InvoiceCompanion(')
           ..write('id: $id, ')
+          ..write('number: $number, ')
           ..write('date: $date, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -668,8 +701,13 @@ class ProductInvoice extends Table
       type: DriftSqlType.int,
       requiredDuringInsert: true,
       $customConstraints: 'NOT NULL');
+  late final GeneratedColumn<int> count = GeneratedColumn<int>(
+      'count', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
   @override
-  List<GeneratedColumn> get $columns => [productId, invoiceId, value];
+  List<GeneratedColumn> get $columns => [productId, invoiceId, value, count];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -687,6 +725,8 @@ class ProductInvoice extends Table
           .read(DriftSqlType.string, data['${effectivePrefix}invoice_id'])!,
       value: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}value'])!,
+      count: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}count'])!,
     );
   }
 
@@ -709,14 +749,19 @@ class ProductInvoiceData extends DataClass
   final String productId;
   final String invoiceId;
   final int value;
+  final int count;
   const ProductInvoiceData(
-      {required this.productId, required this.invoiceId, required this.value});
+      {required this.productId,
+      required this.invoiceId,
+      required this.value,
+      required this.count});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['product_id'] = Variable<String>(productId);
     map['invoice_id'] = Variable<String>(invoiceId);
     map['value'] = Variable<int>(value);
+    map['count'] = Variable<int>(count);
     return map;
   }
 
@@ -725,6 +770,7 @@ class ProductInvoiceData extends DataClass
       productId: Value(productId),
       invoiceId: Value(invoiceId),
       value: Value(value),
+      count: Value(count),
     );
   }
 
@@ -735,6 +781,7 @@ class ProductInvoiceData extends DataClass
       productId: serializer.fromJson<String>(json['product_id']),
       invoiceId: serializer.fromJson<String>(json['invoice_id']),
       value: serializer.fromJson<int>(json['value']),
+      count: serializer.fromJson<int>(json['count']),
     );
   }
   @override
@@ -744,21 +791,24 @@ class ProductInvoiceData extends DataClass
       'product_id': serializer.toJson<String>(productId),
       'invoice_id': serializer.toJson<String>(invoiceId),
       'value': serializer.toJson<int>(value),
+      'count': serializer.toJson<int>(count),
     };
   }
 
   ProductInvoiceData copyWith(
-          {String? productId, String? invoiceId, int? value}) =>
+          {String? productId, String? invoiceId, int? value, int? count}) =>
       ProductInvoiceData(
         productId: productId ?? this.productId,
         invoiceId: invoiceId ?? this.invoiceId,
         value: value ?? this.value,
+        count: count ?? this.count,
       );
   ProductInvoiceData copyWithCompanion(ProductInvoiceCompanion data) {
     return ProductInvoiceData(
       productId: data.productId.present ? data.productId.value : this.productId,
       invoiceId: data.invoiceId.present ? data.invoiceId.value : this.invoiceId,
       value: data.value.present ? data.value.value : this.value,
+      count: data.count.present ? data.count.value : this.count,
     );
   }
 
@@ -767,51 +817,59 @@ class ProductInvoiceData extends DataClass
     return (StringBuffer('ProductInvoiceData(')
           ..write('productId: $productId, ')
           ..write('invoiceId: $invoiceId, ')
-          ..write('value: $value')
+          ..write('value: $value, ')
+          ..write('count: $count')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(productId, invoiceId, value);
+  int get hashCode => Object.hash(productId, invoiceId, value, count);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is ProductInvoiceData &&
           other.productId == this.productId &&
           other.invoiceId == this.invoiceId &&
-          other.value == this.value);
+          other.value == this.value &&
+          other.count == this.count);
 }
 
 class ProductInvoiceCompanion extends UpdateCompanion<ProductInvoiceData> {
   final Value<String> productId;
   final Value<String> invoiceId;
   final Value<int> value;
+  final Value<int> count;
   final Value<int> rowid;
   const ProductInvoiceCompanion({
     this.productId = const Value.absent(),
     this.invoiceId = const Value.absent(),
     this.value = const Value.absent(),
+    this.count = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ProductInvoiceCompanion.insert({
     required String productId,
     required String invoiceId,
     required int value,
+    required int count,
     this.rowid = const Value.absent(),
   })  : productId = Value(productId),
         invoiceId = Value(invoiceId),
-        value = Value(value);
+        value = Value(value),
+        count = Value(count);
   static Insertable<ProductInvoiceData> custom({
     Expression<String>? productId,
     Expression<String>? invoiceId,
     Expression<int>? value,
+    Expression<int>? count,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (productId != null) 'product_id': productId,
       if (invoiceId != null) 'invoice_id': invoiceId,
       if (value != null) 'value': value,
+      if (count != null) 'count': count,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -820,11 +878,13 @@ class ProductInvoiceCompanion extends UpdateCompanion<ProductInvoiceData> {
       {Value<String>? productId,
       Value<String>? invoiceId,
       Value<int>? value,
+      Value<int>? count,
       Value<int>? rowid}) {
     return ProductInvoiceCompanion(
       productId: productId ?? this.productId,
       invoiceId: invoiceId ?? this.invoiceId,
       value: value ?? this.value,
+      count: count ?? this.count,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -841,6 +901,9 @@ class ProductInvoiceCompanion extends UpdateCompanion<ProductInvoiceData> {
     if (value.present) {
       map['value'] = Variable<int>(value.value);
     }
+    if (count.present) {
+      map['count'] = Variable<int>(count.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -853,6 +916,7 @@ class ProductInvoiceCompanion extends UpdateCompanion<ProductInvoiceData> {
           ..write('productId: $productId, ')
           ..write('invoiceId: $invoiceId, ')
           ..write('value: $value, ')
+          ..write('count: $count, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1351,11 +1415,13 @@ typedef $ClientProcessedTableManager = ProcessedTableManager<
     PrefetchHooks Function()>;
 typedef $InvoiceCreateCompanionBuilder = InvoiceCompanion Function({
   required String id,
+  required int number,
   required String date,
   Value<int> rowid,
 });
 typedef $InvoiceUpdateCompanionBuilder = InvoiceCompanion Function({
   Value<String> id,
+  Value<int> number,
   Value<String> date,
   Value<int> rowid,
 });
@@ -1370,6 +1436,9 @@ class $InvoiceFilterComposer extends Composer<_$ShelfDatabase, Invoice> {
   });
   ColumnFilters<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get number => $composableBuilder(
+      column: $table.number, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get date => $composableBuilder(
       column: $table.date, builder: (column) => ColumnFilters(column));
@@ -1386,6 +1455,9 @@ class $InvoiceOrderingComposer extends Composer<_$ShelfDatabase, Invoice> {
   ColumnOrderings<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<int> get number => $composableBuilder(
+      column: $table.number, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get date => $composableBuilder(
       column: $table.date, builder: (column) => ColumnOrderings(column));
 }
@@ -1400,6 +1472,9 @@ class $InvoiceAnnotationComposer extends Composer<_$ShelfDatabase, Invoice> {
   });
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get number =>
+      $composableBuilder(column: $table.number, builder: (column) => column);
 
   GeneratedColumn<String> get date =>
       $composableBuilder(column: $table.date, builder: (column) => column);
@@ -1429,21 +1504,25 @@ class $InvoiceTableManager extends RootTableManager<
               $InvoiceAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
+            Value<int> number = const Value.absent(),
             Value<String> date = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               InvoiceCompanion(
             id: id,
+            number: number,
             date: date,
             rowid: rowid,
           ),
           createCompanionCallback: ({
             required String id,
+            required int number,
             required String date,
             Value<int> rowid = const Value.absent(),
           }) =>
               InvoiceCompanion.insert(
             id: id,
+            number: number,
             date: date,
             rowid: rowid,
           ),
@@ -1471,6 +1550,7 @@ typedef $ProductInvoiceCreateCompanionBuilder = ProductInvoiceCompanion
   required String productId,
   required String invoiceId,
   required int value,
+  required int count,
   Value<int> rowid,
 });
 typedef $ProductInvoiceUpdateCompanionBuilder = ProductInvoiceCompanion
@@ -1478,6 +1558,7 @@ typedef $ProductInvoiceUpdateCompanionBuilder = ProductInvoiceCompanion
   Value<String> productId,
   Value<String> invoiceId,
   Value<int> value,
+  Value<int> count,
   Value<int> rowid,
 });
 
@@ -1498,6 +1579,9 @@ class $ProductInvoiceFilterComposer
 
   ColumnFilters<int> get value => $composableBuilder(
       column: $table.value, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get count => $composableBuilder(
+      column: $table.count, builder: (column) => ColumnFilters(column));
 }
 
 class $ProductInvoiceOrderingComposer
@@ -1517,6 +1601,9 @@ class $ProductInvoiceOrderingComposer
 
   ColumnOrderings<int> get value => $composableBuilder(
       column: $table.value, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get count => $composableBuilder(
+      column: $table.count, builder: (column) => ColumnOrderings(column));
 }
 
 class $ProductInvoiceAnnotationComposer
@@ -1536,6 +1623,9 @@ class $ProductInvoiceAnnotationComposer
 
   GeneratedColumn<int> get value =>
       $composableBuilder(column: $table.value, builder: (column) => column);
+
+  GeneratedColumn<int> get count =>
+      $composableBuilder(column: $table.count, builder: (column) => column);
 }
 
 class $ProductInvoiceTableManager extends RootTableManager<
@@ -1567,24 +1657,28 @@ class $ProductInvoiceTableManager extends RootTableManager<
             Value<String> productId = const Value.absent(),
             Value<String> invoiceId = const Value.absent(),
             Value<int> value = const Value.absent(),
+            Value<int> count = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               ProductInvoiceCompanion(
             productId: productId,
             invoiceId: invoiceId,
             value: value,
+            count: count,
             rowid: rowid,
           ),
           createCompanionCallback: ({
             required String productId,
             required String invoiceId,
             required int value,
+            required int count,
             Value<int> rowid = const Value.absent(),
           }) =>
               ProductInvoiceCompanion.insert(
             productId: productId,
             invoiceId: invoiceId,
             value: value,
+            count: count,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0

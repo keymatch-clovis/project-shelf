@@ -14,7 +14,7 @@ create table client (
 
 create table invoice (
     id text not null primary key,
-    number int not null autoincrement,
+    number int not null,
     date text not null
 );
 

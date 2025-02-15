@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:project_shelf/components/text_fields/currency_text_field.dart';
 import 'package:project_shelf/components/text_fields/custom_text_field.dart';
 import 'package:project_shelf/components/text_fields/number_text_field.dart';
-import 'package:project_shelf/lib/custom_form_state.dart';
-import 'package:project_shelf/lib/form_entry.dart';
+import 'package:project_shelf/providers/product.dart';
 import 'package:project_shelf/utils/text_formatter.dart';
 
-class CreateProductForm extends StatefulWidget {
+class CreateProductForm extends ConsumerWidget {
   final String? restorationId;
-  final void Function(Map<String, FormEntry>) onSubmit;
+  final Function(Map<String, String>) onSubmit;
 
   const CreateProductForm({
     required this.onSubmit,
@@ -18,34 +17,9 @@ class CreateProductForm extends StatefulWidget {
   });
 
   @override
-  CreateProductFormState createState() => CreateProductFormState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(productFormProvider());
 
-class CreateProductFormState extends State<CreateProductForm>
-    with CustomFormState {
-
-  @override
-  var formState = {
-    "name": FormEntry(
-      validator: FormBuilderValidators.compose([
-        FormBuilderValidators.required(),
-      ]),
-    ),
-    "value": FormEntry(
-      validator: FormBuilderValidators.compose([
-        FormBuilderValidators.min(0, checkNullOrEmpty: false),
-      ]),
-    ),
-    "stock": FormEntry(
-      validator: FormBuilderValidators.compose([
-        FormBuilderValidators.min(0, checkNullOrEmpty: false),
-      ]),
-    ),
-    "code": FormEntry(),
-  };
-
-  @override
-  Widget build(BuildContext context) {
     return Form(
       child: Container(
         margin: const EdgeInsets.all(20),
@@ -59,44 +33,59 @@ class CreateProductFormState extends State<CreateProductForm>
               textInputAction: TextInputAction.next,
               onFocusChange: (hasFocus) {
                 if (!hasFocus) {
-                  validate("name");
+                  ref.read(productFormProvider().notifier).validate("name");
                 }
               },
-              onChanged: (value) => update("name", value),
-              errorText: formState["name"]!.error,
+              onChanged: (value) {
+                ref.read(productFormProvider().notifier).set("name", value);
+              },
+              errorText: state.entity.getError("name").toNullable(),
             ),
             CurrencyTextField(
               labelText: "Valor",
-              onAccept: (value) => update("value", value.toString()),
               onFocusChange: (hasFocus) {
                 if (!hasFocus) {
-                  validate("value");
+                  ref.read(productFormProvider().notifier).validate("value");
                 }
               },
-              errorText: formState["value"]!.error,
+              onAccept: (value) {
+                ref
+                    .read(productFormProvider().notifier)
+                    .set("value", value.toString());
+              },
+              errorText: state.entity.getError("value").toNullable(),
             ),
             NumberTextField(
               labelText: "Cantidad",
-              onAccept: (value) => update("stock", value.toString()),
               onFocusChange: (hasFocus) {
                 if (!hasFocus) {
-                  validate("stock");
+                  ref.read(productFormProvider().notifier).validate("value");
                 }
               },
-              errorText: formState["stock"]!.error,
+              onAccept: (value) {
+                ref
+                    .read(productFormProvider().notifier)
+                    .set("value", value.toString());
+              },
             ),
             CustomTextField(
               labelText: 'Código',
               keyboardType: TextInputType.text,
               inputFormatters: [UpperCaseTextFormatter()],
               textCapitalization: TextCapitalization.characters,
-              onChanged: (value) => update("code", value),
+              onChanged: (value) {
+                ref.read(productFormProvider().notifier).set("code", value);
+              },
             ),
             Spacer(),
             ElevatedButton(
               onPressed: () {
-                if (validateAll()) {
-                  widget.onSubmit(formState);
+                if (state.entity.isValid) {
+                  onSubmit(
+                    state.entity.fields.map(
+                      (key, field) => MapEntry(key, field.value),
+                    ),
+                  );
                 }
               },
               child: const Text('CREAR PRODUCTO'),
