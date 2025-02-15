@@ -80,6 +80,7 @@ class CreateProductForm extends ConsumerWidget {
             Spacer(),
             ElevatedButton(
               onPressed: () {
+                ref.read(productFormProvider().notifier).validateAll();
                 if (state.entity.isValid) {
                   onSubmit(
                     state.entity.fields.map(

@@ -63,13 +63,17 @@ class ProductForm extends _$ProductForm {
 
   void validate(String key) {
     final value = state.entity.fields[key]!.value;
-    state.entity.fields[key]!.error = Option.from(value);
+    state.entity.fields[key]!.error = Option.from(validators[key]!(value));
     ref.notifyListeners();
   }
 
   void validateAll() {
-    state.entity.fields.forEach((key, value) {
-      value.error = Option.from(validators[key]!(value));
+    // For every validator, set the entity value.
+    validators.forEach((key, validator) {
+      // NOTE: If the field is not found, we should throw an exception as this
+      // is incorrect code logic.
+      final value = state.entity.fields[key]!.value;
+      state.entity.fields[key]!.error = Option.from(validator(value));
     });
     ref.notifyListeners();
   }
