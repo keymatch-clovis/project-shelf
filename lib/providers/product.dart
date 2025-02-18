@@ -79,9 +79,10 @@ class ProductForm extends _$ProductForm {
   }
 
   void set(String key, String value) {
+    final validator = Option.from(validators[key]);
     state.entity.fields[key] = Field(
       value: value.trim(),
-      error: Option.from(validators[key]!(value)),
+      error: validator.andThen((v) => Option.from(v(value))),
     );
     ref.notifyListeners();
   }

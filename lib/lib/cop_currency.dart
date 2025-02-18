@@ -17,4 +17,9 @@ class CopCurrency {
   CopCurrency(this.rawValue)
       : formatter = NumberFormat.currency(symbol: "\$"),
         realValue = (rawValue * 100).round();
+
+  @override
+  String toString() {
+    return formatter.format(realValue / 100);
+  }
 }

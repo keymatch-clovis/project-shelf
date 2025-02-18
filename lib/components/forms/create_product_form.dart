@@ -1,10 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:project_shelf/components/text_fields/currency_text_field.dart';
-import 'package:project_shelf/components/text_fields/custom_text_field.dart';
-import 'package:project_shelf/components/text_fields/number_text_field.dart';
-import 'package:project_shelf/providers/product.dart';
-import 'package:project_shelf/utils/text_formatter.dart';
+import "package:flutter/material.dart";
+import "package:hooks_riverpod/hooks_riverpod.dart";
+import "package:project_shelf/components/text_fields/custom_text_field.dart";
+import "package:project_shelf/providers/product.dart";
+import "package:project_shelf/utils/text_formatter.dart";
 
 class CreateProductForm extends ConsumerWidget {
   final String? restorationId;
@@ -26,53 +24,37 @@ class CreateProductForm extends ConsumerWidget {
         child: Column(
           children: [
             CustomTextField(
-              labelText: 'Nombre',
-              keyboardType: TextInputType.text,
+              label: "Nombre del Producto",
+              isRequired: true,
+              autofocus: true,
               inputFormatters: [UpperCaseTextFormatter()],
               textCapitalization: TextCapitalization.characters,
-              textInputAction: TextInputAction.next,
-              onFocusChange: (hasFocus) {
-                if (!hasFocus) {
-                  ref.read(productFormProvider().notifier).validate("name");
-                }
-              },
               onChanged: (value) {
                 ref.read(productFormProvider().notifier).set("name", value);
               },
-              errorText: state.entity.getError("name").toNullable(),
-            ),
-            CurrencyTextField(
-              labelText: "Valor",
-              onFocusChange: (hasFocus) {
-                if (!hasFocus) {
-                  ref.read(productFormProvider().notifier).validate("value");
-                }
-              },
-              onAccept: (value) {
-                ref
-                    .read(productFormProvider().notifier)
-                    .set("value", value.toString());
-              },
-              errorText: state.entity.getError("value").toNullable(),
-            ),
-            NumberTextField(
-              labelText: "Cantidad",
-              onFocusChange: (hasFocus) {
-                if (!hasFocus) {
-                  ref.read(productFormProvider().notifier).validate("value");
-                }
-              },
-              onAccept: (value) {
-                ref
-                    .read(productFormProvider().notifier)
-                    .set("value", value.toString());
-              },
+              error: state.entity.getError("name"),
             ),
             CustomTextField(
-              labelText: 'Código',
-              keyboardType: TextInputType.text,
+              label: "Precio Inicial",
+              keyboardType: TextInputType.numberWithOptions(),
+              onChanged: (value) {
+                ref.read(productFormProvider().notifier).set("value", value);
+              },
+              error: state.entity.getError("value"),
+            ),
+            CustomTextField(
+              label: "Cantidad en Inventario",
+              keyboardType: TextInputType.numberWithOptions(),
+              onChanged: (value) {
+                ref.read(productFormProvider().notifier).set("stock", value);
+              },
+              error: state.entity.getError("stock"),
+            ),
+            CustomTextField(
+              label: "Código",
               inputFormatters: [UpperCaseTextFormatter()],
               textCapitalization: TextCapitalization.characters,
+              textInputAction: TextInputAction.done,
               onChanged: (value) {
                 ref.read(productFormProvider().notifier).set("code", value);
               },
@@ -89,7 +71,7 @@ class CreateProductForm extends ConsumerWidget {
                   );
                 }
               },
-              child: const Text('CREAR PRODUCTO'),
+              child: const Text("CREAR PRODUCTO"),
             ),
           ],
         ),

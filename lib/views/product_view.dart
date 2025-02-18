@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:oxidized/oxidized.dart';
-import 'package:project_shelf/components/text_fields/currency_text_field.dart';
 import 'package:project_shelf/components/text_fields/custom_text_field.dart';
-import 'package:project_shelf/components/text_fields/number_text_field.dart';
 import 'package:project_shelf/providers/product.dart';
 import 'package:project_shelf/providers/products.dart';
 import 'package:project_shelf/utils/text_formatter.dart';
@@ -45,7 +43,8 @@ class ProductView extends ConsumerWidget {
         AsyncData(:final value) => Column(
             children: [
               CustomTextField(
-                labelText: "Nombre",
+                label: "Nombre",
+                isRequired: true,
                 initialValue: value.name,
                 readOnly: true,
                 keyboardType: TextInputType.text,
@@ -62,20 +61,8 @@ class ProductView extends ConsumerWidget {
                 // },
                 // errorText: state.entity.getError("name").toNullable(),
               ),
-              CurrencyTextField(
-                labelText: "Valor",
-                initialValue: value.value,
-                readOnly: true,
-                showEditButton: true,
-              ),
-              NumberTextField(
-                labelText: "Cantidad en Stock",
-                initialValue: value.stock,
-                readOnly: true,
-                showEditButton: true,
-              ),
               CustomTextField(
-                labelText: "Código",
+                label: "Código",
                 initialValue: value.code,
                 readOnly: true,
               ),

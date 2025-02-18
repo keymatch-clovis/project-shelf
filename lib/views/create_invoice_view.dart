@@ -41,7 +41,7 @@ class CreateInvoiceViewState extends ConsumerState<CreateInvoiceView> {
           child: Column(
             children: [
               CustomTextField(
-                labelText: "Número de Factura",
+                label: "Número de Factura",
                 icon: FaIcon(FontAwesomeIcons.hashtag),
                 initialValue: "1234",
                 readOnly: true,
