@@ -48,11 +48,17 @@
                   env.ANDROID_HOME = "${androidComposition.androidsdk}/libexec/android-sdk";
                   env.GRADLE_OPTS = "-Dorg.gradle.project.android.aapt2FromMavenOverride=${androidComposition.androidsdk}/libexec/android-sdk/build-tools/${buildToolsVersion}/aapt2";
 
+                  # I think this is fine, as I'm using like a hybrid thing with
+                  # Arch and Nix, so I need to add this atm.
+                  # https://discourse.nixos.org/t/libsqlite3-so-no-such-file-or-directory/58556/6
+                  env.LD_LIBRARY_PATH = "${pkgs.lib.makeLibraryPath (with pkgs; [ sqlite ])}:$LD_LIBRARY_PATH";
+
                   packages = with pkgs; [ 
                     flutter
                     androidComposition.androidsdk
                     android-tools
                     jdk17
+                    sqlite
                   ];
                 })
               ];

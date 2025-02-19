@@ -29,5 +29,7 @@ linter:
 # https://dart.dev/guides/language/analysis-options
 
 analyzer:
+  errors:
+    constant_identifier_names: ignore
   plugins:
     - custom_lint
