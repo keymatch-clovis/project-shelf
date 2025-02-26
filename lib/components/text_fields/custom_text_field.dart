@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:oxidized/oxidized.dart';
 
 class CustomTextField extends StatelessWidget {
+  final void Function(String) onChanged;
   final String label;
   final bool readOnly;
   final TextCapitalization textCapitalization;
@@ -13,13 +13,13 @@ class CustomTextField extends StatelessWidget {
   final List<TextInputFormatter> inputFormatters;
   final TextInputType keyboardType;
 
-  final Option<Function(String)> onChanged;
-  final Option<String> error;
-  final Option<String> initialValue;
-  final Option<Widget> icon;
+  final String? initialValue;
+  final FormFieldValidator<String>? validator;
+  final Widget? icon;
 
-  CustomTextField({
+  const CustomTextField({
     super.key,
+    required this.onChanged,
     required this.label,
     this.readOnly = false,
     this.autofocus = false,
@@ -28,13 +28,10 @@ class CustomTextField extends StatelessWidget {
     this.textCapitalization = TextCapitalization.none,
     this.textInputAction = TextInputAction.next,
     this.keyboardType = TextInputType.text,
-    this.error = const Option.none(),
-    Function(String)? onChanged,
-    String? initialValue,
-    Widget? icon,
-  })  : this.onChanged = Option.from(onChanged),
-        this.initialValue = Option.from(initialValue),
-        this.icon = Option.from(icon);
+    this.initialValue,
+    this.validator,
+    this.icon,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -43,9 +40,6 @@ class CustomTextField extends StatelessWidget {
 
       if (isRequired) {
         Color color = Theme.of(context).primaryColor;
-        if (error.isSome()) {
-          color = Colors.redAccent;
-        }
 
         children.add(
           FaIcon(
@@ -72,17 +66,18 @@ class CustomTextField extends StatelessWidget {
         decoration: InputDecoration(
           label: renderLabel(),
           border: OutlineInputBorder(),
-          icon: icon.toNullable(),
+          icon: icon,
           hintText: label,
-          errorText: error.toNullable(),
         ),
         readOnly: readOnly,
         textCapitalization: textCapitalization,
         inputFormatters: inputFormatters,
         textInputAction: textInputAction,
         keyboardType: keyboardType,
-        onChanged: onChanged.toNullable(),
-        initialValue: initialValue.toNullable(),
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        validator: validator,
+        initialValue: initialValue,
+        onChanged: onChanged,
       ),
     );
   }

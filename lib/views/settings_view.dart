@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class SettingsView extends ConsumerWidget {
@@ -14,7 +16,38 @@ class SettingsView extends ConsumerWidget {
         centerTitle: true,
         title: const Text('Configuración'),
       ),
-      body: SizedBox.expand(child: Text("configu")),
+      body: Container(
+        margin: const EdgeInsets.all(18),
+        child: Column(
+          children: [
+            Card(
+              child: ListTile(
+                title: Row(
+                  children: [
+                    Text("Copias de Seguridad"),
+                    Spacer(),
+                    FaIcon(FontAwesomeIcons.chevronRight),
+                  ],
+                ),
+                onTap: () => context.go('/settings/backups'),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Card(
+              child: ListTile(
+                title: Row(
+                  children: [
+                    Text("Cargar Datos"),
+                    Spacer(),
+                    FaIcon(FontAwesomeIcons.chevronRight),
+                  ],
+                ),
+                onTap: () => context.go('/settings/data-load'),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

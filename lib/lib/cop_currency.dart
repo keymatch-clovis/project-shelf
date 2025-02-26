@@ -10,8 +10,8 @@ class CopCurrency {
     return formatter.format(realValue / 100);
   }
 
-  static fromCents(int cents) {
-    return CopCurrency(cents / 100.0);
+  static fromCents(BigInt cents) {
+    return CopCurrency(cents / BigInt.from(100));
   }
 
   CopCurrency(this.rawValue)

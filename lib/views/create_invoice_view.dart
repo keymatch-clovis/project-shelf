@@ -40,12 +40,11 @@ class CreateInvoiceViewState extends ConsumerState<CreateInvoiceView> {
           margin: const EdgeInsets.all(16),
           child: Column(
             children: [
-              CustomTextField(
-                label: "Número de Factura",
-                icon: FaIcon(FontAwesomeIcons.hashtag),
-                initialValue: "1234",
-                readOnly: true,
-              ),
+              // CustomTextField(
+              //   label: "Número de Factura",
+              //   icon: FaIcon(FontAwesomeIcons.hashtag),
+              //   readOnly: true,
+              // ),
               Row(
                 children: [
                   const Text("Productos"),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:project_shelf/components/forms/create_product_form.dart';
-import 'package:project_shelf/providers/products.dart';
+import 'package:project_shelf/providers/product/products.dart';
 
 class CreateProductView extends ConsumerWidget {
   final String? restorationId;
@@ -22,7 +22,7 @@ class CreateProductView extends ConsumerWidget {
         body: CreateProductForm(
           restorationId: 'create.product.form',
           onSubmit: (data) async {
-            await ref.read(productsProvider.notifier).add(data);
+            await ref.read(productsProvider.notifier).create(data);
             if (context.mounted) {
               context.go("/products");
             }

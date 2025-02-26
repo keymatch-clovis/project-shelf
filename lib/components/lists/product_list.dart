@@ -20,7 +20,7 @@ class ProductList extends StatelessWidget {
         itemCount: list.length,
         itemBuilder: (context, index) => ListTile(
           title: _ListItem(list[index]),
-          onTap: () => onTap(list[index].id),
+          onTap: () => onTap(list[index].uuid),
         ),
         separatorBuilder: (context, index) => Divider(),
       );
@@ -51,7 +51,7 @@ class _ListItem extends StatelessWidget {
                 ),
               ),
               Text(
-                CopCurrency.fromCents(data.value).toString(),
+                CopCurrency.fromCents(data.price).toString(),
                 style: TextStyle(
                   fontSize: 18,
                 ),

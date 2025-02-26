@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:project_shelf/main_wrapper.dart';
-import 'package:project_shelf/views/client_view.dart';
-import 'package:project_shelf/views/clients_view.dart';
-import 'package:project_shelf/views/create_client_view.dart';
+import 'package:project_shelf/views/customer_view.dart';
+import 'package:project_shelf/views/customers_view.dart';
+import 'package:project_shelf/views/create_customer_view.dart';
+import 'package:project_shelf/views/backups_view.dart';
+import 'package:project_shelf/views/data_load_view.dart';
+import 'package:project_shelf/views/edit_customer_view.dart';
 import 'package:project_shelf/views/invoices_view.dart';
 import 'package:project_shelf/views/create_invoice_view.dart';
 import 'package:project_shelf/views/create_product_view.dart';
@@ -23,8 +26,8 @@ class AppNavigation {
       GlobalKey<NavigatorState>(debugLabel: 'products-shell');
   static final _invoicesNavigatorKey =
       GlobalKey<NavigatorState>(debugLabel: 'invoices-shell');
-  static final _clientsNavigatorKey =
-      GlobalKey<NavigatorState>(debugLabel: 'clients-shell');
+  static final _customersNavigatorKey =
+      GlobalKey<NavigatorState>(debugLabel: 'customers-shell');
   static final _settingsNavigatorKey =
       GlobalKey<NavigatorState>(debugLabel: 'settings-shell');
 
@@ -80,22 +83,29 @@ class AppNavigation {
             ],
           ),
           StatefulShellBranch(
-            navigatorKey: _clientsNavigatorKey,
+            navigatorKey: _customersNavigatorKey,
             routes: [
               GoRoute(
-                path: '/clients',
-                builder: (context, state) => ClientsView(key: state.pageKey),
+                path: '/customers',
+                builder: (context, state) => CustomersView(key: state.pageKey),
                 routes: [
                   GoRoute(
                     path: 'create',
                     builder: (context, state) =>
-                        CreateClientView(key: state.pageKey),
+                        CreateCustomerView(key: state.pageKey),
                   ),
                   GoRoute(
-                    path: 'client/:id',
-                    builder: (context, state) => ClientView(
+                    path: 'customer/:uuid',
+                    builder: (context, state) => CustomerView(
                       key: state.pageKey,
-                      id: state.pathParameters['id']!,
+                      uuid: state.pathParameters['uuid']!,
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'customer/edit/:uuid',
+                    builder: (context, state) => EditCustomerView(
+                      key: state.pageKey,
+                      uuid: state.pathParameters['uuid']!,
                     ),
                   ),
                 ],
@@ -108,6 +118,18 @@ class AppNavigation {
               GoRoute(
                 path: '/settings',
                 builder: (context, state) => SettingsView(key: state.pageKey),
+                routes: [
+                  GoRoute(
+                    path: "backups",
+                    builder: (context, state) =>
+                        BackupsView(key: state.pageKey),
+                  ),
+                  GoRoute(
+                    path: "data-load",
+                    builder: (context, state) =>
+                        DataLoadView(key: state.pageKey),
+                  ),
+                ],
               ),
             ],
           ),

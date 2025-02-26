@@ -3,7 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:fuzzywuzzy/fuzzywuzzy.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:project_shelf/database/database.dart';
-import 'package:project_shelf/providers/products.dart';
+import 'package:project_shelf/providers/product/products.dart';
 
 class SearchProductAnchor extends ConsumerStatefulWidget {
   final void Function(ProductData) onTap;

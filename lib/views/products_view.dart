@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:project_shelf/components/lists/product_list.dart';
-import 'package:project_shelf/providers/products.dart';
+import 'package:project_shelf/providers/product/products.dart';
 
 class ProductsView extends ConsumerWidget {
   final String? restorationId;
