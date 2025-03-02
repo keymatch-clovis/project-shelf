@@ -60,6 +60,9 @@ dependencies:
   sqlite3: ^2.7.4
   file_picker: ^9.0.1
   async: ^2.11.0
+  print_bluetooth_thermal: ^1.1.6
+  esc_pos_utils_plus: ^2.0.4
+  image: ^4.5.3
 
 dev_dependencies:
   flutter_test:
@@ -97,6 +100,7 @@ flutter:
     - assets/departments_cities.csv
     # TODO: These are just for testing, remember to remove them.
     - assets/customer.csv
+    - assets/logo.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

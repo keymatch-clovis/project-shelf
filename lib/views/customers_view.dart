@@ -23,16 +23,14 @@ class CustomersView extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           FloatingActionButton(
-            heroTag: "aoeu",
-            onPressed: () => context.go('/customers/create'),
+            heroTag: null,
+            onPressed: () {},
             child: FaIcon(FontAwesomeIcons.magnifyingGlass),
           ),
-          SizedBox.square(
-            dimension: 10,
-          ),
+          const SizedBox(height: 10),
           FloatingActionButton(
-            heroTag: "cwaoeu",
-            onPressed: () {},
+            heroTag: null,
+            onPressed: () => context.go('/customers/create'),
             child: FaIcon(FontAwesomeIcons.plus),
           ),
         ],
@@ -43,12 +41,17 @@ class CustomersView extends ConsumerWidget {
 
 class _CustomerList extends ConsumerWidget {
   Widget renderList(List<CustomerData> list) {
-    return ListView.builder(
+    if (list.isEmpty) {
+      return Center(child: Text("Sin clientes"));
+    }
+
+    return ListView.separated(
+      padding: EdgeInsets.all(0),
       itemCount: list.length,
-      prototypeItem: ListTile(title: _ListItem(list[0])),
+      separatorBuilder: (_, __) => Divider(),
       itemBuilder: (context, index) => ListTile(
         title: _ListItem(list[index]),
-        onTap: () => context.go("/customers/customer/edit/${list[index].uuid}"),
+        onTap: () => context.go("/customers/customer", extra: list[index]),
       ),
     );
   }

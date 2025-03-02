@@ -1,23 +1,39 @@
 import 'dart:convert';
 
+import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:project_shelf/database/database.dart';
 import 'package:project_shelf/providers/database.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:oxidized/oxidized.dart';
 
-part "product_mementos.freezed.dart";
 part 'product_mementos.g.dart';
 
 const CURRENT_VERSION = 1;
 
-@freezed
-class ProductMementosState with _$ProductMementosState {
-  const factory ProductMementosState({
-    required String productUuid,
-    required List<ProductMementoData> mementos,
-  }) = _ProductMementosState;
+class ProductSerializer extends ValueSerializer {
+  @override
+  T fromJson<T>(json) {
+    return ProductData.fromJson(json) as T;
+  }
+
+  @override
+  toJson<T>(T value) {
+    if (value is BigInt) {
+      return value.toString();
+    }
+    return value;
+  }
+}
+
+class ProductMementosState {
+  final String productUuid;
+  final List<ProductMementoData> mementos;
+
+  const ProductMementosState({
+    required this.productUuid,
+    required this.mementos,
+  });
 }
 
 @riverpod
@@ -30,23 +46,24 @@ class ProductMementos extends _$ProductMementos {
     );
   }
 
-  Future<ProductMementoData> create(ProductData data) async {
+  Future<void> create(ProductData data) async {
     final database = ref.watch(databaseProvider);
     final productUuid = await future.then((s) => s.productUuid);
 
-    final productMemento = await (database
+    debugPrint("Creating memento: $data");
+    final memento = await (database
         .into(database.productMemento)
         .insertReturning(ProductMementoCompanion.insert(
-          data: jsonEncode(data.toJson()),
+          data: jsonEncode(data.toJson(serializer: ProductSerializer())),
           version: CURRENT_VERSION,
           productUuid: productUuid,
         )));
+    debugPrint("Memento created: $memento");
 
     await _invalidate();
-    return productMemento;
   }
 
-  Future<List<ProductMementoData>> deleteAll() async {
+  Future<void> deleteAll() async {
     final database = ref.watch(databaseProvider);
     final productUuid = await future.then((s) => s.productUuid);
 
@@ -57,7 +74,6 @@ class ProductMementos extends _$ProductMementos {
     debugPrint("mementos deleted: $mementos");
 
     await _invalidate();
-    return mementos;
   }
 
   Future<Option<ProductMementoData>> findByUuid(String uuid) async {

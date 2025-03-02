@@ -5,31 +5,31 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:project_shelf/components/selectors/city_selector.dart';
 import 'package:project_shelf/components/text_fields/custom_text_field.dart';
 import 'package:project_shelf/database/database.dart';
-import 'package:project_shelf/providers/customers.dart';
+import 'package:project_shelf/lib/cop_currency.dart';
+import 'package:project_shelf/providers/product/products.dart';
 import 'package:project_shelf/util/text_formatter.dart';
 
-class EditCustomerView extends HookConsumerWidget {
-  final CustomerData _customer;
+class EditProductView extends HookConsumerWidget {
+  final ProductData _product;
 
-  const EditCustomerView(this._customer, {super.key});
+  const EditProductView(this._product, {super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final formKey = useState(GlobalKey<FormState>());
-    final editedCustomer = useState(_customer.copyWith());
+    final editedProduct = useState(_product.copyWith());
 
     final canEdit = useState(false);
     useEffect(() {
-      canEdit.value = editedCustomer.value != _customer &&
+      canEdit.value = editedProduct.value != _product &&
           formKey.value.currentState!.validate();
       return null;
-    }, [editedCustomer.value]);
+    }, [editedProduct.value]);
 
     return Scaffold(
-      appBar: AppBar(centerTitle: true, title: const Text("Editar Cliente")),
+      appBar: AppBar(centerTitle: true, title: const Text("Editar Producto")),
       body: Container(
         margin: const EdgeInsets.all(18),
         child: Form(
@@ -44,67 +44,60 @@ class EditCustomerView extends HookConsumerWidget {
                 textCapitalization: TextCapitalization.characters,
                 keyboardType: TextInputType.name,
                 onChanged: (text) {
-                  editedCustomer.value =
-                      editedCustomer.value.copyWith(name: text);
+                  editedProduct.value =
+                      editedProduct.value.copyWith(name: text);
                 },
-                initialValue: _customer.name,
+                initialValue: _product.name,
                 validator: FormBuilderValidators.compose([
                   FormBuilderValidators.required(),
                 ]),
               ),
               CustomTextField(
-                isRequired: true,
-                label: "Dirección",
+                label: "Precio por Defecto",
+                textInputAction: TextInputAction.next,
+                keyboardType: TextInputType.number,
+                onChanged: (text) {
+                  editedProduct.value = editedProduct.value.copyWith(
+                    price: text.trim().isEmpty
+                        ? null
+                        : CopCurrency(text).realValue,
+                  );
+                },
+                initialValue: CopCurrency.fromCents(_product.price).rawValue,
+                validator: FormBuilderValidators.compose([
+                  FormBuilderValidators.numeric(checkNullOrEmpty: false),
+                  FormBuilderValidators.min(0, checkNullOrEmpty: false),
+                ]),
+              ),
+              CustomTextField(
+                label: "Cantidad en Inventario",
+                textInputAction: TextInputAction.next,
+                keyboardType: TextInputType.number,
+                onChanged: (text) {
+                  editedProduct.value = editedProduct.value.copyWith(
+                    stock: text.trim().isEmpty ? null : int.parse(text),
+                  );
+                },
+                initialValue: _product.stock.toString(),
+                validator: FormBuilderValidators.compose([
+                  FormBuilderValidators.numeric(checkNullOrEmpty: false),
+                  FormBuilderValidators.min(0, checkNullOrEmpty: false),
+                ]),
+              ),
+              CustomTextField(
+                label: "Código del Producto",
                 inputFormatters: [UpperCaseTextFormatter()],
-                textInputAction: TextInputAction.next,
                 textCapitalization: TextCapitalization.characters,
-                keyboardType: TextInputType.streetAddress,
-                onChanged: (text) {
-                  editedCustomer.value =
-                      editedCustomer.value.copyWith(address: text);
-                },
-                initialValue: _customer.address,
-                validator: FormBuilderValidators.compose([
-                  FormBuilderValidators.required(),
-                ]),
-              ),
-              CitySelector(
-                cityRowId: editedCustomer.value.cityRowId,
-                isRequired: true,
-                onTap: (cityRowId) {
-                  editedCustomer.value =
-                      editedCustomer.value.copyWith(cityRowId: cityRowId);
-                },
-              ),
-              CustomTextField(
-                isRequired: true,
-                label: "Teléfono",
                 textInputAction: TextInputAction.next,
-                keyboardType: TextInputType.phone,
+                keyboardType: TextInputType.text,
                 onChanged: (text) {
-                  editedCustomer.value =
-                      editedCustomer.value.copyWith(phone: text);
-                },
-                initialValue: _customer.phone,
-                validator: FormBuilderValidators.compose([
-                  FormBuilderValidators.required(),
-                  FormBuilderValidators.phoneNumber(),
-                ]),
-              ),
-              CustomTextField(
-                label: "Nombre del Negocio",
-                inputFormatters: [UpperCaseTextFormatter()],
-                textInputAction: TextInputAction.next,
-                textCapitalization: TextCapitalization.characters,
-                keyboardType: TextInputType.name,
-                onChanged: (text) {
-                  editedCustomer.value = editedCustomer.value.copyWith(
-                    businessName: drift.Value.absentIfNull(
+                  editedProduct.value = editedProduct.value.copyWith(
+                    code: drift.Value.absentIfNull(
                       text.trim().isEmpty ? null : text,
                     ),
                   );
                 },
-                initialValue: _customer.businessName,
+                initialValue: _product.code,
               ),
             ],
           ),
@@ -119,16 +112,16 @@ class EditCustomerView extends HookConsumerWidget {
               disabledElevation: 0,
               onPressed: () async {
                 await ref
-                    .read(customersProvider.notifier)
-                    .replace(editedCustomer.value);
+                    .read(productsProvider.notifier)
+                    .replace(editedProduct.value);
 
                 if (context.mounted) {
-                  context.go("/customers/customer",
+                  context.go("/products/product",
                       extra: await ref
-                          .read(customersProvider.future)
-                          .then((customers) {
-                        return customers.firstWhere((customer) {
-                          return customer.uuid == _customer.uuid;
+                          .read(productsProvider.future)
+                          .then((products) {
+                        return products.firstWhere((product) {
+                          return product.uuid == _product.uuid;
                         });
                       }));
                 }

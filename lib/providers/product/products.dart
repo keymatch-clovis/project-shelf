@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import "package:flutter/foundation.dart";
 import "package:oxidized/oxidized.dart";
 import "package:project_shelf/providers/database.dart";
@@ -30,38 +28,29 @@ class Products extends _$Products {
     return product;
   }
 
-  Future<ProductData> replace(ProductData data) async {
+  Future<void> replace(ProductData data) async {
     final database = ref.watch(databaseProvider);
 
     // We are making a memento, and updating the product.
-    return await database.transaction(() async {
+    await database.transaction(() async {
       final old = await findByUuid(data.uuid).unwrap();
 
       // See more: https://refactoring.guru/design-patterns/memento
-      debugPrint(
-        "creating product memento: $old, $CURRENT_VERSION",
-      );
-      await (database
-          .into(database.productMemento)
-          .insert(ProductMementoCompanion.insert(
-            data: jsonEncode(data.toJson()),
-            version: CURRENT_VERSION,
-            productUuid: data.uuid,
-          )));
+      await ref.read(productMementosProvider(data.uuid).notifier).create(old);
 
-      debugPrint("updating product: $data");
+      debugPrint("updating product with: $data");
       await database.update(database.product).replace(data);
+      debugPrint("product updated");
 
       await _invalidate();
-      return await findByUuid(data.uuid).unwrap();
     });
   }
 
-  Future<ProductData> delete(String uuid) async {
+  Future<void> delete(String uuid) async {
     final database = ref.watch(databaseProvider);
 
     debugPrint("deleting product: $uuid");
-    final products = await database.transaction(() async {
+    await database.transaction(() async {
       // Remove product mementos.
       await ref.watch(productMementosProvider(uuid).notifier).deleteAll();
 
@@ -74,7 +63,6 @@ class Products extends _$Products {
     debugPrint("product deleted: $uuid");
 
     await _invalidate();
-    return products;
   }
 
   Future<Option<ProductData>> findByUuid(String uuid) {

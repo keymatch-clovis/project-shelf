@@ -2,12 +2,34 @@ import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart';
 import 'package:oxidized/oxidized.dart';
 import 'package:project_shelf/database/database.dart';
+import 'package:project_shelf/lib/cop_currency.dart';
 import 'package:project_shelf/providers/database.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part "invoices.g.dart";
 
 const CURRENT_VERSION = 1;
+
+class InvoiceProduct {
+  ProductData product;
+  CopCurrency price;
+  CopCurrency discount;
+  int count;
+
+  InvoiceProduct.fromProduct(this.product)
+      : this.price = CopCurrency.fromCents(product.price),
+        this.discount = CopCurrency.zero(),
+        this.count = 0;
+
+  InvoiceProduct({
+    required this.product,
+    String? price,
+    String? discount,
+    int? count,
+  })  : this.price = CopCurrency.fromString(price),
+        this.discount = CopCurrency.fromString(discount),
+        this.count = count ?? 0;
+}
 
 class ProductInvoiceWithProduct {
   final ProductInvoiceData productInvoice;
@@ -31,15 +53,35 @@ class Invoices extends _$Invoices {
     return _find();
   }
 
-  Future<InvoiceData> create(InvoiceCompanion data) async {
+  Future<void> create({
+    required InvoiceCompanion data,
+    required List<InvoiceProduct> invoiceProducts,
+  }) async {
     final database = ref.watch(databaseProvider);
 
-    debugPrint("Creating invoice: $data");
-    final invoice = await database.into(database.invoice).insertReturning(data);
-    debugPrint("Invoice created: $data");
+    await database.transaction(() async {
+      debugPrint("Creating invoice with data: $data");
+      final invoice =
+          await database.into(database.invoice).insertReturning(data);
+      debugPrint("Invoice created: $invoice");
+
+      debugPrint("Adding products: $invoiceProducts to invoice: $invoice");
+      for (final invoiceProduct in invoiceProducts) {
+        debugPrint("Adding: $invoiceProduct");
+        final productInvoice = await database
+            .into(database.productInvoice)
+            .insertReturning(ProductInvoiceCompanion.insert(
+              price: Value(invoiceProduct.price.realValue),
+              discount: Value(invoiceProduct.discount.realValue),
+              count: invoiceProduct.count,
+              productUuid: invoiceProduct.product.uuid,
+              invoiceUuid: invoice.uuid,
+            ));
+        debugPrint("$productInvoice added to $invoice");
+      }
+    });
 
     await _invalidate();
-    return invoice;
   }
 
   Future<ProductInvoiceData> addProduct(ProductInvoiceCompanion data) async {

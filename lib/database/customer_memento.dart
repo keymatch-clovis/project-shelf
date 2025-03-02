@@ -8,7 +8,7 @@ class CustomerMemento extends Table {
   TextColumn get data => text()();
   IntColumn get version => integer()();
   // Foreign key.
-  TextColumn get clientUuid => text().references(Customer, #uuid)();
+  TextColumn get customerUuid => text().references(Customer, #uuid)();
 
   @override
   Set<Column<Object>> get primaryKey => {uuid};

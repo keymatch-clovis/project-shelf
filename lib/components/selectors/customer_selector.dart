@@ -4,30 +4,32 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:project_shelf/database/database.dart';
-import 'package:project_shelf/providers/cities.dart';
-import 'package:project_shelf/providers/city_search.dart';
+import 'package:project_shelf/providers/customer_search.dart';
+import 'package:project_shelf/providers/customers.dart';
 
-final cityProvider = FutureProvider.family<CityData?, int?>((ref, rowId) {
-  if (rowId != null) {
-    return ref.watch(citiesProvider.selectAsync(
-        (cities) => cities.firstWhere((city) => city.rowId == rowId)));
+final customerProvider =
+    FutureProvider.family<CustomerData?, String?>((ref, uuid) {
+  if (uuid != null) {
+    return ref.watch(customersProvider.selectAsync(
+      (customers) => customers.firstWhere((c) => c.uuid == uuid),
+    ));
   }
   return null;
 });
 
-class CitySelector extends HookConsumerWidget {
-  final Function(int)? onTap;
+class CustomerSelector extends HookConsumerWidget {
+  final Function(CustomerData)? onTap;
   final bool isRequired;
   final bool readOnly;
-  final int? cityRowId;
+  final String? customerUuid;
   final Widget? icon;
 
-  const CitySelector({
+  const CustomerSelector({
     super.key,
     this.onTap,
     this.isRequired = false,
     this.readOnly = false,
-    this.cityRowId,
+    this.customerUuid,
     this.icon,
   });
 
@@ -35,20 +37,20 @@ class CitySelector extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = useSearchController();
     final inputController = useTextEditingController();
-    final city = ref.watch(cityProvider(cityRowId));
+    final customer = ref.watch(customerProvider(customerUuid));
 
     useEffect(() {
-      city.whenData((c) {
+      customer.whenData((c) {
         if (c != null) {
           // We have to register this in a post frame callback, as the city can
           // change before the widget has finished building.
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            inputController.text = "${c.city}, ${c.department}";
+            inputController.text = c.name;
           });
         }
       });
       return null;
-    }, [city]);
+    }, [customer]);
 
     Widget renderLabel() {
       final List<Widget> children = [];
@@ -64,7 +66,7 @@ class CitySelector extends HookConsumerWidget {
         children.add(SizedBox(width: 4));
       }
 
-      children.add(Text("Ciudad"));
+      children.add(Text("Cliente"));
 
       return Row(
         mainAxisSize: MainAxisSize.min,
@@ -72,7 +74,7 @@ class CitySelector extends HookConsumerWidget {
       );
     }
 
-    Widget renderList(List<CityData> list) {
+    Widget renderList(List<CustomerData> list) {
       return ListView.separated(
         // See more:
         // https://stackoverflow.com/questions/63639472/flutter-unexpected-space-at-the-top-of-listview
@@ -84,15 +86,15 @@ class CitySelector extends HookConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                list[index].department,
+                list[index].businessName ?? "Sin nombre de negocio",
                 style: TextStyle(fontSize: 10),
               ),
-              Text(list[index].city),
+              Text(list[index].name),
             ],
           ),
           onTap: () {
             controller.closeView(null);
-            onTap!(list[index].rowId);
+            onTap!(list[index]);
           },
         ),
       );
@@ -113,7 +115,7 @@ class CitySelector extends HookConsumerWidget {
                 label: renderLabel(),
                 border: OutlineInputBorder(),
                 icon: icon,
-                hintText: "Ciudad",
+                hintText: "Cliente",
               ),
               onTap: () {
                 if (readOnly) {
@@ -124,17 +126,17 @@ class CitySelector extends HookConsumerWidget {
               },
               readOnly: true,
             ),
-            if (city.isLoading)
+            if (customer.isLoading)
               Center(child: CircularProgressIndicator.adaptive()),
           ],
         ),
         suggestionsBuilder: (_, controller) {
-          ref.read(citySearchProvider.notifier).setSearch(controller.text);
+          ref.read(customerSearchProvider.notifier).setSearch(controller.text);
           return [];
         },
         viewBuilder: (_) => Consumer(
           builder: (_, ref, __) {
-            return switch (ref.watch(citySearchProvider)) {
+            return switch (ref.watch(customerSearchProvider)) {
               AsyncData(:final value) => renderList(value),
               _ => Center(child: const CircularProgressIndicator.adaptive()),
             };

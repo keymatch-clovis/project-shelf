@@ -523,14 +523,15 @@ class $CustomerMementoTable extends CustomerMemento
       'version', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
   @override
-  late final GeneratedColumn<String> clientUuid = GeneratedColumn<String>(
-      'client_uuid', aliasedName, false,
+  late final GeneratedColumn<String> customerUuid = GeneratedColumn<String>(
+      'customer_uuid', aliasedName, false,
       type: DriftSqlType.string,
       requiredDuringInsert: true,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('REFERENCES customer (uuid)'));
   @override
-  List<GeneratedColumn> get $columns => [uuid, date, data, version, clientUuid];
+  List<GeneratedColumn> get $columns =>
+      [uuid, date, data, version, customerUuid];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -550,8 +551,8 @@ class $CustomerMementoTable extends CustomerMemento
           .read(DriftSqlType.string, data['${effectivePrefix}data'])!,
       version: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}version'])!,
-      clientUuid: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}client_uuid'])!,
+      customerUuid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}customer_uuid'])!,
     );
   }
 
@@ -567,13 +568,13 @@ class CustomerMementoData extends DataClass
   final DateTime date;
   final String data;
   final int version;
-  final String clientUuid;
+  final String customerUuid;
   const CustomerMementoData(
       {required this.uuid,
       required this.date,
       required this.data,
       required this.version,
-      required this.clientUuid});
+      required this.customerUuid});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -581,7 +582,7 @@ class CustomerMementoData extends DataClass
     map['date'] = Variable<DateTime>(date);
     map['data'] = Variable<String>(data);
     map['version'] = Variable<int>(version);
-    map['client_uuid'] = Variable<String>(clientUuid);
+    map['customer_uuid'] = Variable<String>(customerUuid);
     return map;
   }
 
@@ -591,7 +592,7 @@ class CustomerMementoData extends DataClass
       date: Value(date),
       data: Value(data),
       version: Value(version),
-      clientUuid: Value(clientUuid),
+      customerUuid: Value(customerUuid),
     );
   }
 
@@ -603,7 +604,7 @@ class CustomerMementoData extends DataClass
       date: serializer.fromJson<DateTime>(json['date']),
       data: serializer.fromJson<String>(json['data']),
       version: serializer.fromJson<int>(json['version']),
-      clientUuid: serializer.fromJson<String>(json['clientUuid']),
+      customerUuid: serializer.fromJson<String>(json['customerUuid']),
     );
   }
   @override
@@ -614,7 +615,7 @@ class CustomerMementoData extends DataClass
       'date': serializer.toJson<DateTime>(date),
       'data': serializer.toJson<String>(data),
       'version': serializer.toJson<int>(version),
-      'clientUuid': serializer.toJson<String>(clientUuid),
+      'customerUuid': serializer.toJson<String>(customerUuid),
     };
   }
 
@@ -623,13 +624,13 @@ class CustomerMementoData extends DataClass
           DateTime? date,
           String? data,
           int? version,
-          String? clientUuid}) =>
+          String? customerUuid}) =>
       CustomerMementoData(
         uuid: uuid ?? this.uuid,
         date: date ?? this.date,
         data: data ?? this.data,
         version: version ?? this.version,
-        clientUuid: clientUuid ?? this.clientUuid,
+        customerUuid: customerUuid ?? this.customerUuid,
       );
   CustomerMementoData copyWithCompanion(CustomerMementoCompanion data) {
     return CustomerMementoData(
@@ -637,8 +638,9 @@ class CustomerMementoData extends DataClass
       date: data.date.present ? data.date.value : this.date,
       data: data.data.present ? data.data.value : this.data,
       version: data.version.present ? data.version.value : this.version,
-      clientUuid:
-          data.clientUuid.present ? data.clientUuid.value : this.clientUuid,
+      customerUuid: data.customerUuid.present
+          ? data.customerUuid.value
+          : this.customerUuid,
     );
   }
 
@@ -649,13 +651,13 @@ class CustomerMementoData extends DataClass
           ..write('date: $date, ')
           ..write('data: $data, ')
           ..write('version: $version, ')
-          ..write('clientUuid: $clientUuid')
+          ..write('customerUuid: $customerUuid')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(uuid, date, data, version, clientUuid);
+  int get hashCode => Object.hash(uuid, date, data, version, customerUuid);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -664,7 +666,7 @@ class CustomerMementoData extends DataClass
           other.date == this.date &&
           other.data == this.data &&
           other.version == this.version &&
-          other.clientUuid == this.clientUuid);
+          other.customerUuid == this.customerUuid);
 }
 
 class CustomerMementoCompanion extends UpdateCompanion<CustomerMementoData> {
@@ -672,14 +674,14 @@ class CustomerMementoCompanion extends UpdateCompanion<CustomerMementoData> {
   final Value<DateTime> date;
   final Value<String> data;
   final Value<int> version;
-  final Value<String> clientUuid;
+  final Value<String> customerUuid;
   final Value<int> rowid;
   const CustomerMementoCompanion({
     this.uuid = const Value.absent(),
     this.date = const Value.absent(),
     this.data = const Value.absent(),
     this.version = const Value.absent(),
-    this.clientUuid = const Value.absent(),
+    this.customerUuid = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   CustomerMementoCompanion.insert({
@@ -687,17 +689,17 @@ class CustomerMementoCompanion extends UpdateCompanion<CustomerMementoData> {
     this.date = const Value.absent(),
     required String data,
     required int version,
-    required String clientUuid,
+    required String customerUuid,
     this.rowid = const Value.absent(),
   })  : data = Value(data),
         version = Value(version),
-        clientUuid = Value(clientUuid);
+        customerUuid = Value(customerUuid);
   static Insertable<CustomerMementoData> custom({
     Expression<String>? uuid,
     Expression<DateTime>? date,
     Expression<String>? data,
     Expression<int>? version,
-    Expression<String>? clientUuid,
+    Expression<String>? customerUuid,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -705,7 +707,7 @@ class CustomerMementoCompanion extends UpdateCompanion<CustomerMementoData> {
       if (date != null) 'date': date,
       if (data != null) 'data': data,
       if (version != null) 'version': version,
-      if (clientUuid != null) 'client_uuid': clientUuid,
+      if (customerUuid != null) 'customer_uuid': customerUuid,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -715,14 +717,14 @@ class CustomerMementoCompanion extends UpdateCompanion<CustomerMementoData> {
       Value<DateTime>? date,
       Value<String>? data,
       Value<int>? version,
-      Value<String>? clientUuid,
+      Value<String>? customerUuid,
       Value<int>? rowid}) {
     return CustomerMementoCompanion(
       uuid: uuid ?? this.uuid,
       date: date ?? this.date,
       data: data ?? this.data,
       version: version ?? this.version,
-      clientUuid: clientUuid ?? this.clientUuid,
+      customerUuid: customerUuid ?? this.customerUuid,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -742,8 +744,8 @@ class CustomerMementoCompanion extends UpdateCompanion<CustomerMementoData> {
     if (version.present) {
       map['version'] = Variable<int>(version.value);
     }
-    if (clientUuid.present) {
-      map['client_uuid'] = Variable<String>(clientUuid.value);
+    if (customerUuid.present) {
+      map['customer_uuid'] = Variable<String>(customerUuid.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -758,7 +760,7 @@ class CustomerMementoCompanion extends UpdateCompanion<CustomerMementoData> {
           ..write('date: $date, ')
           ..write('data: $data, ')
           ..write('version: $version, ')
-          ..write('clientUuid: $clientUuid, ')
+          ..write('customerUuid: $customerUuid, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1055,11 +1057,15 @@ class $ProductTable extends Product with TableInfo<$ProductTable, ProductData> {
   @override
   late final GeneratedColumn<BigInt> price = GeneratedColumn<BigInt>(
       'price', aliasedName, false,
-      type: DriftSqlType.bigInt, requiredDuringInsert: true);
+      type: DriftSqlType.bigInt,
+      requiredDuringInsert: false,
+      clientDefault: () => BigInt.from(0));
   @override
   late final GeneratedColumn<int> stock = GeneratedColumn<int>(
       'stock', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      clientDefault: () => 0);
   @override
   late final GeneratedColumn<String> code = GeneratedColumn<String>(
       'code', aliasedName, true,
@@ -1220,13 +1226,11 @@ class ProductCompanion extends UpdateCompanion<ProductData> {
   ProductCompanion.insert({
     this.uuid = const Value.absent(),
     required String name,
-    required BigInt price,
-    required int stock,
+    this.price = const Value.absent(),
+    this.stock = const Value.absent(),
     this.code = const Value.absent(),
     this.rowid = const Value.absent(),
-  })  : name = Value(name),
-        price = Value(price),
-        stock = Value(stock);
+  }) : name = Value(name);
   static Insertable<ProductData> custom({
     Expression<String>? uuid,
     Expression<String>? name,
@@ -1307,19 +1311,21 @@ class $ProductInvoiceTable extends ProductInvoice
   final String? _alias;
   $ProductInvoiceTable(this.attachedDatabase, [this._alias]);
   @override
-  late final GeneratedColumn<int> price = GeneratedColumn<int>(
-      'price', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
-  @override
   late final GeneratedColumn<int> count = GeneratedColumn<int>(
       'count', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
   @override
-  late final GeneratedColumn<int> discount = GeneratedColumn<int>(
-      'discount', aliasedName, false,
-      type: DriftSqlType.int,
+  late final GeneratedColumn<BigInt> price = GeneratedColumn<BigInt>(
+      'price', aliasedName, false,
+      type: DriftSqlType.bigInt,
       requiredDuringInsert: false,
-      clientDefault: () => 0);
+      clientDefault: () => BigInt.from(0));
+  @override
+  late final GeneratedColumn<BigInt> discount = GeneratedColumn<BigInt>(
+      'discount', aliasedName, false,
+      type: DriftSqlType.bigInt,
+      requiredDuringInsert: false,
+      clientDefault: () => BigInt.from(0));
   @override
   late final GeneratedColumn<String> productUuid = GeneratedColumn<String>(
       'product_uuid', aliasedName, false,
@@ -1336,7 +1342,7 @@ class $ProductInvoiceTable extends ProductInvoice
           GeneratedColumn.constraintIsAlways('REFERENCES invoice (uuid)'));
   @override
   List<GeneratedColumn> get $columns =>
-      [price, count, discount, productUuid, invoiceUuid];
+      [count, price, discount, productUuid, invoiceUuid];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -1348,12 +1354,12 @@ class $ProductInvoiceTable extends ProductInvoice
   ProductInvoiceData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return ProductInvoiceData(
-      price: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}price'])!,
       count: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}count'])!,
+      price: attachedDatabase.typeMapping
+          .read(DriftSqlType.bigInt, data['${effectivePrefix}price'])!,
       discount: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}discount'])!,
+          .read(DriftSqlType.bigInt, data['${effectivePrefix}discount'])!,
       productUuid: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}product_uuid'])!,
       invoiceUuid: attachedDatabase.typeMapping
@@ -1369,25 +1375,25 @@ class $ProductInvoiceTable extends ProductInvoice
 
 class ProductInvoiceData extends DataClass
     implements Insertable<ProductInvoiceData> {
-  final int price;
   final int count;
-  final int discount;
+  final BigInt price;
+  final BigInt discount;
 
   /// References.
   final String productUuid;
   final String invoiceUuid;
   const ProductInvoiceData(
-      {required this.price,
-      required this.count,
+      {required this.count,
+      required this.price,
       required this.discount,
       required this.productUuid,
       required this.invoiceUuid});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['price'] = Variable<int>(price);
     map['count'] = Variable<int>(count);
-    map['discount'] = Variable<int>(discount);
+    map['price'] = Variable<BigInt>(price);
+    map['discount'] = Variable<BigInt>(discount);
     map['product_uuid'] = Variable<String>(productUuid);
     map['invoice_uuid'] = Variable<String>(invoiceUuid);
     return map;
@@ -1395,8 +1401,8 @@ class ProductInvoiceData extends DataClass
 
   ProductInvoiceCompanion toCompanion(bool nullToAbsent) {
     return ProductInvoiceCompanion(
-      price: Value(price),
       count: Value(count),
+      price: Value(price),
       discount: Value(discount),
       productUuid: Value(productUuid),
       invoiceUuid: Value(invoiceUuid),
@@ -1407,9 +1413,9 @@ class ProductInvoiceData extends DataClass
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return ProductInvoiceData(
-      price: serializer.fromJson<int>(json['price']),
       count: serializer.fromJson<int>(json['count']),
-      discount: serializer.fromJson<int>(json['discount']),
+      price: serializer.fromJson<BigInt>(json['price']),
+      discount: serializer.fromJson<BigInt>(json['discount']),
       productUuid: serializer.fromJson<String>(json['productUuid']),
       invoiceUuid: serializer.fromJson<String>(json['invoiceUuid']),
     );
@@ -1418,31 +1424,31 @@ class ProductInvoiceData extends DataClass
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'price': serializer.toJson<int>(price),
       'count': serializer.toJson<int>(count),
-      'discount': serializer.toJson<int>(discount),
+      'price': serializer.toJson<BigInt>(price),
+      'discount': serializer.toJson<BigInt>(discount),
       'productUuid': serializer.toJson<String>(productUuid),
       'invoiceUuid': serializer.toJson<String>(invoiceUuid),
     };
   }
 
   ProductInvoiceData copyWith(
-          {int? price,
-          int? count,
-          int? discount,
+          {int? count,
+          BigInt? price,
+          BigInt? discount,
           String? productUuid,
           String? invoiceUuid}) =>
       ProductInvoiceData(
-        price: price ?? this.price,
         count: count ?? this.count,
+        price: price ?? this.price,
         discount: discount ?? this.discount,
         productUuid: productUuid ?? this.productUuid,
         invoiceUuid: invoiceUuid ?? this.invoiceUuid,
       );
   ProductInvoiceData copyWithCompanion(ProductInvoiceCompanion data) {
     return ProductInvoiceData(
-      price: data.price.present ? data.price.value : this.price,
       count: data.count.present ? data.count.value : this.count,
+      price: data.price.present ? data.price.value : this.price,
       discount: data.discount.present ? data.discount.value : this.discount,
       productUuid:
           data.productUuid.present ? data.productUuid.value : this.productUuid,
@@ -1454,8 +1460,8 @@ class ProductInvoiceData extends DataClass
   @override
   String toString() {
     return (StringBuffer('ProductInvoiceData(')
-          ..write('price: $price, ')
           ..write('count: $count, ')
+          ..write('price: $price, ')
           ..write('discount: $discount, ')
           ..write('productUuid: $productUuid, ')
           ..write('invoiceUuid: $invoiceUuid')
@@ -1465,55 +1471,54 @@ class ProductInvoiceData extends DataClass
 
   @override
   int get hashCode =>
-      Object.hash(price, count, discount, productUuid, invoiceUuid);
+      Object.hash(count, price, discount, productUuid, invoiceUuid);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is ProductInvoiceData &&
-          other.price == this.price &&
           other.count == this.count &&
+          other.price == this.price &&
           other.discount == this.discount &&
           other.productUuid == this.productUuid &&
           other.invoiceUuid == this.invoiceUuid);
 }
 
 class ProductInvoiceCompanion extends UpdateCompanion<ProductInvoiceData> {
-  final Value<int> price;
   final Value<int> count;
-  final Value<int> discount;
+  final Value<BigInt> price;
+  final Value<BigInt> discount;
   final Value<String> productUuid;
   final Value<String> invoiceUuid;
   final Value<int> rowid;
   const ProductInvoiceCompanion({
-    this.price = const Value.absent(),
     this.count = const Value.absent(),
+    this.price = const Value.absent(),
     this.discount = const Value.absent(),
     this.productUuid = const Value.absent(),
     this.invoiceUuid = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ProductInvoiceCompanion.insert({
-    required int price,
     required int count,
+    this.price = const Value.absent(),
     this.discount = const Value.absent(),
     required String productUuid,
     required String invoiceUuid,
     this.rowid = const Value.absent(),
-  })  : price = Value(price),
-        count = Value(count),
+  })  : count = Value(count),
         productUuid = Value(productUuid),
         invoiceUuid = Value(invoiceUuid);
   static Insertable<ProductInvoiceData> custom({
-    Expression<int>? price,
     Expression<int>? count,
-    Expression<int>? discount,
+    Expression<BigInt>? price,
+    Expression<BigInt>? discount,
     Expression<String>? productUuid,
     Expression<String>? invoiceUuid,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
-      if (price != null) 'price': price,
       if (count != null) 'count': count,
+      if (price != null) 'price': price,
       if (discount != null) 'discount': discount,
       if (productUuid != null) 'product_uuid': productUuid,
       if (invoiceUuid != null) 'invoice_uuid': invoiceUuid,
@@ -1522,15 +1527,15 @@ class ProductInvoiceCompanion extends UpdateCompanion<ProductInvoiceData> {
   }
 
   ProductInvoiceCompanion copyWith(
-      {Value<int>? price,
-      Value<int>? count,
-      Value<int>? discount,
+      {Value<int>? count,
+      Value<BigInt>? price,
+      Value<BigInt>? discount,
       Value<String>? productUuid,
       Value<String>? invoiceUuid,
       Value<int>? rowid}) {
     return ProductInvoiceCompanion(
-      price: price ?? this.price,
       count: count ?? this.count,
+      price: price ?? this.price,
       discount: discount ?? this.discount,
       productUuid: productUuid ?? this.productUuid,
       invoiceUuid: invoiceUuid ?? this.invoiceUuid,
@@ -1541,14 +1546,14 @@ class ProductInvoiceCompanion extends UpdateCompanion<ProductInvoiceData> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (price.present) {
-      map['price'] = Variable<int>(price.value);
-    }
     if (count.present) {
       map['count'] = Variable<int>(count.value);
     }
+    if (price.present) {
+      map['price'] = Variable<BigInt>(price.value);
+    }
     if (discount.present) {
-      map['discount'] = Variable<int>(discount.value);
+      map['discount'] = Variable<BigInt>(discount.value);
     }
     if (productUuid.present) {
       map['product_uuid'] = Variable<String>(productUuid.value);
@@ -1565,8 +1570,8 @@ class ProductInvoiceCompanion extends UpdateCompanion<ProductInvoiceData> {
   @override
   String toString() {
     return (StringBuffer('ProductInvoiceCompanion(')
-          ..write('price: $price, ')
           ..write('count: $count, ')
+          ..write('price: $price, ')
           ..write('discount: $discount, ')
           ..write('productUuid: $productUuid, ')
           ..write('invoiceUuid: $invoiceUuid, ')
@@ -2125,12 +2130,12 @@ final class $$CustomerTableReferences
       _customerMementoRefsTable(_$ShelfDatabase db) =>
           MultiTypedResultKey.fromTable(db.customerMemento,
               aliasName: $_aliasNameGenerator(
-                  db.customer.uuid, db.customerMemento.clientUuid));
+                  db.customer.uuid, db.customerMemento.customerUuid));
 
   $$CustomerMementoTableProcessedTableManager get customerMementoRefs {
     final manager =
         $$CustomerMementoTableTableManager($_db, $_db.customerMemento)
-            .filter((f) => f.clientUuid.uuid($_item.uuid));
+            .filter((f) => f.customerUuid.uuid($_item.uuid));
 
     final cache =
         $_typedResult.readTableOrNull(_customerMementoRefsTable($_db));
@@ -2204,7 +2209,7 @@ class $$CustomerTableFilterComposer
         composer: this,
         getCurrentColumn: (t) => t.uuid,
         referencedTable: $db.customerMemento,
-        getReferencedColumn: (t) => t.clientUuid,
+        getReferencedColumn: (t) => t.customerUuid,
         builder: (joinBuilder,
                 {$addJoinBuilderToRootComposer,
                 $removeJoinBuilderFromRootComposer}) =>
@@ -2337,7 +2342,7 @@ class $$CustomerTableAnnotationComposer
         composer: this,
         getCurrentColumn: (t) => t.uuid,
         referencedTable: $db.customerMemento,
-        getReferencedColumn: (t) => t.clientUuid,
+        getReferencedColumn: (t) => t.customerUuid,
         builder: (joinBuilder,
                 {$addJoinBuilderToRootComposer,
                 $removeJoinBuilderFromRootComposer}) =>
@@ -2485,7 +2490,7 @@ class $$CustomerTableTableManager extends RootTableManager<
                                 .customerMementoRefs,
                         referencedItemsForCurrentItem:
                             (item, referencedItems) => referencedItems
-                                .where((e) => e.clientUuid == item.uuid),
+                                .where((e) => e.customerUuid == item.uuid),
                         typedResults: items),
                   if (invoiceRefs)
                     await $_getPrefetchedData(
@@ -2525,7 +2530,7 @@ typedef $$CustomerMementoTableCreateCompanionBuilder = CustomerMementoCompanion
   Value<DateTime> date,
   required String data,
   required int version,
-  required String clientUuid,
+  required String customerUuid,
   Value<int> rowid,
 });
 typedef $$CustomerMementoTableUpdateCompanionBuilder = CustomerMementoCompanion
@@ -2534,7 +2539,7 @@ typedef $$CustomerMementoTableUpdateCompanionBuilder = CustomerMementoCompanion
   Value<DateTime> date,
   Value<String> data,
   Value<int> version,
-  Value<String> clientUuid,
+  Value<String> customerUuid,
   Value<int> rowid,
 });
 
@@ -2543,14 +2548,14 @@ final class $$CustomerMementoTableReferences extends BaseReferences<
   $$CustomerMementoTableReferences(
       super.$_db, super.$_table, super.$_typedResult);
 
-  static $CustomerTable _clientUuidTable(_$ShelfDatabase db) =>
+  static $CustomerTable _customerUuidTable(_$ShelfDatabase db) =>
       db.customer.createAlias($_aliasNameGenerator(
-          db.customerMemento.clientUuid, db.customer.uuid));
+          db.customerMemento.customerUuid, db.customer.uuid));
 
-  $$CustomerTableProcessedTableManager get clientUuid {
+  $$CustomerTableProcessedTableManager get customerUuid {
     final manager = $$CustomerTableTableManager($_db, $_db.customer)
-        .filter((f) => f.uuid($_item.clientUuid));
-    final item = $_typedResult.readTableOrNull(_clientUuidTable($_db));
+        .filter((f) => f.uuid($_item.customerUuid));
+    final item = $_typedResult.readTableOrNull(_customerUuidTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: [item]));
@@ -2578,10 +2583,10 @@ class $$CustomerMementoTableFilterComposer
   ColumnFilters<int> get version => $composableBuilder(
       column: $table.version, builder: (column) => ColumnFilters(column));
 
-  $$CustomerTableFilterComposer get clientUuid {
+  $$CustomerTableFilterComposer get customerUuid {
     final $$CustomerTableFilterComposer composer = $composerBuilder(
         composer: this,
-        getCurrentColumn: (t) => t.clientUuid,
+        getCurrentColumn: (t) => t.customerUuid,
         referencedTable: $db.customer,
         getReferencedColumn: (t) => t.uuid,
         builder: (joinBuilder,
@@ -2620,10 +2625,10 @@ class $$CustomerMementoTableOrderingComposer
   ColumnOrderings<int> get version => $composableBuilder(
       column: $table.version, builder: (column) => ColumnOrderings(column));
 
-  $$CustomerTableOrderingComposer get clientUuid {
+  $$CustomerTableOrderingComposer get customerUuid {
     final $$CustomerTableOrderingComposer composer = $composerBuilder(
         composer: this,
-        getCurrentColumn: (t) => t.clientUuid,
+        getCurrentColumn: (t) => t.customerUuid,
         referencedTable: $db.customer,
         getReferencedColumn: (t) => t.uuid,
         builder: (joinBuilder,
@@ -2662,10 +2667,10 @@ class $$CustomerMementoTableAnnotationComposer
   GeneratedColumn<int> get version =>
       $composableBuilder(column: $table.version, builder: (column) => column);
 
-  $$CustomerTableAnnotationComposer get clientUuid {
+  $$CustomerTableAnnotationComposer get customerUuid {
     final $$CustomerTableAnnotationComposer composer = $composerBuilder(
         composer: this,
-        getCurrentColumn: (t) => t.clientUuid,
+        getCurrentColumn: (t) => t.customerUuid,
         referencedTable: $db.customer,
         getReferencedColumn: (t) => t.uuid,
         builder: (joinBuilder,
@@ -2694,7 +2699,7 @@ class $$CustomerMementoTableTableManager extends RootTableManager<
     $$CustomerMementoTableUpdateCompanionBuilder,
     (CustomerMementoData, $$CustomerMementoTableReferences),
     CustomerMementoData,
-    PrefetchHooks Function({bool clientUuid})> {
+    PrefetchHooks Function({bool customerUuid})> {
   $$CustomerMementoTableTableManager(
       _$ShelfDatabase db, $CustomerMementoTable table)
       : super(TableManagerState(
@@ -2711,7 +2716,7 @@ class $$CustomerMementoTableTableManager extends RootTableManager<
             Value<DateTime> date = const Value.absent(),
             Value<String> data = const Value.absent(),
             Value<int> version = const Value.absent(),
-            Value<String> clientUuid = const Value.absent(),
+            Value<String> customerUuid = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               CustomerMementoCompanion(
@@ -2719,7 +2724,7 @@ class $$CustomerMementoTableTableManager extends RootTableManager<
             date: date,
             data: data,
             version: version,
-            clientUuid: clientUuid,
+            customerUuid: customerUuid,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -2727,7 +2732,7 @@ class $$CustomerMementoTableTableManager extends RootTableManager<
             Value<DateTime> date = const Value.absent(),
             required String data,
             required int version,
-            required String clientUuid,
+            required String customerUuid,
             Value<int> rowid = const Value.absent(),
           }) =>
               CustomerMementoCompanion.insert(
@@ -2735,7 +2740,7 @@ class $$CustomerMementoTableTableManager extends RootTableManager<
             date: date,
             data: data,
             version: version,
-            clientUuid: clientUuid,
+            customerUuid: customerUuid,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
@@ -2744,7 +2749,7 @@ class $$CustomerMementoTableTableManager extends RootTableManager<
                     $$CustomerMementoTableReferences(db, table, e)
                   ))
               .toList(),
-          prefetchHooksCallback: ({clientUuid = false}) {
+          prefetchHooksCallback: ({customerUuid = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [],
@@ -2761,14 +2766,14 @@ class $$CustomerMementoTableTableManager extends RootTableManager<
                       dynamic,
                       dynamic,
                       dynamic>>(state) {
-                if (clientUuid) {
+                if (customerUuid) {
                   state = state.withJoin(
                     currentTable: table,
-                    currentColumn: table.clientUuid,
+                    currentColumn: table.customerUuid,
                     referencedTable:
-                        $$CustomerMementoTableReferences._clientUuidTable(db),
+                        $$CustomerMementoTableReferences._customerUuidTable(db),
                     referencedColumn: $$CustomerMementoTableReferences
-                        ._clientUuidTable(db)
+                        ._customerUuidTable(db)
                         .uuid,
                   ) as T;
                 }
@@ -2794,7 +2799,7 @@ typedef $$CustomerMementoTableProcessedTableManager = ProcessedTableManager<
     $$CustomerMementoTableUpdateCompanionBuilder,
     (CustomerMementoData, $$CustomerMementoTableReferences),
     CustomerMementoData,
-    PrefetchHooks Function({bool clientUuid})>;
+    PrefetchHooks Function({bool customerUuid})>;
 typedef $$InvoiceTableCreateCompanionBuilder = InvoiceCompanion Function({
   Value<String> uuid,
   required int number,
@@ -3140,8 +3145,8 @@ typedef $$InvoiceTableProcessedTableManager = ProcessedTableManager<
 typedef $$ProductTableCreateCompanionBuilder = ProductCompanion Function({
   Value<String> uuid,
   required String name,
-  required BigInt price,
-  required int stock,
+  Value<BigInt> price,
+  Value<int> stock,
   Value<String?> code,
   Value<int> rowid,
 });
@@ -3390,8 +3395,8 @@ class $$ProductTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             Value<String> uuid = const Value.absent(),
             required String name,
-            required BigInt price,
-            required int stock,
+            Value<BigInt> price = const Value.absent(),
+            Value<int> stock = const Value.absent(),
             Value<String?> code = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
@@ -3463,18 +3468,18 @@ typedef $$ProductTableProcessedTableManager = ProcessedTableManager<
     PrefetchHooks Function({bool productInvoiceRefs, bool productMementoRefs})>;
 typedef $$ProductInvoiceTableCreateCompanionBuilder = ProductInvoiceCompanion
     Function({
-  required int price,
   required int count,
-  Value<int> discount,
+  Value<BigInt> price,
+  Value<BigInt> discount,
   required String productUuid,
   required String invoiceUuid,
   Value<int> rowid,
 });
 typedef $$ProductInvoiceTableUpdateCompanionBuilder = ProductInvoiceCompanion
     Function({
-  Value<int> price,
   Value<int> count,
-  Value<int> discount,
+  Value<BigInt> price,
+  Value<BigInt> discount,
   Value<String> productUuid,
   Value<String> invoiceUuid,
   Value<int> rowid,
@@ -3521,13 +3526,13 @@ class $$ProductInvoiceTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<int> get price => $composableBuilder(
-      column: $table.price, builder: (column) => ColumnFilters(column));
-
   ColumnFilters<int> get count => $composableBuilder(
       column: $table.count, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get discount => $composableBuilder(
+  ColumnFilters<BigInt> get price => $composableBuilder(
+      column: $table.price, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<BigInt> get discount => $composableBuilder(
       column: $table.discount, builder: (column) => ColumnFilters(column));
 
   $$ProductTableFilterComposer get productUuid {
@@ -3580,13 +3585,13 @@ class $$ProductInvoiceTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<int> get price => $composableBuilder(
-      column: $table.price, builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<int> get count => $composableBuilder(
       column: $table.count, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<int> get discount => $composableBuilder(
+  ColumnOrderings<BigInt> get price => $composableBuilder(
+      column: $table.price, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<BigInt> get discount => $composableBuilder(
       column: $table.discount, builder: (column) => ColumnOrderings(column));
 
   $$ProductTableOrderingComposer get productUuid {
@@ -3639,13 +3644,13 @@ class $$ProductInvoiceTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get price =>
-      $composableBuilder(column: $table.price, builder: (column) => column);
-
   GeneratedColumn<int> get count =>
       $composableBuilder(column: $table.count, builder: (column) => column);
 
-  GeneratedColumn<int> get discount =>
+  GeneratedColumn<BigInt> get price =>
+      $composableBuilder(column: $table.price, builder: (column) => column);
+
+  GeneratedColumn<BigInt> get discount =>
       $composableBuilder(column: $table.discount, builder: (column) => column);
 
   $$ProductTableAnnotationComposer get productUuid {
@@ -3713,32 +3718,32 @@ class $$ProductInvoiceTableTableManager extends RootTableManager<
           createComputedFieldComposer: () =>
               $$ProductInvoiceTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
-            Value<int> price = const Value.absent(),
             Value<int> count = const Value.absent(),
-            Value<int> discount = const Value.absent(),
+            Value<BigInt> price = const Value.absent(),
+            Value<BigInt> discount = const Value.absent(),
             Value<String> productUuid = const Value.absent(),
             Value<String> invoiceUuid = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               ProductInvoiceCompanion(
-            price: price,
             count: count,
+            price: price,
             discount: discount,
             productUuid: productUuid,
             invoiceUuid: invoiceUuid,
             rowid: rowid,
           ),
           createCompanionCallback: ({
-            required int price,
             required int count,
-            Value<int> discount = const Value.absent(),
+            Value<BigInt> price = const Value.absent(),
+            Value<BigInt> discount = const Value.absent(),
             required String productUuid,
             required String invoiceUuid,
             Value<int> rowid = const Value.absent(),
           }) =>
               ProductInvoiceCompanion.insert(
-            price: price,
             count: count,
+            price: price,
             discount: discount,
             productUuid: productUuid,
             invoiceUuid: invoiceUuid,

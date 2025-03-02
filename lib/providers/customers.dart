@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:oxidized/oxidized.dart';
 import 'package:project_shelf/database/database.dart';
+import 'package:project_shelf/providers/customer_mementos.dart';
 import 'package:project_shelf/providers/database.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -39,19 +40,11 @@ class Customers extends _$Customers {
       final old = await findByUuid(data.uuid).unwrap();
 
       // See more: https://refactoring.guru/design-patterns/memento
-      debugPrint(
-        "creating customer memento: $old, $CURRENT_CUSTOMER_VERSION",
-      );
-      await (database
-          .into(database.customerMemento)
-          .insert(CustomerMementoCompanion.insert(
-            data: jsonEncode(data.toJson()),
-            version: CURRENT_CUSTOMER_VERSION,
-            clientUuid: data.uuid,
-          )));
+      await ref.read(customerMementosProvider(data.uuid).notifier).create(old);
 
       debugPrint("updating customer: $data");
       await (database.update(database.customer).replace(data));
+      debugPrint("customer updated");
 
       await _invalidate();
     });
@@ -63,6 +56,25 @@ class Customers extends _$Customers {
           ..where((c) => c.uuid.equals(uuid)))
         .getSingleOrNull()
         .then((c) => Option.from(c));
+  }
+
+  Future<void> delete(String uuid) async {
+    final database = ref.watch(databaseProvider);
+
+    debugPrint("deleting customer: $uuid");
+    await database.transaction(() async {
+      // Remove customer mementos.
+      await ref.watch(customerMementosProvider(uuid).notifier).deleteAll();
+
+      // Remove customer.
+      return await (database.delete(database.customer)
+            ..where((p) => p.uuid.equals(uuid)))
+          .goAndReturn()
+          .then((customers) => customers.first);
+    });
+    debugPrint("customer deleted: $uuid");
+
+    await _invalidate();
   }
 
   Future<void> TEST_load() async {

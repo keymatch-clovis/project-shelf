@@ -3,9 +3,9 @@ import 'package:project_shelf/database/invoice.dart';
 import 'package:project_shelf/database/product.dart';
 
 class ProductInvoice extends Table {
-  late final price = integer()();
   late final count = integer()();
-  late final discount = integer().clientDefault(() => 0)();
+  late final price = int64().clientDefault(() => BigInt.from(0))();
+  late final discount = int64().clientDefault(() => BigInt.from(0))();
 
   /// References.
   late final productUuid = text().references(Product, #uuid)();

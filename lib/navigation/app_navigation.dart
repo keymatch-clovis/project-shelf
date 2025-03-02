@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:project_shelf/database/database.dart';
 import 'package:project_shelf/main_wrapper.dart';
 import 'package:project_shelf/views/customer_view.dart';
 import 'package:project_shelf/views/customers_view.dart';
@@ -7,6 +8,7 @@ import 'package:project_shelf/views/create_customer_view.dart';
 import 'package:project_shelf/views/backups_view.dart';
 import 'package:project_shelf/views/data_load_view.dart';
 import 'package:project_shelf/views/edit_customer_view.dart';
+import 'package:project_shelf/views/edit_product_view.dart';
 import 'package:project_shelf/views/invoices_view.dart';
 import 'package:project_shelf/views/create_invoice_view.dart';
 import 'package:project_shelf/views/create_product_view.dart';
@@ -55,11 +57,20 @@ class AppNavigation {
                         CreateProductView(key: state.pageKey),
                   ),
                   GoRoute(
-                    path: 'product/:id',
+                    path: 'product',
                     builder: (context, state) => ProductView(
+                      state.extra as ProductData,
                       key: state.pageKey,
-                      id: state.pathParameters['id']!,
                     ),
+                    routes: [
+                      GoRoute(
+                        path: 'edit',
+                        builder: (context, state) => EditProductView(
+                          state.extra as ProductData,
+                          key: state.pageKey,
+                        ),
+                      )
+                    ],
                   ),
                 ],
               ),
@@ -95,18 +106,20 @@ class AppNavigation {
                         CreateCustomerView(key: state.pageKey),
                   ),
                   GoRoute(
-                    path: 'customer/:uuid',
+                    path: 'customer',
                     builder: (context, state) => CustomerView(
+                      state.extra as CustomerData,
                       key: state.pageKey,
-                      uuid: state.pathParameters['uuid']!,
                     ),
-                  ),
-                  GoRoute(
-                    path: 'customer/edit/:uuid',
-                    builder: (context, state) => EditCustomerView(
-                      key: state.pageKey,
-                      uuid: state.pathParameters['uuid']!,
-                    ),
+                    routes: [
+                      GoRoute(
+                        path: 'edit',
+                        builder: (context, state) => EditCustomerView(
+                          state.extra as CustomerData,
+                          key: state.pageKey,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

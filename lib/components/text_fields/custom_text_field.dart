@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class CustomTextField extends StatelessWidget {
-  final void Function(String) onChanged;
+class CustomTextField extends HookWidget {
   final String label;
   final bool readOnly;
   final TextCapitalization textCapitalization;
@@ -13,13 +13,13 @@ class CustomTextField extends StatelessWidget {
   final List<TextInputFormatter> inputFormatters;
   final TextInputType keyboardType;
 
+  final void Function(String)? onChanged;
   final String? initialValue;
   final FormFieldValidator<String>? validator;
   final Widget? icon;
 
   const CustomTextField({
     super.key,
-    required this.onChanged,
     required this.label,
     this.readOnly = false,
     this.autofocus = false,
@@ -29,12 +29,25 @@ class CustomTextField extends StatelessWidget {
     this.textInputAction = TextInputAction.next,
     this.keyboardType = TextInputType.text,
     this.initialValue,
+    this.onChanged,
     this.validator,
     this.icon,
   });
 
   @override
   Widget build(BuildContext context) {
+    final controller = useTextEditingController();
+
+    useEffect(() {
+      // We have to register this in a post frame callback, as the value can
+      // change before the widget has finished building.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        controller.text = initialValue ?? "";
+      });
+
+      return null;
+    }, [initialValue]);
+
     Widget renderLabel() {
       final List<Widget> children = [];
 
@@ -62,6 +75,7 @@ class CustomTextField extends StatelessWidget {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 8),
       child: TextFormField(
+        controller: controller,
         autofocus: autofocus,
         decoration: InputDecoration(
           label: renderLabel(),
@@ -76,7 +90,6 @@ class CustomTextField extends StatelessWidget {
         keyboardType: keyboardType,
         autovalidateMode: AutovalidateMode.onUserInteraction,
         validator: validator,
-        initialValue: initialValue,
         onChanged: onChanged,
       ),
     );
