@@ -45,6 +45,19 @@ class SettingsView extends ConsumerWidget {
                 onTap: () => context.go('/settings/data-load'),
               ),
             ),
+            const SizedBox(height: 8),
+            Card(
+              child: ListTile(
+                title: Row(
+                  children: [
+                    Text("Preferencias"),
+                    Spacer(),
+                    FaIcon(FontAwesomeIcons.chevronRight),
+                  ],
+                ),
+                onTap: () => context.go('/settings/preferences'),
+              ),
+            ),
           ],
         ),
       ),

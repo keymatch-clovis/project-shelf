@@ -9,9 +9,11 @@ import 'package:project_shelf/views/backups_view.dart';
 import 'package:project_shelf/views/data_load_view.dart';
 import 'package:project_shelf/views/edit_customer_view.dart';
 import 'package:project_shelf/views/edit_product_view.dart';
+import 'package:project_shelf/views/invoice_view.dart';
 import 'package:project_shelf/views/invoices_view.dart';
 import 'package:project_shelf/views/create_invoice_view.dart';
 import 'package:project_shelf/views/create_product_view.dart';
+import 'package:project_shelf/views/preferences_view.dart';
 import 'package:project_shelf/views/product_view.dart';
 import 'package:project_shelf/views/products_view.dart';
 import 'package:project_shelf/views/settings_view.dart';
@@ -89,6 +91,13 @@ class AppNavigation {
                     builder: (context, state) =>
                         CreateInvoiceView(key: state.pageKey),
                   ),
+                  GoRoute(
+                    path: "invoice",
+                    builder: (_, state) => InvoiceView(
+                      state.extra as InvoiceData,
+                      key: state.pageKey,
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -141,6 +150,11 @@ class AppNavigation {
                     path: "data-load",
                     builder: (context, state) =>
                         DataLoadView(key: state.pageKey),
+                  ),
+                  GoRoute(
+                    path: "preferences",
+                    builder: (context, state) =>
+                        PreferencesView(key: state.pageKey),
                   ),
                 ],
               ),

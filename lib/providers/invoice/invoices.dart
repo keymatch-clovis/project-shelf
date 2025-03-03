@@ -1,9 +1,18 @@
 import 'package:drift/drift.dart';
+import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+import 'package:image/image.dart';
 import 'package:oxidized/oxidized.dart';
+import 'package:print_bluetooth_thermal/print_bluetooth_thermal.dart';
 import 'package:project_shelf/database/database.dart';
 import 'package:project_shelf/lib/cop_currency.dart';
+import 'package:project_shelf/lib/error.dart';
+import 'package:project_shelf/lib/util.dart';
+import 'package:project_shelf/providers/cities.dart';
+import 'package:project_shelf/providers/customers.dart';
 import 'package:project_shelf/providers/database.dart';
+import 'package:project_shelf/providers/preferences.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part "invoices.g.dart";
@@ -145,9 +154,149 @@ class Invoices extends _$Invoices {
         .then((i) => i.isSome() ? i.unwrap().number + 1 : 1);
   }
 
+  Future<Result<Unit, CustomError>> printInvoice({
+    required InvoiceData invoice,
+    required String printerMac,
+  }) async {
+    final invoiceWithProducts =
+        await this.findByUuid(invoice.uuid).then((i) => i.unwrap());
+    final customer = await ref
+        .read(customersProvider.notifier)
+        .findByUuid(invoice.customerUuid)
+        .then((c) => c.unwrap());
+    final city = await ref
+        .read(citiesProvider.notifier)
+        .findByRowId(customer.cityRowId)
+        .then((c) => c.unwrap());
+    final companyName = await ref.read(preferencesProvider.future).then((p) {
+      return p[PreferenceName.COMPANY_NAME]!;
+    }).then(removeDiacritics);
+    final companyDocument =
+        await ref.read(preferencesProvider.future).then((p) {
+      return p[PreferenceName.COMPANY_DOCUMENT]!;
+    }).then(removeDiacritics);
+    final companyEmail = await ref.read(preferencesProvider.future).then((p) {
+      return p[PreferenceName.COMPANY_EMAIL]!;
+    }).then(removeDiacritics);
+    final companyPhone = await ref.read(preferencesProvider.future).then((p) {
+      return p[PreferenceName.COMPANY_PHONE]!;
+    });
+
+    final paired = await PrintBluetoothThermal.connect(
+      macPrinterAddress: printerMac,
+    );
+
+    if (!paired) {
+      return Err(CustomError.COULD_NOT_CONNECT_TO_PRINTER_ERROR);
+    }
+
+    try {
+      List<int> bytes = [];
+      final profile = await CapabilityProfile.load();
+      final generator = Generator(PaperSize.mm58, profile);
+
+      final logoBytes =
+          (await rootBundle.load('assets/logo.jpeg')).buffer.asUint8List();
+      final logo = await (Command()
+            ..decodeImage(logoBytes)
+            ..copyResize(width: 200)
+            ..grayscale(amount: 20))
+          .getImage();
+
+      bytes += generator.image(logo!);
+      bytes += generator.text(
+        companyName,
+        styles: PosStyles(bold: true, align: PosAlign.center),
+      );
+      bytes += generator.text(
+        "NIT: $companyDocument, Regimen Simple",
+      );
+      bytes += generator.text(
+        "TELEFONO: $companyPhone",
+      );
+      bytes += generator.text(
+        "EMAIL: $companyEmail",
+      );
+
+      bytes += generator.feed(1);
+
+      bytes += generator.text(
+        removeDiacritics("CLIENTE: ${removeDiacritics(customer.name)}"),
+      );
+      bytes += generator.text(
+        removeDiacritics("MUNICIPIO: ${removeDiacritics(city.city)}"),
+      );
+
+      bytes += generator.text("FECHA: ${invoice.date}");
+
+      bytes += generator.feed(1);
+
+      bytes += generator.row([
+        PosColumn(
+          text: "U.",
+          width: 2,
+        ),
+        PosColumn(
+          text: "PRODUCTO",
+          styles: PosStyles(align: PosAlign.center),
+          width: 5,
+        ),
+        PosColumn(
+          text: "VALOR",
+          styles: PosStyles(align: PosAlign.center),
+          width: 5,
+        ),
+      ]);
+
+      BigInt totalInvoice = BigInt.from(0);
+      for (final item in invoiceWithProducts.products) {
+        final totalPrice = (item.productInvoice.price *
+                BigInt.from(item.productInvoice.count)) -
+            item.productInvoice.discount;
+
+        totalInvoice += totalPrice;
+
+        bytes += generator.row([
+          PosColumn(
+            text: item.productInvoice.count.toString(),
+            width: 2,
+          ),
+          PosColumn(
+            text: removeDiacritics(item.product.name),
+            width: 5,
+          ),
+          PosColumn(
+            text: CopCurrency.fromCents(totalPrice).formattedValue,
+            styles: PosStyles(align: PosAlign.right),
+            width: 5,
+          ),
+        ]);
+      }
+
+      bytes += generator.feed(1);
+
+      bytes += generator.text(
+        "TOTAL",
+        styles: PosStyles(bold: true, align: PosAlign.right),
+      );
+      bytes += generator.text(
+        CopCurrency.fromCents(totalInvoice).formattedValue,
+        styles: PosStyles(align: PosAlign.right),
+      );
+
+      bytes += generator.feed(4);
+      await PrintBluetoothThermal.writeBytes(bytes);
+    } finally {
+      await PrintBluetoothThermal.disconnect;
+    }
+    return Ok.unit();
+  }
+
   Future<List<InvoiceData>> _find() async {
     final database = ref.watch(databaseProvider);
-    return database.select(database.invoice).get();
+    return (database.select(database.invoice)
+          ..orderBy([(i) => OrderingTerm.desc(i.number)]))
+        .get();
   }
 
   Future<void> _invalidate() async {

@@ -4,7 +4,7 @@ import 'package:uuid/uuid.dart';
 
 class CustomerMemento extends Table {
   TextColumn get uuid => text().clientDefault(() => Uuid().v1())();
-  DateTimeColumn get date => dateTime().withDefault(currentDate)();
+  DateTimeColumn get date => dateTime().withDefault(currentDateAndTime)();
   TextColumn get data => text()();
   IntColumn get version => integer()();
   // Foreign key.

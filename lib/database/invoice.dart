@@ -5,7 +5,7 @@ import 'package:uuid/uuid.dart';
 class Invoice extends Table {
   late final uuid = text().clientDefault(() => Uuid().v1())();
   late final number = integer()();
-  late final date = dateTime().withDefault(currentDate)();
+  late final date = dateTime().withDefault(currentDateAndTime)();
   late final discount = integer().clientDefault(() => 0)();
 
   /// References.

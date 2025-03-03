@@ -4,7 +4,7 @@ import 'package:uuid/uuid.dart';
 
 class ProductMemento extends Table {
   late final uuid = text().clientDefault(() => Uuid().v1())();
-  late final date = dateTime().withDefault(currentDate)();
+  late final date = dateTime().withDefault(currentDateAndTime)();
   late final data = text()();
   late final version = integer()();
 

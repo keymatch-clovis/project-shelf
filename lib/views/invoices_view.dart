@@ -50,7 +50,7 @@ class _InvoiceList extends ConsumerWidget {
       separatorBuilder: (_, __) => Divider(),
       itemBuilder: (context, index) => ListTile(
         title: _ListItem(list[index]),
-        onTap: () => context.go("/products/product", extra: list[index]),
+        onTap: () => context.go("/invoices/invoice", extra: list[index]),
       ),
     );
   }
@@ -79,7 +79,7 @@ class _ListItem extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(data.number.toString()),
+          Text("Factura: ${data.number.toString()}"),
         ],
       ),
     );

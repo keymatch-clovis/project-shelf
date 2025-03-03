@@ -513,7 +513,7 @@ class $CustomerMementoTable extends CustomerMemento
       'date', aliasedName, false,
       type: DriftSqlType.dateTime,
       requiredDuringInsert: false,
-      defaultValue: currentDate);
+      defaultValue: currentDateAndTime);
   @override
   late final GeneratedColumn<String> data = GeneratedColumn<String>(
       'data', aliasedName, false,
@@ -787,7 +787,7 @@ class $InvoiceTable extends Invoice with TableInfo<$InvoiceTable, InvoiceData> {
       'date', aliasedName, false,
       type: DriftSqlType.dateTime,
       requiredDuringInsert: false,
-      defaultValue: currentDate);
+      defaultValue: currentDateAndTime);
   @override
   late final GeneratedColumn<int> discount = GeneratedColumn<int>(
       'discount', aliasedName, false,
@@ -1598,7 +1598,7 @@ class $ProductMementoTable extends ProductMemento
       'date', aliasedName, false,
       type: DriftSqlType.dateTime,
       requiredDuringInsert: false,
-      defaultValue: currentDate);
+      defaultValue: currentDateAndTime);
   @override
   late final GeneratedColumn<String> data = GeneratedColumn<String>(
       'data', aliasedName, false,

@@ -12,12 +12,14 @@ class CreateInvoiceProductDialog extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final formKey = useState(GlobalKey<FormState>());
     final invoiceProduct = useState(_invoiceProduct);
 
     return Dialog(
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Form(
+          key: formKey.value,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -42,8 +44,24 @@ class CreateInvoiceProductDialog extends HookWidget {
                 },
               ),
               CustomTextField(
-                label: "Descuento",
+                label: "Cantidad",
                 textInputAction: TextInputAction.next,
+                keyboardType: TextInputType.number,
+                validator: FormBuilderValidators.compose([
+                  FormBuilderValidators.required(),
+                  FormBuilderValidators.numeric(checkNullOrEmpty: false),
+                  FormBuilderValidators.min(1, checkNullOrEmpty: false),
+                ]),
+                initialValue: invoiceProduct.value.count > 0
+                    ? invoiceProduct.value.count.toString()
+                    : null,
+                onChanged: (text) {
+                  invoiceProduct.value.count = int.parse(text);
+                },
+              ),
+              CustomTextField(
+                label: "Descuento",
+                textInputAction: TextInputAction.done,
                 keyboardType: TextInputType.number,
                 validator: FormBuilderValidators.compose([
                   FormBuilderValidators.numeric(checkNullOrEmpty: false),
@@ -57,27 +75,14 @@ class CreateInvoiceProductDialog extends HookWidget {
                   invoiceProduct.value.discount = CopCurrency(text);
                 },
               ),
-              CustomTextField(
-                label: "Cantidad en Inventario",
-                textInputAction: TextInputAction.next,
-                keyboardType: TextInputType.number,
-                validator: FormBuilderValidators.compose([
-                  FormBuilderValidators.numeric(checkNullOrEmpty: false),
-                  FormBuilderValidators.min(0, checkNullOrEmpty: false),
-                ]),
-                initialValue: invoiceProduct.value.count > 0
-                    ? invoiceProduct.value.count.toString()
-                    : null,
-                onChanged: (text) {
-                  invoiceProduct.value.count = int.parse(text);
-                },
-              ),
               ElevatedButton(
-                  onPressed: () => Navigator.pop(
-                        context,
-                        invoiceProduct.value,
-                      ),
-                  child: Text("ACEPTAR"))
+                onPressed: () {
+                  if (formKey.value.currentState!.validate()) {
+                    Navigator.pop(context, invoiceProduct.value);
+                  }
+                },
+                child: Text("ACEPTAR"),
+              )
             ],
           ),
         ),

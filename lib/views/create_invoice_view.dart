@@ -118,6 +118,13 @@ class _InvoiceProductList extends ConsumerWidget {
       }
     }
 
+    void removeInvoiceProduct(int index) {
+      ref.read(invoiceProductsProvider.notifier).update((invoiceProducts) {
+        invoiceProducts.removeAt(index);
+        return [...invoiceProducts];
+      });
+    }
+
     Widget renderList() {
       if (invoiceProducts.isEmpty) {
         return Center(child: Text("Sin productos"));
@@ -129,12 +136,22 @@ class _InvoiceProductList extends ConsumerWidget {
         shrinkWrap: true,
         separatorBuilder: (_, __) => Divider(),
         itemBuilder: (context, index) => ListTile(
-          title: Column(
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(invoiceProducts[index].product.name),
-              Text(invoiceProducts[index].price.formattedValue),
-              Text(invoiceProducts[index].discount.formattedValue),
-              Text(invoiceProducts[index].count.toString()),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(invoiceProducts[index].product.name),
+                  Text(invoiceProducts[index].price.formattedValue),
+                  Text(invoiceProducts[index].discount.formattedValue),
+                  Text(invoiceProducts[index].count.toString()),
+                ],
+              ),
+              ElevatedButton.icon(
+                onPressed: () => removeInvoiceProduct(index),
+                label: FaIcon(FontAwesomeIcons.trashCan),
+              ),
             ],
           ),
           onTap: () async {
@@ -157,8 +174,14 @@ class _InvoiceProductList extends ConsumerWidget {
           children: [
             Text("Productos"),
             ProductSelector(
-              onTap: (product) {
-                addInvoiceProduct(InvoiceProduct.fromProduct(product));
+              onTap: (product) async {
+                final invoiceProduct = await showDialog(
+                  context: context,
+                  builder: (context) => CreateInvoiceProductDialog(
+                    InvoiceProduct.fromProduct(product),
+                  ),
+                );
+                addInvoiceProduct(invoiceProduct);
               },
             ),
           ],

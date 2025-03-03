@@ -29,7 +29,7 @@ class CopCurrency {
   }
 
   CopCurrency(this.rawValue)
-      : formatter = NumberFormat.currency(symbol: "\$"),
+      : formatter = NumberFormat.currency(symbol: "\$", decimalDigits: 0),
         realValue = BigInt.parse(rawValue) * BigInt.from(100);
 
   @override
