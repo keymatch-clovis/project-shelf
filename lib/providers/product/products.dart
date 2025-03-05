@@ -1,5 +1,11 @@
+import "dart:convert";
+
+import "package:csv/csv.dart";
+import "package:drift/drift.dart";
+import "package:file_picker/file_picker.dart";
 import "package:flutter/foundation.dart";
 import "package:oxidized/oxidized.dart";
+import "package:project_shelf/lib/error.dart";
 import "package:project_shelf/providers/database.dart";
 import "package:project_shelf/database/database.dart";
 import "package:project_shelf/providers/product/product_mementos.dart";
@@ -14,6 +20,56 @@ class Products extends _$Products {
   @override
   Future<List<ProductData>> build() async {
     return _find();
+  }
+
+  Future<Result<Unit, FileLoadError>> uploadProducts() async {
+    final file = await FilePicker.platform
+        .pickFiles(
+          dialogTitle: "Seleccionar archivo de datos",
+          allowMultiple: false,
+          withData: true,
+        )
+        .then((r) => Option.from(r));
+
+    if (file.isNone()) {
+      return Err(FileLoadError.FILE_NOT_SELECTED);
+    }
+
+    final data = Result.of(() {
+      final decoded = utf8.decode(file.unwrap().files.single.bytes!);
+      return const CsvToListConverter()
+          .convert(decoded, shouldParseNumbers: false);
+    });
+
+    if (data.isErr()) {
+      debugPrint(data.unwrapErr().toString());
+      return Err(FileLoadError.BROKEN_FILE);
+    }
+
+    final rows = data.unwrap();
+    final database = ref.watch(databaseProvider);
+
+    return await Result.asyncOf(() async {
+      for (final row in rows) {
+        debugPrint("creating product: $row");
+        await database.into(database.product).insert(
+              ProductCompanion.insert(
+                name: row[0],
+                price: Value(BigInt.parse(row[1])),
+                stock: Value(int.parse(row[2])),
+              ),
+            );
+      }
+      debugPrint("Products loaded");
+
+      // Invalidate the state once all the products have loaded.
+      await _invalidate();
+
+      return Unit.unit;
+    }).mapErr((err) {
+      debugPrint(err.toString());
+      return FileLoadError.INCORRECT_FILE_FORMAT;
+    });
   }
 
   Future<ProductData> create(ProductCompanion data) async {
@@ -63,6 +119,31 @@ class Products extends _$Products {
     debugPrint("product deleted: $uuid");
 
     await _invalidate();
+  }
+
+  Future<void> removeFromStock({
+    required ProductData product,
+    required int count,
+  }) async {
+    final database = ref.watch(databaseProvider);
+
+    // We are making a memento, and updating the product.
+    await database.transaction(() async {
+      final old = await findByUuid(product.uuid).unwrap();
+
+      // See more: https://refactoring.guru/design-patterns/memento
+      await ref
+          .read(productMementosProvider(product.uuid).notifier)
+          .create(old);
+
+      debugPrint("removing: $count, from: $product");
+      await database.update(database.product).replace(product.copyWith(
+            stock: product.stock - count,
+          ));
+      debugPrint("product updated");
+
+      await _invalidate();
+    });
   }
 
   Future<Option<ProductData>> findByUuid(String uuid) {

@@ -2,7 +2,6 @@ import "dart:io";
 
 import "package:async/async.dart";
 import "package:device_info_plus/device_info_plus.dart";
-import "package:file_picker/file_picker.dart";
 import "package:flutter/foundation.dart";
 import "package:oxidized/oxidized.dart";
 import "package:path/path.dart";
@@ -23,6 +22,9 @@ class Backups extends _$Backups {
   }
 
   Future<void> load(String fileId) async {
+    // NOTE: We can remove this later, this is just to be safe.
+    await this.create();
+
     final driveApi =
         await ref.watch(googleDriveProvider.notifier).getDriveApi();
 
@@ -88,9 +90,6 @@ class Backups extends _$Backups {
     );
     debugPrint("Backup saved!");
 
-    await FilePicker.platform
-        .saveFile(bytes: await collectBytes(backupFile.openRead()));
-
     debugPrint("Deleting local database cache file...");
     await backupFile.delete();
     debugPrint("Local database file deleted.");
@@ -107,7 +106,7 @@ class Backups extends _$Backups {
     //  > field to appDataFolder and use the files.list method.
     // See more: https://developers.google.com/drive/api/guides/appdata#search-files
     final backups = await driveApi.files
-        .list(spaces: "appDataFolder")
+        .list(spaces: "appDataFolder", $fields: "*")
         .then((list) => Option.from(list.files));
     debugPrint("Got backups: $backups");
 

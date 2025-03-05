@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:project_shelf/components/pill.dart';
+import 'package:project_shelf/components/product_search_anchor.dart';
 import 'package:project_shelf/database/database.dart';
+import 'package:project_shelf/lib/cop_currency.dart';
 import 'package:project_shelf/providers/product/products.dart';
 
 class ProductsView extends ConsumerWidget {
@@ -19,22 +22,28 @@ class ProductsView extends ConsumerWidget {
         title: const Text('Productos'),
       ),
       body: _ProductList(),
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          FloatingActionButton(
-            heroTag: null,
-            onPressed: () {},
-            child: FaIcon(FontAwesomeIcons.magnifyingGlass),
+      persistentFooterAlignment: AlignmentDirectional.center,
+      persistentFooterButtons: [
+        ProductSearchAnchor(
+          builder: (context, controller) {
+            return FloatingActionButton(
+              heroTag: null,
+              child: FaIcon(FontAwesomeIcons.magnifyingGlass),
+              onPressed: () => controller.openView(),
+            );
+          },
+          onTap: (product) => context.go(
+            "/products/product",
+            extra: product,
           ),
-          const SizedBox(height: 10),
-          FloatingActionButton(
-            heroTag: null,
-            onPressed: () => context.go('/products/create'),
-            child: FaIcon(FontAwesomeIcons.plus),
-          ),
-        ],
-      ),
+        ),
+        const SizedBox(width: 12),
+        FloatingActionButton(
+          heroTag: null,
+          onPressed: () => context.go('/products/create'),
+          child: FaIcon(FontAwesomeIcons.plus),
+        ),
+      ],
     );
   }
 }
@@ -79,7 +88,32 @@ class _ListItem extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(data.name),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                flex: 2,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(data.name),
+                    Text(
+                      CopCurrency.fromCents(data.price).formattedValue,
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  ],
+                ),
+              ),
+              Column(
+                children: [
+                  Pill(
+                    iconData: FontAwesomeIcons.box,
+                    text: data.stock.toString(),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ],
       ),
     );

@@ -6,7 +6,6 @@ class Product extends Table {
   late final name = text()();
   late final price = int64().clientDefault(() => BigInt.from(0))();
   late final stock = integer().clientDefault(() => 0)();
-  late final code = text().nullable()();
 
   @override
   Set<Column<Object>> get primaryKey => {uuid};

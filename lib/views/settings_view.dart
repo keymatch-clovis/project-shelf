@@ -37,6 +37,8 @@ class SettingsView extends ConsumerWidget {
               child: ListTile(
                 title: Row(
                   children: [
+                    FaIcon(size: 18, FontAwesomeIcons.fileImport),
+                    const SizedBox(width: 12),
                     Text("Cargar Datos"),
                     Spacer(),
                     FaIcon(FontAwesomeIcons.chevronRight),

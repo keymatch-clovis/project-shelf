@@ -63,7 +63,6 @@ class CreateProductView extends HookConsumerWidget {
                   keyboardType: TextInputType.number,
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.numeric(checkNullOrEmpty: false),
-                    FormBuilderValidators.min(0, checkNullOrEmpty: false),
                   ]),
                   onChanged: (text) {
                     stock.value = text.trim().isEmpty ? null : text;
@@ -103,7 +102,6 @@ class CreateProductView extends HookConsumerWidget {
                       stock: drift.Value.absentIfNull(
                         stock.value != null ? int.parse(stock.value!) : null,
                       ),
-                      code: drift.Value.absentIfNull(code.value),
                     ));
 
                 if (context.mounted) {

@@ -1067,11 +1067,7 @@ class $ProductTable extends Product with TableInfo<$ProductTable, ProductData> {
       requiredDuringInsert: false,
       clientDefault: () => 0);
   @override
-  late final GeneratedColumn<String> code = GeneratedColumn<String>(
-      'code', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  @override
-  List<GeneratedColumn> get $columns => [uuid, name, price, stock, code];
+  List<GeneratedColumn> get $columns => [uuid, name, price, stock];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -1091,8 +1087,6 @@ class $ProductTable extends Product with TableInfo<$ProductTable, ProductData> {
           .read(DriftSqlType.bigInt, data['${effectivePrefix}price'])!,
       stock: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}stock'])!,
-      code: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}code']),
     );
   }
 
@@ -1107,13 +1101,11 @@ class ProductData extends DataClass implements Insertable<ProductData> {
   final String name;
   final BigInt price;
   final int stock;
-  final String? code;
   const ProductData(
       {required this.uuid,
       required this.name,
       required this.price,
-      required this.stock,
-      this.code});
+      required this.stock});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -1121,9 +1113,6 @@ class ProductData extends DataClass implements Insertable<ProductData> {
     map['name'] = Variable<String>(name);
     map['price'] = Variable<BigInt>(price);
     map['stock'] = Variable<int>(stock);
-    if (!nullToAbsent || code != null) {
-      map['code'] = Variable<String>(code);
-    }
     return map;
   }
 
@@ -1133,7 +1122,6 @@ class ProductData extends DataClass implements Insertable<ProductData> {
       name: Value(name),
       price: Value(price),
       stock: Value(stock),
-      code: code == null && nullToAbsent ? const Value.absent() : Value(code),
     );
   }
 
@@ -1145,7 +1133,6 @@ class ProductData extends DataClass implements Insertable<ProductData> {
       name: serializer.fromJson<String>(json['name']),
       price: serializer.fromJson<BigInt>(json['price']),
       stock: serializer.fromJson<int>(json['stock']),
-      code: serializer.fromJson<String?>(json['code']),
     );
   }
   @override
@@ -1156,22 +1143,16 @@ class ProductData extends DataClass implements Insertable<ProductData> {
       'name': serializer.toJson<String>(name),
       'price': serializer.toJson<BigInt>(price),
       'stock': serializer.toJson<int>(stock),
-      'code': serializer.toJson<String?>(code),
     };
   }
 
   ProductData copyWith(
-          {String? uuid,
-          String? name,
-          BigInt? price,
-          int? stock,
-          Value<String?> code = const Value.absent()}) =>
+          {String? uuid, String? name, BigInt? price, int? stock}) =>
       ProductData(
         uuid: uuid ?? this.uuid,
         name: name ?? this.name,
         price: price ?? this.price,
         stock: stock ?? this.stock,
-        code: code.present ? code.value : this.code,
       );
   ProductData copyWithCompanion(ProductCompanion data) {
     return ProductData(
@@ -1179,7 +1160,6 @@ class ProductData extends DataClass implements Insertable<ProductData> {
       name: data.name.present ? data.name.value : this.name,
       price: data.price.present ? data.price.value : this.price,
       stock: data.stock.present ? data.stock.value : this.stock,
-      code: data.code.present ? data.code.value : this.code,
     );
   }
 
@@ -1189,14 +1169,13 @@ class ProductData extends DataClass implements Insertable<ProductData> {
           ..write('uuid: $uuid, ')
           ..write('name: $name, ')
           ..write('price: $price, ')
-          ..write('stock: $stock, ')
-          ..write('code: $code')
+          ..write('stock: $stock')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(uuid, name, price, stock, code);
+  int get hashCode => Object.hash(uuid, name, price, stock);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1204,8 +1183,7 @@ class ProductData extends DataClass implements Insertable<ProductData> {
           other.uuid == this.uuid &&
           other.name == this.name &&
           other.price == this.price &&
-          other.stock == this.stock &&
-          other.code == this.code);
+          other.stock == this.stock);
 }
 
 class ProductCompanion extends UpdateCompanion<ProductData> {
@@ -1213,14 +1191,12 @@ class ProductCompanion extends UpdateCompanion<ProductData> {
   final Value<String> name;
   final Value<BigInt> price;
   final Value<int> stock;
-  final Value<String?> code;
   final Value<int> rowid;
   const ProductCompanion({
     this.uuid = const Value.absent(),
     this.name = const Value.absent(),
     this.price = const Value.absent(),
     this.stock = const Value.absent(),
-    this.code = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ProductCompanion.insert({
@@ -1228,7 +1204,6 @@ class ProductCompanion extends UpdateCompanion<ProductData> {
     required String name,
     this.price = const Value.absent(),
     this.stock = const Value.absent(),
-    this.code = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : name = Value(name);
   static Insertable<ProductData> custom({
@@ -1236,7 +1211,6 @@ class ProductCompanion extends UpdateCompanion<ProductData> {
     Expression<String>? name,
     Expression<BigInt>? price,
     Expression<int>? stock,
-    Expression<String>? code,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1244,7 +1218,6 @@ class ProductCompanion extends UpdateCompanion<ProductData> {
       if (name != null) 'name': name,
       if (price != null) 'price': price,
       if (stock != null) 'stock': stock,
-      if (code != null) 'code': code,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1254,14 +1227,12 @@ class ProductCompanion extends UpdateCompanion<ProductData> {
       Value<String>? name,
       Value<BigInt>? price,
       Value<int>? stock,
-      Value<String?>? code,
       Value<int>? rowid}) {
     return ProductCompanion(
       uuid: uuid ?? this.uuid,
       name: name ?? this.name,
       price: price ?? this.price,
       stock: stock ?? this.stock,
-      code: code ?? this.code,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1281,9 +1252,6 @@ class ProductCompanion extends UpdateCompanion<ProductData> {
     if (stock.present) {
       map['stock'] = Variable<int>(stock.value);
     }
-    if (code.present) {
-      map['code'] = Variable<String>(code.value);
-    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1297,7 +1265,6 @@ class ProductCompanion extends UpdateCompanion<ProductData> {
           ..write('name: $name, ')
           ..write('price: $price, ')
           ..write('stock: $stock, ')
-          ..write('code: $code, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -3147,7 +3114,6 @@ typedef $$ProductTableCreateCompanionBuilder = ProductCompanion Function({
   required String name,
   Value<BigInt> price,
   Value<int> stock,
-  Value<String?> code,
   Value<int> rowid,
 });
 typedef $$ProductTableUpdateCompanionBuilder = ProductCompanion Function({
@@ -3155,7 +3121,6 @@ typedef $$ProductTableUpdateCompanionBuilder = ProductCompanion Function({
   Value<String> name,
   Value<BigInt> price,
   Value<int> stock,
-  Value<String?> code,
   Value<int> rowid,
 });
 
@@ -3214,9 +3179,6 @@ class $$ProductTableFilterComposer
 
   ColumnFilters<int> get stock => $composableBuilder(
       column: $table.stock, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get code => $composableBuilder(
-      column: $table.code, builder: (column) => ColumnFilters(column));
 
   Expression<bool> productInvoiceRefs(
       Expression<bool> Function($$ProductInvoiceTableFilterComposer f) f) {
@@ -3281,9 +3243,6 @@ class $$ProductTableOrderingComposer
 
   ColumnOrderings<int> get stock => $composableBuilder(
       column: $table.stock, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get code => $composableBuilder(
-      column: $table.code, builder: (column) => ColumnOrderings(column));
 }
 
 class $$ProductTableAnnotationComposer
@@ -3306,9 +3265,6 @@ class $$ProductTableAnnotationComposer
 
   GeneratedColumn<int> get stock =>
       $composableBuilder(column: $table.stock, builder: (column) => column);
-
-  GeneratedColumn<String> get code =>
-      $composableBuilder(column: $table.code, builder: (column) => column);
 
   Expression<T> productInvoiceRefs<T extends Object>(
       Expression<T> Function($$ProductInvoiceTableAnnotationComposer a) f) {
@@ -3381,7 +3337,6 @@ class $$ProductTableTableManager extends RootTableManager<
             Value<String> name = const Value.absent(),
             Value<BigInt> price = const Value.absent(),
             Value<int> stock = const Value.absent(),
-            Value<String?> code = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               ProductCompanion(
@@ -3389,7 +3344,6 @@ class $$ProductTableTableManager extends RootTableManager<
             name: name,
             price: price,
             stock: stock,
-            code: code,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -3397,7 +3351,6 @@ class $$ProductTableTableManager extends RootTableManager<
             required String name,
             Value<BigInt> price = const Value.absent(),
             Value<int> stock = const Value.absent(),
-            Value<String?> code = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               ProductCompanion.insert(
@@ -3405,7 +3358,6 @@ class $$ProductTableTableManager extends RootTableManager<
             name: name,
             price: price,
             stock: stock,
-            code: code,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0

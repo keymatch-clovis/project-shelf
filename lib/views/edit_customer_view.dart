@@ -99,7 +99,7 @@ class EditCustomerView extends HookConsumerWidget {
                 keyboardType: TextInputType.name,
                 onChanged: (text) {
                   editedCustomer.value = editedCustomer.value.copyWith(
-                    businessName: drift.Value.absentIfNull(
+                    businessName: drift.Value(
                       text.trim().isEmpty ? null : text,
                     ),
                   );
@@ -127,10 +127,10 @@ class EditCustomerView extends HookConsumerWidget {
                       extra: await ref
                           .read(customersProvider.future)
                           .then((customers) {
-                        return customers.firstWhere((customer) {
-                          return customer.uuid == _customer.uuid;
+                        return customers.firstWhere((data) {
+                          return data.customer.uuid == _customer.uuid;
                         });
-                      }));
+                      }).then((c) => c.customer));
                 }
               },
               child: FaIcon(FontAwesomeIcons.floppyDisk),

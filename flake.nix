@@ -31,10 +31,10 @@
                 allowUnfree = true;
               };
             };
-            buildToolsVersion = "33.0.1";
+            buildToolsVersion = "34.0.0";
             androidEnv = pkgs.androidenv.override { licenseAccepted = true; };
             androidComposition = androidEnv.composeAndroidPackages {
-              buildToolsVersions = [ buildToolsVersion ];
+              buildToolsVersions = [ "33.0.1" "34.0.0" ];
               platformVersions = [ "34" "35" ];
               abiVersions = [ "armeabi-v7a" "arm64-v8a" ];
             };

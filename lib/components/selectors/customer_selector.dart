@@ -10,9 +10,12 @@ import 'package:project_shelf/providers/customers.dart';
 final customerProvider =
     FutureProvider.family<CustomerData?, String?>((ref, uuid) {
   if (uuid != null) {
-    return ref.watch(customersProvider.selectAsync(
-      (customers) => customers.firstWhere((c) => c.uuid == uuid),
-    ));
+    return ref
+        .watch(customersProvider.selectAsync(
+          (customers) =>
+              customers.firstWhere((data) => data.customer.uuid == uuid),
+        ))
+        .then((data) => data.customer);
   }
   return null;
 });
@@ -137,7 +140,9 @@ class CustomerSelector extends HookConsumerWidget {
         viewBuilder: (_) => Consumer(
           builder: (_, ref, __) {
             return switch (ref.watch(customerSearchProvider)) {
-              AsyncData(:final value) => renderList(value),
+              AsyncData(:final value) => renderList(
+                  value.map((v) => v.customer).toList(),
+                ),
               _ => Center(child: const CircularProgressIndicator.adaptive()),
             };
           },

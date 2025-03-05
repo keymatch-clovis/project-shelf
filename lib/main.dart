@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jiffy/jiffy.dart';
 import 'package:project_shelf/navigation/app_navigation.dart';
 
-void main() {
+void main() async {
+  await Jiffy.setLocale('es');
+
   runApp(
     ProviderScope(
       child: RestorationScope(

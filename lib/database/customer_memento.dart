@@ -7,7 +7,8 @@ class CustomerMemento extends Table {
   DateTimeColumn get date => dateTime().withDefault(currentDateAndTime)();
   TextColumn get data => text()();
   IntColumn get version => integer()();
-  // Foreign key.
+
+  /// Foreign keys.
   TextColumn get customerUuid => text().references(Customer, #uuid)();
 
   @override

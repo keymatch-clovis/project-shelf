@@ -1,4 +1,3 @@
-import 'package:drift/drift.dart' as drift;
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -81,23 +80,7 @@ class EditProductView extends HookConsumerWidget {
                 initialValue: _product.stock.toString(),
                 validator: FormBuilderValidators.compose([
                   FormBuilderValidators.numeric(checkNullOrEmpty: false),
-                  FormBuilderValidators.min(0, checkNullOrEmpty: false),
                 ]),
-              ),
-              CustomTextField(
-                label: "Código del Producto",
-                inputFormatters: [UpperCaseTextFormatter()],
-                textCapitalization: TextCapitalization.characters,
-                textInputAction: TextInputAction.next,
-                keyboardType: TextInputType.text,
-                onChanged: (text) {
-                  editedProduct.value = editedProduct.value.copyWith(
-                    code: drift.Value.absentIfNull(
-                      text.trim().isEmpty ? null : text,
-                    ),
-                  );
-                },
-                initialValue: _product.code,
               ),
             ],
           ),
@@ -105,8 +88,9 @@ class EditProductView extends HookConsumerWidget {
       ),
       floatingActionButton: Visibility(
         visible: canEdit.value,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             FloatingActionButton(
               disabledElevation: 0,

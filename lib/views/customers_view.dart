@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:project_shelf/database/database.dart';
+import 'package:project_shelf/components/customer_search_anchor.dart';
 import 'package:project_shelf/providers/customers.dart';
 
 class CustomersView extends ConsumerWidget {
@@ -19,39 +19,47 @@ class CustomersView extends ConsumerWidget {
         title: const Text('Clientes'),
       ),
       body: _CustomerList(),
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          FloatingActionButton(
-            heroTag: null,
-            onPressed: () {},
-            child: FaIcon(FontAwesomeIcons.magnifyingGlass),
+      persistentFooterAlignment: AlignmentDirectional.center,
+      persistentFooterButtons: [
+        CustomerSearchAnchor(
+          builder: (context, controller) {
+            return FloatingActionButton(
+              heroTag: null,
+              child: FaIcon(FontAwesomeIcons.magnifyingGlass),
+              onPressed: () => controller.openView(),
+            );
+          },
+          onTap: (customer) => context.go(
+            "/customers/customer",
+            extra: customer,
           ),
-          const SizedBox(height: 10),
-          FloatingActionButton(
-            heroTag: null,
-            onPressed: () => context.go('/customers/create'),
-            child: FaIcon(FontAwesomeIcons.plus),
-          ),
-        ],
-      ),
+        ),
+        const SizedBox(width: 12),
+        FloatingActionButton(
+          heroTag: null,
+          onPressed: () => context.go('/customers/create'),
+          child: FaIcon(FontAwesomeIcons.plus),
+        ),
+      ],
     );
   }
 }
 
 class _CustomerList extends ConsumerWidget {
-  Widget renderList(List<CustomerData> list) {
+  Widget renderList(List<CustomerWithCity> list) {
     if (list.isEmpty) {
       return Center(child: Text("Sin clientes"));
     }
 
     return ListView.separated(
-      padding: EdgeInsets.all(0),
       itemCount: list.length,
       separatorBuilder: (_, __) => Divider(),
       itemBuilder: (context, index) => ListTile(
         title: _ListItem(list[index]),
-        onTap: () => context.go("/customers/customer", extra: list[index]),
+        onTap: () => context.go(
+          "/customers/customer",
+          extra: list[index].customer,
+        ),
       ),
     );
   }
@@ -69,7 +77,7 @@ class _CustomerList extends ConsumerWidget {
 }
 
 class _ListItem extends StatelessWidget {
-  final CustomerData data;
+  final CustomerWithCity data;
 
   const _ListItem(this.data);
 
@@ -77,10 +85,31 @@ class _ListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(5),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(data.name),
+          Expanded(
+            flex: 2,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(data.customer.name),
+                if (data.customer.businessName != null) ...[
+                  Text(
+                    data.customer.businessName!,
+                    style: TextStyle(
+                        fontSize: 12, color: Theme.of(context).hintColor),
+                  )
+                ],
+              ],
+            ),
+          ),
+          Column(
+            children: [
+              Text(data.city.city),
+              Text(data.city.department, style: TextStyle(fontSize: 10)),
+            ],
+          ),
         ],
       ),
     );

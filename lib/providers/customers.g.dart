@@ -6,12 +6,12 @@ part of 'customers.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$customersHash() => r'6fa5227adb04d1cb57401ac5739d36879216a00b';
+String _$customersHash() => r'7b147e994e376cfd2876cc325d1c7df7a41f67bb';
 
 /// See also [Customers].
 @ProviderFor(Customers)
-final customersProvider =
-    AutoDisposeAsyncNotifierProvider<Customers, List<CustomerData>>.internal(
+final customersProvider = AutoDisposeAsyncNotifierProvider<Customers,
+    List<CustomerWithCity>>.internal(
   Customers.new,
   name: r'customersProvider',
   debugGetCreateSourceHash:
@@ -20,6 +20,6 @@ final customersProvider =
   allTransitiveDependencies: null,
 );
 
-typedef _$Customers = AutoDisposeAsyncNotifier<List<CustomerData>>;
+typedef _$Customers = AutoDisposeAsyncNotifier<List<CustomerWithCity>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

@@ -13,6 +13,7 @@ import 'package:project_shelf/providers/cities.dart';
 import 'package:project_shelf/providers/customers.dart';
 import 'package:project_shelf/providers/database.dart';
 import 'package:project_shelf/providers/preferences.dart';
+import 'package:project_shelf/providers/product/products.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part "invoices.g.dart";
@@ -55,6 +56,31 @@ class InvoiceWithProducts {
   InvoiceWithProducts({required this.invoice, required this.products});
 }
 
+class InvoiceWithData {
+  final InvoiceData invoice;
+  final CustomerData customer;
+
+  InvoiceWithData({required this.invoice, required this.customer});
+}
+
+final invoicesWithDataProvider =
+    FutureProvider.autoDispose<List<InvoiceWithData>>((ref) {
+  ref.watch(invoicesProvider);
+  final database = ref.watch(databaseProvider);
+  final query = (database.select(database.invoice)).join([
+    innerJoin(database.customer,
+        database.customer.uuid.equalsExp(database.invoice.customerUuid)),
+  ])
+    ..orderBy([OrderingTerm.desc(database.invoice.number)]);
+
+  return query.map((rows) {
+    return InvoiceWithData(
+      invoice: rows.readTable(database.invoice),
+      customer: rows.readTable(database.customer),
+    );
+  }).get();
+});
+
 @riverpod
 class Invoices extends _$Invoices {
   @override
@@ -76,6 +102,12 @@ class Invoices extends _$Invoices {
 
       debugPrint("Adding products: $invoiceProducts to invoice: $invoice");
       for (final invoiceProduct in invoiceProducts) {
+        debugPrint("Removing stock from product");
+        await ref.read(productsProvider.notifier).removeFromStock(
+              product: invoiceProduct.product,
+              count: invoiceProduct.count,
+            );
+
         debugPrint("Adding: $invoiceProduct");
         final productInvoice = await database
             .into(database.productInvoice)

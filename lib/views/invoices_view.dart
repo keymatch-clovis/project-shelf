@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:project_shelf/database/database.dart';
+import 'package:jiffy/jiffy.dart';
 import 'package:project_shelf/providers/invoice/invoices.dart';
 
 class InvoicesView extends ConsumerWidget {
@@ -19,28 +19,20 @@ class InvoicesView extends ConsumerWidget {
         title: const Text('Facturas'),
       ),
       body: _InvoiceList(),
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          FloatingActionButton(
-            heroTag: null,
-            onPressed: () {},
-            child: FaIcon(FontAwesomeIcons.magnifyingGlass),
-          ),
-          const SizedBox(height: 10),
-          FloatingActionButton(
-            heroTag: null,
-            onPressed: () => context.go('/invoices/create'),
-            child: FaIcon(FontAwesomeIcons.plus),
-          ),
-        ],
-      ),
+      persistentFooterAlignment: AlignmentDirectional.center,
+      persistentFooterButtons: [
+        FloatingActionButton(
+          heroTag: null,
+          onPressed: () => context.go('/invoices/create'),
+          child: FaIcon(FontAwesomeIcons.plus),
+        ),
+      ],
     );
   }
 }
 
 class _InvoiceList extends ConsumerWidget {
-  Widget renderList(List<InvoiceData> list) {
+  Widget renderList(List<InvoiceWithData> list) {
     if (list.isEmpty) {
       return Center(child: Text("Sin facturas"));
     }
@@ -50,14 +42,15 @@ class _InvoiceList extends ConsumerWidget {
       separatorBuilder: (_, __) => Divider(),
       itemBuilder: (context, index) => ListTile(
         title: _ListItem(list[index]),
-        onTap: () => context.go("/invoices/invoice", extra: list[index]),
+        onTap: () =>
+            context.go("/invoices/invoice", extra: list[index].invoice),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final invoices = ref.watch(invoicesProvider);
+    final invoices = ref.watch(invoicesWithDataProvider);
 
     return switch (invoices) {
       AsyncData(:final value) => renderList(value),
@@ -68,7 +61,7 @@ class _InvoiceList extends ConsumerWidget {
 }
 
 class _ListItem extends StatelessWidget {
-  final InvoiceData data;
+  final InvoiceWithData data;
 
   const _ListItem(this.data);
 
@@ -79,7 +72,29 @@ class _ListItem extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Factura: ${data.number.toString()}"),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Text(
+                  "#${data.invoice.number.toString()}",
+                  style: TextStyle(fontSize: 20),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  textAlign: TextAlign.right,
+                  Jiffy.parseFromDateTime(data.invoice.date).fromNow(),
+                  style: TextStyle(color: Theme.of(context).hintColor),
+                ),
+              ),
+            ],
+          ),
+          Text(
+            data.customer.name,
+            overflow: TextOverflow.fade,
+          )
         ],
       ),
     );

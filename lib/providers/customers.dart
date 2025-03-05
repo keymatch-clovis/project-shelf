@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:csv/csv.dart';
 import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart';
@@ -14,10 +12,20 @@ part "customers.g.dart";
 
 const CURRENT_CUSTOMER_VERSION = 1;
 
+class CustomerWithCity {
+  final CustomerData customer;
+  final CityData city;
+
+  const CustomerWithCity({
+    required this.customer,
+    required this.city,
+  });
+}
+
 @riverpod
 class Customers extends _$Customers {
   @override
-  Future<List<CustomerData>> build() async {
+  Future<List<CustomerWithCity>> build() async {
     return _find();
   }
 
@@ -101,9 +109,19 @@ class Customers extends _$Customers {
     await _invalidate();
   }
 
-  Future<List<CustomerData>> _find() async {
+  Future<List<CustomerWithCity>> _find() async {
     final database = ref.watch(databaseProvider);
-    return database.select(database.customer).get();
+    final query = database.select(database.customer).join([
+      innerJoin(database.city,
+          database.customer.cityRowId.equalsExp(database.city.rowId)),
+    ]);
+
+    return query.map((rows) {
+      return CustomerWithCity(
+        customer: rows.readTable(database.customer),
+        city: rows.readTable(database.city),
+      );
+    }).get();
   }
 
   Future<void> _invalidate() async {

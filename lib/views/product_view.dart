@@ -43,16 +43,11 @@ class ProductView extends HookConsumerWidget {
               label: "Cantidad en Inventario",
               initialValue: product.value.stock.toString(),
             ),
-            CustomTextField(
-              readOnly: true,
-              label: "Código del Producto",
-              initialValue: product.value.code,
-            ),
           ],
         ),
       ),
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           FloatingActionButton(
             heroTag: null,
@@ -89,7 +84,7 @@ class ProductView extends HookConsumerWidget {
             },
             child: FaIcon(FontAwesomeIcons.trashCan),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(width: 12),
           FloatingActionButton(
             heroTag: null,
             onPressed: () => context.go(
