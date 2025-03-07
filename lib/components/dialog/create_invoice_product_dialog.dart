@@ -44,6 +44,7 @@ class CreateInvoiceProductDialog extends HookWidget {
                 },
               ),
               CustomTextField(
+                isRequired: true,
                 label: "Cantidad",
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.number,

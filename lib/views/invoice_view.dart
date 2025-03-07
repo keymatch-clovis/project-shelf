@@ -122,19 +122,24 @@ class _InvoiceProductsList extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(products[index].product.name),
-                    Text(CopCurrency.fromCents(
-                            products[index].productInvoice.price)
-                        .formattedValue),
-                    Text(CopCurrency.fromCents(
-                            products[index].productInvoice.discount)
-                        .formattedValue),
-                    Text(products[index].productInvoice.count.toString()),
-                    Text(CopCurrency.fromCents(
-                            (products[index].productInvoice.price *
+                    Text("Valor U.: " +
+                        CopCurrency.fromCents(
+                                products[index].productInvoice.price)
+                            .formattedValue),
+                    Text("Descuento: " +
+                        CopCurrency.fromCents(
+                                products[index].productInvoice.discount)
+                            .formattedValue),
+                    Text("Cantidad: " +
+                        products[index].productInvoice.count.toString()),
+                    Text("Valor: " +
+                        CopCurrency.fromCents((products[index]
+                                        .productInvoice
+                                        .price *
                                     BigInt.from(
                                         products[index].productInvoice.count)) -
                                 products[index].productInvoice.discount)
-                        .formattedValue),
+                            .formattedValue),
                   ],
                 ),
               ),

@@ -1,8 +1,14 @@
+import 'dart:convert';
+
+import 'package:csv/csv.dart';
 import 'package:drift/drift.dart';
 import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:fuzzywuzzy/fuzzywuzzy.dart';
 import 'package:image/image.dart';
+import 'package:intl/intl.dart';
 import 'package:oxidized/oxidized.dart';
 import 'package:print_bluetooth_thermal/print_bluetooth_thermal.dart';
 import 'package:project_shelf/database/database.dart';
@@ -86,6 +92,155 @@ class Invoices extends _$Invoices {
   @override
   Future<List<InvoiceData>> build() async {
     return _find();
+  }
+
+  Future<Result<Unit, FileLoadError>> uploadInvoices() async {
+    final file = await FilePicker.platform
+        .pickFiles(
+          dialogTitle: "Seleccionar archivo de datos",
+          allowMultiple: false,
+          withData: true,
+        )
+        .then((r) => Option.from(r));
+
+    if (file.isNone()) {
+      return Err(FileLoadError.FILE_NOT_SELECTED);
+    }
+
+    final data = Result.of(() {
+      final decoded = utf8.decode(file.unwrap().files.single.bytes!);
+      return const CsvToListConverter()
+          .convert(decoded, shouldParseNumbers: false);
+    });
+
+    if (data.isErr()) {
+      debugPrint(data.unwrapErr().toString());
+      return Err(FileLoadError.BROKEN_FILE);
+    }
+
+    final rows = data.unwrap();
+    final database = ref.watch(databaseProvider);
+
+    return await Result.asyncOf(() async {
+      return await database.transaction(() async {
+        final invoiceUuids =
+            rows.map((rows) => rows[1] as String).toSet().toList();
+
+        // Get ALL products, to search them for their names.
+        final products = await ref.read(productsProvider.future);
+
+        // Get ALL clients, to search them for their names, and business names.
+        final customers = await ref.read(customersProvider.future);
+
+        for (final uuid in invoiceUuids) {
+          final invoiceNumber = rows.firstWhere((rows) => rows[1] == uuid)[0];
+          final invoiceDate = rows.firstWhere((rows) => rows[1] == uuid)[2];
+          final invoiceProducts = rows.where((rows) => rows[1] == uuid);
+          final invoiceCustomer = rows.firstWhere((rows) => rows[1] == uuid)[8];
+
+          final extractedCustomerByName = extractOne(
+            query: invoiceCustomer,
+            choices: customers,
+            getter: (customer) => customer.customer.name,
+          );
+          final extractedCustomerByBusinessName = extractOne(
+            query: invoiceCustomer,
+            choices: customers,
+            getter: (customer) => customer.customer.businessName ?? "",
+          );
+
+          // Default customer UUID.
+          var foundCustomer = "2eafc5f4-2507-43c5-ba97-f698c34957cb";
+          if (extractedCustomerByBusinessName.score > 70) {
+            foundCustomer =
+                extractedCustomerByBusinessName.choice.customer.uuid;
+          }
+          if (extractedCustomerByName.score > 70) {
+            foundCustomer = extractedCustomerByName.choice.customer.uuid;
+          }
+
+          debugPrint("Creating invoice: $uuid");
+          final invoice = await database
+              .into(database.invoice)
+              .insertReturning(InvoiceCompanion.insert(
+                number: int.parse(invoiceNumber),
+                date: Value(DateFormat("d/MM/yyyy")
+                    .parse(invoiceDate)
+                    // Remove a whole year, the data is broken.
+                    .subtract(const Duration(days: 365))),
+                customerUuid: foundCustomer,
+              ));
+          debugPrint("Invoice created: $invoice");
+
+          for (final productRow in invoiceProducts) {
+            // Search for the product that has the most similar name.
+            final extracted = extractOne(
+              query: productRow[3],
+              choices: products,
+              getter: (product) => product.name,
+            );
+
+            var foundProduct = extracted.choice;
+            // If the product name is not as equal, we create a new one.
+            if (extracted.score < 90) {
+              debugPrint("Creating product with name: ${productRow[3]}");
+              foundProduct = await (database
+                  .into(database.product)
+                  .insertReturning(ProductCompanion.insert(
+                    name: productRow[3],
+                  )));
+              debugPrint("Product created: $foundProduct");
+            }
+
+            final productCount =
+                (int.parse(productRow[5]) / int.parse(productRow[4])).round();
+            debugPrint("Product count: $productCount");
+
+            // If the product is already in the invoice, update the value.
+            final productInvoice =
+                await (database.select(database.productInvoice)
+                      ..where((pi) => Expression.and([
+                            pi.productUuid.equals(foundProduct.uuid),
+                            pi.invoiceUuid.equals(invoice.uuid),
+                          ])))
+                    .getSingleOrNull();
+
+            if (productInvoice != null) {
+              debugPrint("Updating: $productInvoice");
+              await database.update(database.productInvoice).replace(
+                  productInvoice.copyWith(
+                      count: productInvoice.count +
+                          (BigInt.parse(productRow[5]) / productInvoice.price)
+                              .toInt()));
+            } else {
+              debugPrint("Adding: $foundProduct");
+              final productInvoice = await database
+                  .into(database.productInvoice)
+                  .insertReturning(ProductInvoiceCompanion.insert(
+                    price:
+                        Value(BigInt.parse(productRow[4]) * BigInt.from(100)),
+                    discount: productRow[6].toString().trim().isEmpty
+                        ? Value.absent()
+                        : Value(BigInt.parse(productRow[6]) * BigInt.from(100)),
+                    count: productCount,
+                    productUuid: foundProduct.uuid,
+                    invoiceUuid: invoice.uuid,
+                  ));
+              debugPrint("$productInvoice added to $invoice");
+            }
+          }
+          debugPrint("Invoice loaded");
+        }
+
+        debugPrint("Invoices loaded");
+        // Invalidate the state once all the products have loaded.
+        await _invalidate();
+        return Unit.unit;
+      });
+    }).mapErr((err) {
+      debugPrint(err.toString());
+      return FileLoadError.INCORRECT_FILE_FORMAT;
+    });
   }
 
   Future<void> create({
@@ -186,7 +341,7 @@ class Invoices extends _$Invoices {
         .then((i) => i.isSome() ? i.unwrap().number + 1 : 1);
   }
 
-  Future<Result<Unit, CustomError>> printInvoice({
+  Future<Result<Unit, PrintError>> printInvoice({
     required InvoiceData invoice,
     required String printerMac,
   }) async {
@@ -200,26 +355,41 @@ class Invoices extends _$Invoices {
         .read(citiesProvider.notifier)
         .findByRowId(customer.cityRowId)
         .then((c) => c.unwrap());
+
     final companyName = await ref.read(preferencesProvider.future).then((p) {
-      return p[PreferenceName.COMPANY_NAME]!;
-    }).then(removeDiacritics);
+      return Result.of(() => p[PreferenceName.COMPANY_NAME]!);
+    }).then((result) => result.map(removeDiacritics));
+    if (companyName.isErr()) {
+      return Err(PrintError.NO_COMPANY_NAME);
+    }
+
     final companyDocument =
         await ref.read(preferencesProvider.future).then((p) {
-      return p[PreferenceName.COMPANY_DOCUMENT]!;
-    }).then(removeDiacritics);
+      return Result.of(() => p[PreferenceName.COMPANY_DOCUMENT]!);
+    }).then((result) => result.map(removeDiacritics));
+    if (companyDocument.isErr()) {
+      return Err(PrintError.NO_COMPANY_DOCUMENT);
+    }
+
     final companyEmail = await ref.read(preferencesProvider.future).then((p) {
-      return p[PreferenceName.COMPANY_EMAIL]!;
-    }).then(removeDiacritics);
+      return Result.of(() => p[PreferenceName.COMPANY_EMAIL]!);
+    }).then((result) => result.map(removeDiacritics));
+    if (companyEmail.isErr()) {
+      return Err(PrintError.NO_COMPANY_EMAIL);
+    }
+
     final companyPhone = await ref.read(preferencesProvider.future).then((p) {
-      return p[PreferenceName.COMPANY_PHONE]!;
-    });
+      return Result.of(() => p[PreferenceName.COMPANY_PHONE]!);
+    }).then((result) => result.map(removeDiacritics));
+    if (companyPhone.isErr()) {
+      return Err(PrintError.NO_COMPANY_PHONE);
+    }
 
     final paired = await PrintBluetoothThermal.connect(
       macPrinterAddress: printerMac,
     );
-
     if (!paired) {
-      return Err(CustomError.COULD_NOT_CONNECT_TO_PRINTER_ERROR);
+      return Err(PrintError.COULD_NOT_CONNECT_TO_PRINTER);
     }
 
     try {
@@ -237,17 +407,17 @@ class Invoices extends _$Invoices {
 
       bytes += generator.image(logo!);
       bytes += generator.text(
-        companyName,
+        companyName.unwrap(),
         styles: PosStyles(bold: true, align: PosAlign.center),
       );
       bytes += generator.text(
-        "NIT: $companyDocument, Regimen Simple",
+        "NIT: ${companyDocument.unwrap()}, Regimen Simple",
       );
       bytes += generator.text(
-        "TELEFONO: $companyPhone",
+        "TELEFONO: ${companyPhone.unwrap()}",
       );
       bytes += generator.text(
-        "EMAIL: $companyEmail",
+        "EMAIL: ${companyEmail.unwrap()}",
       );
 
       bytes += generator.feed(1);

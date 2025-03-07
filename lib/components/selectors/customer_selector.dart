@@ -78,6 +78,15 @@ class CustomerSelector extends HookConsumerWidget {
     }
 
     Widget renderList(List<CustomerData> list) {
+      if (list.isEmpty) {
+        return ListTile(
+          title: Text(
+            "Sin clientes",
+            style: TextStyle(fontStyle: FontStyle.italic),
+          ),
+        );
+      }
+
       return ListView.separated(
         // See more:
         // https://stackoverflow.com/questions/63639472/flutter-unexpected-space-at-the-top-of-listview
@@ -111,7 +120,11 @@ class CustomerSelector extends HookConsumerWidget {
           alignment: AlignmentDirectional.center,
           children: [
             TextFormField(
-              validator: isRequired ? FormBuilderValidators.required() : null,
+              validator: isRequired
+                  ? FormBuilderValidators.required(
+                      errorText: "El cliente es requerido",
+                    )
+                  : null,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               controller: inputController,
               decoration: InputDecoration(

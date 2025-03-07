@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -7,6 +8,7 @@ import 'package:project_shelf/components/selectors/customer_selector.dart';
 import 'package:project_shelf/components/selectors/product_selector.dart';
 import 'package:project_shelf/components/text_fields/custom_text_field.dart';
 import 'package:project_shelf/database/database.dart';
+import 'package:project_shelf/lib/cop_currency.dart';
 import 'package:project_shelf/providers/invoice/invoices.dart';
 
 final consecutiveProvider = FutureProvider.autoDispose((ref) {
@@ -22,14 +24,32 @@ final customerProvider = StateProvider.autoDispose<CustomerData?>((ref) {
   return null;
 });
 
-class CreateInvoiceView extends ConsumerWidget {
+class CreateInvoiceView extends HookConsumerWidget {
   final String? restorationId;
 
   const CreateInvoiceView({this.restorationId, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final formKey = useState(GlobalKey<FormState>());
     final customer = ref.watch(customerProvider);
+
+    save() async {
+      if (!formKey.value.currentState!.validate()) {
+        return;
+      }
+
+      await ref.read(invoicesProvider.notifier).create(
+            data: InvoiceCompanion.insert(
+              number: await ref.read(consecutiveProvider.future),
+              customerUuid: customer!.uuid,
+            ),
+            invoiceProducts: ref.read(invoiceProductsProvider),
+          );
+
+      // ignore: use_build_context_synchronously
+      context.go("/invoices");
+    }
 
     return Scaffold(
       appBar: AppBar(centerTitle: true, title: const Text("Crear Factura")),
@@ -37,6 +57,7 @@ class CreateInvoiceView extends ConsumerWidget {
         margin: const EdgeInsets.all(18),
         child: SingleChildScrollView(
           child: Form(
+            key: formKey.value,
             child: Column(
               children: [
                 _ConsecutiveTextField(),
@@ -55,18 +76,7 @@ class CreateInvoiceView extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           FloatingActionButton(
-            disabledElevation: 0,
-            onPressed: () async {
-              await ref.read(invoicesProvider.notifier).create(
-                    data: InvoiceCompanion.insert(
-                      number: await ref.read(consecutiveProvider.future),
-                      customerUuid: customer!.uuid,
-                    ),
-                    invoiceProducts: ref.read(invoiceProductsProvider),
-                  );
-
-              context.go("/invoices");
-            },
+            onPressed: save,
             child: FaIcon(FontAwesomeIcons.floppyDisk),
           ),
         ],
@@ -132,6 +142,7 @@ class _InvoiceProductList extends ConsumerWidget {
       if (invoiceProducts.isEmpty) {
         return Center(child: Text("Sin productos"));
       }
+
       return ListView.separated(
         padding: const EdgeInsets.all(0),
         itemCount: invoiceProducts.length,
@@ -146,9 +157,10 @@ class _InvoiceProductList extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(invoiceProducts[index].product.name),
-                  Text(invoiceProducts[index].price.formattedValue),
-                  Text(invoiceProducts[index].discount.formattedValue),
-                  Text(invoiceProducts[index].count.toString()),
+                  Text("Valor: " + invoiceProducts[index].price.formattedValue),
+                  Text("Descuento: " +
+                      invoiceProducts[index].discount.formattedValue),
+                  Text("Cantidad: " + invoiceProducts[index].count.toString()),
                 ],
               ),
               ElevatedButton.icon(
@@ -168,6 +180,12 @@ class _InvoiceProductList extends ConsumerWidget {
           },
         ),
       );
+    }
+
+    BigInt totalInvoice = BigInt.from(0);
+    for (final product in invoiceProducts) {
+      totalInvoice += (product.price.realValue * BigInt.from(product.count)) -
+          product.discount.realValue;
     }
 
     return Column(
@@ -190,6 +208,7 @@ class _InvoiceProductList extends ConsumerWidget {
           ],
         ),
         renderList(),
+        Text("Total: ${CopCurrency.fromCents(totalInvoice).formattedValue}"),
       ],
     );
   }

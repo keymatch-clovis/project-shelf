@@ -97,7 +97,7 @@ class MainWrapperState extends ConsumerState<MainWrapper> {
 
     return RestorationScope(
       restorationId: 'home',
-      child: isFirstOpen ? LoadingDialog("Cargando datos...") : renderApp(),
+      child: isFirstOpen ? LoadingDialog("Cargando datos iniciales...") : renderApp(),
     );
   }
 }

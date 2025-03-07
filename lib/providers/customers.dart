@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:csv/csv.dart';
 import 'package:drift/drift.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:oxidized/oxidized.dart';
 import 'package:project_shelf/database/database.dart';
+import 'package:project_shelf/lib/error.dart';
 import 'package:project_shelf/providers/customer_mementos.dart';
 import 'package:project_shelf/providers/database.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -27,6 +30,59 @@ class Customers extends _$Customers {
   @override
   Future<List<CustomerWithCity>> build() async {
     return _find();
+  }
+
+  Future<Result<Unit, FileLoadError>> uploadCustomers() async {
+    final file = await FilePicker.platform
+        .pickFiles(
+          dialogTitle: "Seleccionar archivo de datos",
+          allowMultiple: false,
+          withData: true,
+        )
+        .then((r) => Option.from(r));
+
+    if (file.isNone()) {
+      return Err(FileLoadError.FILE_NOT_SELECTED);
+    }
+
+    final data = Result.of(() {
+      final decoded = utf8.decode(file.unwrap().files.single.bytes!);
+      return const CsvToListConverter()
+          .convert(decoded, shouldParseNumbers: false);
+    });
+
+    if (data.isErr()) {
+      debugPrint(data.unwrapErr().toString());
+      return Err(FileLoadError.BROKEN_FILE);
+    }
+
+    final rows = data.unwrap();
+    final database = ref.watch(databaseProvider);
+
+    return await Result.asyncOf(() async {
+      for (final row in rows) {
+        debugPrint("Creating customer: $row");
+        await (database.into(database.customer).insert(
+              CustomerCompanion.insert(
+                uuid: Value(row[0]),
+                name: row[1],
+                businessName: Value(row[2]),
+                address: row[3],
+                phone: row[4],
+                cityRowId: int.parse(row[5]),
+              ),
+            ));
+      }
+      debugPrint("Customer loaded");
+
+      // Invalidate the state once all the products have loaded.
+      await _invalidate();
+
+      return Unit.unit;
+    }).mapErr((err) {
+      debugPrint(err.toString());
+      return FileLoadError.INCORRECT_FILE_FORMAT;
+    });
   }
 
   Future<CustomerData> create(CustomerCompanion data) async {
@@ -81,30 +137,6 @@ class Customers extends _$Customers {
           .then((customers) => customers.first);
     });
     debugPrint("customer deleted: $uuid");
-
-    await _invalidate();
-  }
-
-  Future<void> TEST_load() async {
-    debugPrint("Loading test customer data...");
-    final database = ref.watch(databaseProvider);
-    final input = await rootBundle.loadString("assets/customer.csv");
-    final fields =
-        const CsvToListConverter().convert(input, shouldParseNumbers: false);
-
-    for (final field in fields) {
-      debugPrint("Inserting: $field");
-      await (database.into(database.customer).insert(
-            CustomerCompanion.insert(
-              uuid: Value(field[0]),
-              name: field[1],
-              businessName: Value(field[2]),
-              address: field[3],
-              phone: field[4],
-              cityRowId: int.parse(field[5]),
-            ),
-          ));
-    }
 
     await _invalidate();
   }

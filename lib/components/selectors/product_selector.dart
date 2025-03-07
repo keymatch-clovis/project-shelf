@@ -15,6 +15,15 @@ class ProductSelector extends HookConsumerWidget {
     final searchController = useSearchController();
 
     Widget renderList(List<ProductData> list) {
+      if (list.isEmpty) {
+        return ListTile(
+          title: Text(
+            "Sin productos",
+            style: TextStyle(fontStyle: FontStyle.italic),
+          ),
+        );
+      }
+
       return ListView.separated(
         // See more:
         // https://stackoverflow.com/questions/63639472/flutter-unexpected-space-at-the-top-of-listview

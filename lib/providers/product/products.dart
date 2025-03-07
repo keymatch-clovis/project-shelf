@@ -54,9 +54,10 @@ class Products extends _$Products {
         debugPrint("creating product: $row");
         await database.into(database.product).insert(
               ProductCompanion.insert(
-                name: row[0],
-                price: Value(BigInt.parse(row[1])),
-                stock: Value(int.parse(row[2])),
+                uuid: Value(row[0]),
+                name: row[1],
+                price: Value(BigInt.parse(row[2])),
+                stock: Value(int.parse(row[3])),
               ),
             );
       }
