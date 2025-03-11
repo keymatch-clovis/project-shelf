@@ -2,14 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class Pill extends StatelessWidget {
-  final IconData iconData;
   final String text;
-  final MaterialColor color;
+
+  final IconData? iconData;
+  final Color? color;
+  final Color? textColor;
+  final double? width;
 
   const Pill({
-    required this.iconData,
     required this.text,
-    this.color = Colors.blue,
+    this.iconData,
+    this.color,
+    this.textColor,
+    this.width,
     super.key,
   });
 
@@ -18,22 +23,25 @@ class Pill extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: Container(
-        color: color,
+        width: width,
+        color: color ?? Theme.of(context).hintColor,
         padding: EdgeInsets.symmetric(vertical: 2, horizontal: 12),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            FaIcon(
+              color: textColor,
+              size: 16,
+              iconData,
+            ),
+            const SizedBox(width: 6),
             Text(
               text,
               style: TextStyle(
-                color: Colors.white,
+                color: textColor,
                 fontWeight: FontWeight.bold,
               ),
-            ),
-            const SizedBox(width: 6),
-            FaIcon(
-              color: Colors.white,
-              size: 16,
-              FontAwesomeIcons.box,
             ),
           ],
         ),

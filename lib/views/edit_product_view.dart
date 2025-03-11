@@ -29,6 +29,7 @@ class EditProductView extends HookConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(centerTitle: true, title: const Text("Editar Producto")),
+      backgroundColor: Colors.white,
       body: Container(
         margin: const EdgeInsets.all(18),
         child: Form(

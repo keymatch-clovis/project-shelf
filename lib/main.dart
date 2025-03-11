@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jiffy/jiffy.dart';
+import 'package:project_shelf/lib/constants.dart';
 import 'package:project_shelf/navigation/app_navigation.dart';
 
 void main() async {
@@ -30,7 +31,10 @@ class _ShelfAppState extends State<ShelfApp> {
       restorationScopeId: 'app',
       title: 'Project Shelf',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: GREEN600,
+        ),
+        scaffoldBackgroundColor: STONE200,
         useMaterial3: true,
       ),
       routerConfig: AppNavigation.router,
