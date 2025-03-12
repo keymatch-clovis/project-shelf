@@ -20,7 +20,10 @@ class ProductsView extends ConsumerWidget {
       restorationId: restorationId,
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Productos'),
+        title: Text(
+          'Productos',
+          style: TEXT_GREEN_800.merge(FONT_BOLD),
+        ),
       ),
       body: _ProductList(),
       persistentFooterAlignment: AlignmentDirectional.center,
@@ -63,70 +66,59 @@ class _ProductList extends ConsumerWidget {
 
   Widget renderList(List<ProductData> list) {
     if (list.isEmpty) {
-      return Center(child: Text("Sin productos"));
+      return Center(child: Text("Sin productos", style: TEXT_STONE_600));
     }
 
-    return ListView.builder(
+    return ListView.separated(
       itemCount: list.length,
-      itemBuilder: (context, index) => Card(
-        elevation: 1,
-        margin: EdgeInsets.symmetric(horizontal: M10, vertical: M4),
-        child: ListTile(
-          onTap: () => context.go("/products/product", extra: list[index]),
-          title: _ListItem(list[index]),
-        ),
-      ),
+      separatorBuilder: (_, __) => Divider(height: 0),
+      itemBuilder: (context, index) => _ListItem(list[index]),
     );
   }
 }
 
 class _ListItem extends StatelessWidget {
-  final ProductData data;
+  final ProductData item;
 
-  const _ListItem(this.data);
+  const _ListItem(this.item);
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(data.name, style: TEXT_SM),
-                  const SizedBox(height: H8),
-                  Row(
-                    children: [
-                      Pill(
-                        iconData: FontAwesomeIcons.box,
-                        color: STONE200,
-                        width: W96,
-                        textColor: STONE600,
-                        text: data.stock > 9999
-                            ? "+9999"
-                            : data.stock.toString(),
-                      ),
-                      const SizedBox(width: W3XS),
-                      Pill(
-                        iconData: FontAwesomeIcons.dollarSign,
-                        color: STONE200,
-                        textColor: STONE600,
-                        text: CopCurrency.fromCents(data.price).formattedValue,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+    return ListTile(
+      onTap: () => context.go("/products/product", extra: item),
+      tileColor: Colors.white,
+      title: Row(
+        children: [
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(item.name, style: TEXT_SM),
+              ],
             ),
-            FaIcon(FontAwesomeIcons.chevronRight),
-          ],
-        ),
-      ],
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Pill(
+                iconData: FontAwesomeIcons.xmark,
+                color: STONE_200,
+                textColor: STONE_600,
+                text: item.stock > 9999 ? "9999" : item.stock.toString(),
+              ),
+              const SizedBox(width: W3XS),
+              Text(
+                CopCurrency.fromCents(item.price).formattedValue,
+                style: TEXT_LG.merge(FONT_BOLD),
+              ),
+            ],
+          ),
+          const SizedBox(width: WSM),
+          FaIcon(FontAwesomeIcons.chevronRight),
+        ],
+      ),
     );
   }
 }

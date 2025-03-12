@@ -1,6 +1,9 @@
 import 'dart:io';
 
 import 'package:drift/drift.dart';
+import 'package:drift_dev/api/migrations_native.dart';
+import 'package:drift/internal/versioned_schema.dart';
+import 'package:flutter/foundation.dart';
 import 'package:sqlite3/sqlite3.dart';
 import 'package:drift/native.dart';
 import 'package:oxidized/oxidized.dart';
@@ -14,10 +17,9 @@ import 'package:project_shelf/database/product.dart';
 import 'package:project_shelf/database/product_invoice.dart';
 import 'package:project_shelf/database/product_memento.dart';
 import 'package:uuid/uuid.dart';
+import 'package:project_shelf/database/database.steps.dart';
 
 part 'database.g.dart';
-
-const SCHEMA_VERSION = 1;
 
 @DriftDatabase(
   tables: [
@@ -44,7 +46,7 @@ class ShelfDatabase extends _$ShelfDatabase {
   ShelfDatabase.withExecutor(super.executor);
 
   @override
-  int get schemaVersion => SCHEMA_VERSION;
+  int get schemaVersion => 2;
 
   static LazyDatabase _openConnection(Option<Uint8List> bytes) {
     return LazyDatabase(() async {
@@ -67,4 +69,37 @@ class ShelfDatabase extends _$ShelfDatabase {
       return NativeDatabase.createInBackground(file);
     });
   }
+
+  @override
+  MigrationStrategy get migration {
+    return MigrationStrategy(
+      onUpgrade: (m, from, to) async {
+        // Following the advice from https://drift.simonbinder.eu/Migrations/api/#general-tips
+        await customStatement('PRAGMA foreign_keys = OFF');
+
+        await transaction(
+          () => VersionedSchema.runMigrationSteps(
+            migrator: m,
+            from: from,
+            to: to,
+            steps: _upgrade,
+          ),
+        );
+
+        await customStatement('PRAGMA foreign_keys = ON');
+      },
+      beforeOpen: (_) async {
+        if (kDebugMode) {
+          await validateDatabaseSchema();
+        }
+      },
+    );
+  }
+
+  static final _upgrade = migrationSteps(
+    from1To2: (m, schema) async {
+      // From 1 to 2: Mark invoice number as unique.
+      await m.alterTable(TableMigration(schema.invoice));
+    },
+  );
 }

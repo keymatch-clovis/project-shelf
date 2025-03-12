@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jiffy/jiffy.dart';
@@ -5,6 +6,7 @@ import 'package:project_shelf/lib/constants.dart';
 import 'package:project_shelf/navigation/app_navigation.dart';
 
 void main() async {
+  debugPaintSizeEnabled = false;
   await Jiffy.setLocale('es');
 
   runApp(
@@ -32,9 +34,9 @@ class _ShelfAppState extends State<ShelfApp> {
       title: 'Project Shelf',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: GREEN600,
+          seedColor: GREEN_600,
         ),
-        scaffoldBackgroundColor: STONE200,
+        scaffoldBackgroundColor: STONE_200,
         useMaterial3: true,
       ),
       routerConfig: AppNavigation.router,

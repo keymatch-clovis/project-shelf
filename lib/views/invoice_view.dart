@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:project_shelf/components/dialog/print_invoice_dialog.dart';
+import 'package:project_shelf/components/pill.dart';
 import 'package:project_shelf/components/text_fields/custom_text_field.dart';
 import 'package:project_shelf/database/database.dart';
+import 'package:project_shelf/lib/constants.dart';
 import 'package:project_shelf/lib/cop_currency.dart';
 import 'package:project_shelf/providers/customers.dart';
 import 'package:project_shelf/providers/invoice/invoices.dart';
@@ -47,9 +49,13 @@ class InvoiceView extends ConsumerWidget {
     }
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         centerTitle: true,
-        title: Text("Factura: ${_invoice.number}"),
+        title: Text(
+          "#${_invoice.number}",
+          style: TEXT_GREEN_800.merge(FONT_BOLD),
+        ),
       ),
       body: Container(
         margin: const EdgeInsets.all(18),
@@ -71,12 +77,43 @@ class InvoiceView extends ConsumerWidget {
               readOnly: true,
               initialValue: customer.value!.name,
             ),
-            Text("Productos"),
-            Expanded(
-              child: _InvoiceProductsList(_invoice),
+            Row(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Text(
+                  "Productos",
+                  style: TEXT_STONE_600.merge(TEXT_XS),
+                ),
+              ],
             ),
-            Text(
-                "Total: ${CopCurrency.fromCents(totalInvoice).formattedValue}"),
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: STONE_400),
+                  borderRadius: ROUNDED_MD,
+                ),
+                child: _InvoiceProductsList(_invoice),
+              ),
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Column(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    const SizedBox(height: H8),
+                    Text(
+                      CopCurrency.fromCents(totalInvoice).formattedValue,
+                      style: TEXT_2XL.merge(FONT_BOLD).merge(LEADING_XS),
+                    ),
+                    Text("Total", style: TEXT_XS.merge(TEXT_STONE_600)),
+                  ],
+                ),
+              ],
+            ),
           ],
         ),
       ),
@@ -102,53 +139,96 @@ class _InvoiceProductsList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final invoiceProducts =
-        ref.watch(invoiceProductsProvider(this.invoice.uuid));
+    final asyncData = ref.watch(invoiceProductsProvider(this.invoice.uuid));
 
-    if (!invoiceProducts.hasValue) {
-      return Center(child: CircularProgressIndicator.adaptive());
+    return switch (asyncData) {
+      AsyncData(:final value) => renderList(value.products),
+      AsyncError(:final error) => Text("error: $error"),
+      _ => const Center(child: CircularProgressIndicator()),
+    };
+  }
+
+  Widget renderList(List<ProductInvoiceWithProduct> products) {
+    if (products.isEmpty) {
+      return Center(child: Text("Sin productos", style: TEXT_STONE_600));
     }
 
-    Widget renderList(List<ProductInvoiceWithProduct> products) {
-      return ListView.separated(
-        itemCount: products.length,
-        separatorBuilder: (_, __) => Divider(),
-        itemBuilder: (context, index) => ListTile(
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(products[index].product.name),
-                    Text("Valor U.: " +
-                        CopCurrency.fromCents(
-                                products[index].productInvoice.price)
-                            .formattedValue),
-                    Text("Descuento: " +
-                        CopCurrency.fromCents(
-                                products[index].productInvoice.discount)
-                            .formattedValue),
-                    Text("Cantidad: " +
-                        products[index].productInvoice.count.toString()),
-                    Text("Valor: " +
-                        CopCurrency.fromCents((products[index]
-                                        .productInvoice
-                                        .price *
-                                    BigInt.from(
-                                        products[index].productInvoice.count)) -
-                                products[index].productInvoice.discount)
-                            .formattedValue),
-                  ],
+    return ListView.separated(
+      itemCount: products.length,
+      separatorBuilder: (_, __) => Divider(height: 0),
+      itemBuilder: (context, index) => _ListItem(products[index]),
+    );
+  }
+}
+
+class _ListItem extends StatelessWidget {
+  final ProductInvoiceWithProduct item;
+  const _ListItem(this.item);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      contentPadding: PX_8,
+      title: Row(
+        children: [
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.product.name,
+                  style: TEXT_SM.merge(TEXT_STONE_800),
                 ),
+                Text(
+                  CopCurrency.fromCents(item.productInvoice.price)
+                      .formattedValue,
+                ),
+              ],
+            ),
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Pill(
+                iconData: FontAwesomeIcons.xmark,
+                color: STONE_200,
+                textColor: STONE_600,
+                text: item.productInvoice.count > 9999
+                    ? "9999"
+                    : item.productInvoice.count.toString(),
               ),
+              Text(
+                CopCurrency.fromCents((item.productInvoice.price *
+                            BigInt.from(item.productInvoice.count)) -
+                        item.productInvoice.discount)
+                    .formattedValue,
+                style: TEXT_LG.merge(FONT_BOLD),
+              ),
+              ...renderDiscount(),
             ],
           ),
-        ),
-      );
-    }
+        ],
+      ),
+    );
+  }
 
-    return renderList(invoiceProducts.value!.products);
+  List<Widget> renderDiscount() {
+    if (item.productInvoice.discount.toInt() > 0) {
+      return [
+        Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Text(
+              "-${CopCurrency.fromCents(item.productInvoice.discount).formattedValue}",
+              style: FONT_BOLD.merge(TEXT_RED_800),
+            ),
+          ],
+        ),
+      ];
+    }
+    return [];
   }
 }

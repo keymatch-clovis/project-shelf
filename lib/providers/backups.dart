@@ -6,7 +6,6 @@ import "package:flutter/foundation.dart";
 import "package:oxidized/oxidized.dart";
 import "package:path/path.dart";
 import "package:path_provider/path_provider.dart";
-import "package:project_shelf/database/database.dart";
 import "package:project_shelf/providers/database.dart";
 import "package:project_shelf/providers/google_drive.dart";
 import "package:riverpod_annotation/riverpod_annotation.dart";
@@ -117,8 +116,9 @@ class Backups extends _$Backups {
     final deviceInfoPlugin = DeviceInfoPlugin();
     final deviceInfo = await deviceInfoPlugin.deviceInfo;
     final allInfo = deviceInfo.data;
+    final database = ref.read(databaseProvider);
 
-    final backupName = "db-v$SCHEMA_VERSION-${allInfo['product']}";
+    final backupName = "db-v${database.schemaVersion}-${allInfo['product']}";
     return backupName;
   }
 

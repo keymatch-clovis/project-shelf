@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:project_shelf/lib/constants.dart';
 
 class Pill extends StatelessWidget {
   final String text;
@@ -8,6 +9,7 @@ class Pill extends StatelessWidget {
   final Color? color;
   final Color? textColor;
   final double? width;
+  final MainAxisAlignment? alignment;
 
   const Pill({
     required this.text,
@@ -15,6 +17,7 @@ class Pill extends StatelessWidget {
     this.color,
     this.textColor,
     this.width,
+    this.alignment,
     super.key,
   });
 
@@ -27,15 +30,15 @@ class Pill extends StatelessWidget {
         color: color ?? Theme.of(context).hintColor,
         padding: EdgeInsets.symmetric(vertical: 2, horizontal: 12),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: alignment ?? MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             FaIcon(
               color: textColor,
-              size: 16,
+              size: W14,
               iconData,
             ),
-            const SizedBox(width: 6),
+            const SizedBox(width: W6),
             Text(
               text,
               style: TextStyle(

@@ -53,6 +53,7 @@ class CreateInvoiceView extends HookConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(centerTitle: true, title: const Text("Crear Factura")),
+      backgroundColor: Colors.white,
       body: Container(
         margin: const EdgeInsets.all(18),
         child: SingleChildScrollView(

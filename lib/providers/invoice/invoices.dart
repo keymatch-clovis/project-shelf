@@ -94,6 +94,28 @@ class Invoices extends _$Invoices {
     return _find();
   }
 
+  Future<Result<Unit, Error>> _delete(String uuid) async {
+    final database = ref.watch(databaseProvider);
+
+    debugPrint("Deleting $uuid");
+    return await Result.asyncOf(() async {
+      return await database.transaction(() async {
+        debugPrint("Removing products from invoice.");
+        await (database.delete(database.productInvoice)
+              ..where((pi) => pi.invoiceUuid.equals(uuid)))
+            .go();
+
+        debugPrint("Removing invoice.");
+        await (database.delete(database.invoice)
+              ..where((i) => i.uuid.equals(uuid)))
+            .go();
+
+        debugPrint("Invoice deleted.");
+        return Unit.unit;
+      });
+    });
+  }
+
   Future<Result<Unit, FileLoadError>> uploadInvoices() async {
     final file = await FilePicker.platform
         .pickFiles(
@@ -134,6 +156,19 @@ class Invoices extends _$Invoices {
 
         for (final uuid in invoiceUuids) {
           final invoiceNumber = rows.firstWhere((rows) => rows[1] == uuid)[0];
+
+          // Search for invoice number. If present, remove it. This is for this
+          // data is always the same, and we should be able to upload it without
+          // damaging the already added data.
+          await (database.select(database.invoice)
+                ..where((i) => i.number.equals(int.parse(invoiceNumber))))
+              .getSingleOrNull()
+              .then((i) {
+            if (i != null) {
+              _delete(i.uuid);
+            }
+          });
+
           final invoiceDate = rows.firstWhere((rows) => rows[1] == uuid)[2];
           final invoiceProducts = rows.where((rows) => rows[1] == uuid);
           final invoiceCustomer = rows.firstWhere((rows) => rows[1] == uuid)[8];
@@ -192,9 +227,11 @@ class Invoices extends _$Invoices {
               debugPrint("Product created: $foundProduct");
             }
 
-            final productCount =
-                (int.parse(productRow[5]) / int.parse(productRow[4])).round();
-            debugPrint("Product count: $productCount");
+            final productCount = int.parse(productRow[4]);
+            final productPrice =
+                BigInt.from(int.parse(productRow[5]) / productCount) *
+                    BigInt.from(100);
+            debugPrint("Loaded, count: $productCount, value: $productPrice");
 
             // If the product is already in the invoice, update the value.
             final productInvoice =
@@ -207,18 +244,17 @@ class Invoices extends _$Invoices {
 
             if (productInvoice != null) {
               debugPrint("Updating: $productInvoice");
-              await database.update(database.productInvoice).replace(
-                  productInvoice.copyWith(
-                      count: productInvoice.count +
-                          (BigInt.parse(productRow[5]) / productInvoice.price)
-                              .toInt()));
+              await database
+                  .update(database.productInvoice)
+                  .replace(productInvoice.copyWith(
+                    count: productInvoice.count + productCount,
+                  ));
             } else {
               debugPrint("Adding: $foundProduct");
               final productInvoice = await database
                   .into(database.productInvoice)
                   .insertReturning(ProductInvoiceCompanion.insert(
-                    price:
-                        Value(BigInt.parse(productRow[4]) * BigInt.from(100)),
+                    price: Value(productPrice),
                     discount: productRow[6].toString().trim().isEmpty
                         ? Value.absent()
                         : Value(BigInt.parse(productRow[6]) * BigInt.from(100)),
