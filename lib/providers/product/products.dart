@@ -4,6 +4,7 @@ import "package:csv/csv.dart";
 import "package:drift/drift.dart";
 import "package:file_picker/file_picker.dart";
 import "package:flutter/foundation.dart";
+import "package:intl/intl.dart";
 import "package:oxidized/oxidized.dart";
 import "package:project_shelf/lib/error.dart";
 import "package:project_shelf/providers/database.dart";
@@ -14,6 +15,24 @@ import "package:riverpod_annotation/riverpod_annotation.dart";
 part "products.g.dart";
 
 const CURRENT_VERSION = 1;
+
+class Product {
+  ProductData data;
+
+  Product(this.data);
+
+  String get formattedValue => NumberFormat.currency(
+        symbol: "",
+        decimalDigits: 0,
+      ).format(data.price / BigInt.from(100));
+
+  String get formattedStock =>
+      data.stock > 9999 ? "9999" : data.stock.toString();
+}
+
+extension AsProduct on ProductData {
+  Product asProduct() => Product(this);
+}
 
 @riverpod
 class Products extends _$Products {
@@ -103,23 +122,34 @@ class Products extends _$Products {
     });
   }
 
-  Future<void> delete(String uuid) async {
+  Future<Result<Unit, ProductError>> delete(String uuid) async {
     final database = ref.watch(databaseProvider);
 
     debugPrint("deleting product: $uuid");
-    await database.transaction(() async {
-      // Remove product mementos.
-      await ref.watch(productMementosProvider(uuid).notifier).deleteAll();
+    return await Result.asyncOf(() async {
+      await database.transaction(() async {
+        // Check if the product is associated with any invoice.
+        await (database.select(database.productInvoice)
+              ..where((pi) => pi.productUuid.equals(uuid)))
+            .get()
+            .then((list) => {
+                  if (list.isNotEmpty)
+                    throw ProductError.PRODUCT_IS_REFERENCED_IN_INVOICES,
+                });
 
-      // Remove product.
-      return await (database.delete(database.product)
-            ..where((p) => p.uuid.equals(uuid)))
-          .goAndReturn()
-          .then((products) => products.first);
+        // Remove product mementos.
+        await ref.watch(productMementosProvider(uuid).notifier).deleteAll();
+
+        // Remove product.
+        return await (database.delete(database.product)
+              ..where((p) => p.uuid.equals(uuid)))
+            .goAndReturn()
+            .then((products) => products.first);
+      });
+      debugPrint("product deleted: $uuid");
+      await _invalidate();
+      return Unit.unit;
     });
-    debugPrint("product deleted: $uuid");
-
-    await _invalidate();
   }
 
   Future<void> removeFromStock({

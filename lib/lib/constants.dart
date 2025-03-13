@@ -7,15 +7,18 @@ const GREEN_800 = Color(0XFF166534);
 
 const STONE_200 = Color(0XFFE7E5E4);
 const STONE_400 = Color(0XFFA8A29E);
+const STONE_500 = Color(0XFF78716C);
 const STONE_600 = Color(0XFF57534E);
 const STONE_800 = Color(0XFF292524);
 
 const RED_800 = Color(0XFF991B1B);
 
-const M2 = 2.0;
-const M4 = 4.0;
-const M8 = 8.0;
-const M10 = 10.0;
+const M_2 = 2.0;
+const M_4 = 4.0;
+const M_8 = 8.0;
+const M_10 = 10.0;
+const M_16 = 16.0;
+const M_24 = 24.0;
 
 const W96 = 96.0;
 const W104 = 104.0;
@@ -32,7 +35,14 @@ const W2XS = 18.0;
 const WSM = 24.0;
 
 const P0 = EdgeInsets.all(0);
+const P_8 = EdgeInsets.all(8);
 const PX_8 = EdgeInsets.symmetric(horizontal: 8);
+
+const EI_8 = EdgeInsets.all(M_8);
+const EI_16 = EdgeInsets.all(M_16);
+const EI_24 = EdgeInsets.all(M_24);
+
+const BORDER_T = Border(top: BorderSide(color: STONE_400));
 
 const ROUNDED_MD = BorderRadius.all(Radius.circular(6));
 

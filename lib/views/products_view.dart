@@ -6,7 +6,6 @@ import 'package:project_shelf/components/pill.dart';
 import 'package:project_shelf/components/product_search_anchor.dart';
 import 'package:project_shelf/database/database.dart';
 import 'package:project_shelf/lib/constants.dart';
-import 'package:project_shelf/lib/cop_currency.dart';
 import 'package:project_shelf/providers/product/products.dart';
 
 class ProductsView extends ConsumerWidget {
@@ -26,28 +25,40 @@ class ProductsView extends ConsumerWidget {
         ),
       ),
       body: _ProductList(),
-      persistentFooterAlignment: AlignmentDirectional.center,
-      persistentFooterButtons: [
-        ProductSearchAnchor(
-          builder: (context, controller) {
-            return FloatingActionButton(
-              heroTag: null,
-              child: FaIcon(FontAwesomeIcons.magnifyingGlass),
-              onPressed: () => controller.openView(),
-            );
-          },
-          onTap: (product) => context.go(
-            "/products/product",
-            extra: product,
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          border: BORDER_T,
+          color: Theme.of(context).scaffoldBackgroundColor,
+        ),
+        child: Padding(
+          padding: P_8,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              ProductSearchAnchor(
+                builder: (context, controller) {
+                  return FloatingActionButton(
+                    heroTag: null,
+                    child: FaIcon(FontAwesomeIcons.magnifyingGlass),
+                    onPressed: () => controller.openView(),
+                  );
+                },
+                onTap: (product) => context.go(
+                  "/products/product",
+                  extra: product,
+                ),
+              ),
+              const SizedBox(width: 12),
+              FloatingActionButton(
+                heroTag: null,
+                onPressed: () => context.go('/products/create'),
+                child: FaIcon(FontAwesomeIcons.plus),
+              ),
+            ],
           ),
         ),
-        const SizedBox(width: 12),
-        FloatingActionButton(
-          heroTag: null,
-          onPressed: () => context.go('/products/create'),
-          child: FaIcon(FontAwesomeIcons.plus),
-        ),
-      ],
+      ),
     );
   }
 }
@@ -72,20 +83,20 @@ class _ProductList extends ConsumerWidget {
     return ListView.separated(
       itemCount: list.length,
       separatorBuilder: (_, __) => Divider(height: 0),
-      itemBuilder: (context, index) => _ListItem(list[index]),
+      itemBuilder: (context, index) => _ListItem(list[index].asProduct()),
     );
   }
 }
 
 class _ListItem extends StatelessWidget {
-  final ProductData item;
+  final Product item;
 
   const _ListItem(this.item);
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      onTap: () => context.go("/products/product", extra: item),
+      onTap: () => context.go("/products/product", extra: item.data),
       tileColor: Colors.white,
       title: Row(
         children: [
@@ -94,7 +105,7 @@ class _ListItem extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(item.name, style: TEXT_SM),
+                Text(item.data.name, style: TEXT_SM),
               ],
             ),
           ),
@@ -106,11 +117,11 @@ class _ListItem extends StatelessWidget {
                 iconData: FontAwesomeIcons.xmark,
                 color: STONE_200,
                 textColor: STONE_600,
-                text: item.stock > 9999 ? "9999" : item.stock.toString(),
+                text: item.formattedStock,
               ),
               const SizedBox(width: W3XS),
               Text(
-                CopCurrency.fromCents(item.price).formattedValue,
+                "${item.formattedValue}\$",
                 style: TEXT_LG.merge(FONT_BOLD),
               ),
             ],
