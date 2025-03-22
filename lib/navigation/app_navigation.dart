@@ -8,7 +8,6 @@ import 'package:project_shelf/views/create_customer_view.dart';
 import 'package:project_shelf/views/backups_view.dart';
 import 'package:project_shelf/views/data_load_view.dart';
 import 'package:project_shelf/views/edit_customer_view.dart';
-import 'package:project_shelf/views/edit_product_view.dart';
 import 'package:project_shelf/views/invoice_view.dart';
 import 'package:project_shelf/views/invoices_view.dart';
 import 'package:project_shelf/views/create_invoice_view.dart';
@@ -64,15 +63,6 @@ class AppNavigation {
                       state.extra as ProductData,
                       key: state.pageKey,
                     ),
-                    routes: [
-                      GoRoute(
-                        path: 'edit',
-                        builder: (context, state) => EditProductView(
-                          state.extra as ProductData,
-                          key: state.pageKey,
-                        ),
-                      )
-                    ],
                   ),
                 ],
               ),

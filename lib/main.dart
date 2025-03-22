@@ -36,7 +36,7 @@ class _ShelfAppState extends State<ShelfApp> {
         colorScheme: ColorScheme.fromSeed(
           seedColor: GREEN_600,
         ),
-        scaffoldBackgroundColor: STONE_200,
+        scaffoldBackgroundColor: STONE_100,
         useMaterial3: true,
       ),
       routerConfig: AppNavigation.router,

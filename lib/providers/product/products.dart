@@ -37,8 +37,9 @@ extension AsProduct on ProductData {
 @riverpod
 class Products extends _$Products {
   @override
-  Future<List<ProductData>> build() async {
-    return _find();
+  Stream<List<ProductData>> build() {
+    final database = ref.watch(databaseProvider);
+    return database.select(database.product).watch();
   }
 
   Future<Result<Unit, FileLoadError>> uploadProducts() async {
@@ -82,9 +83,6 @@ class Products extends _$Products {
       }
       debugPrint("Products loaded");
 
-      // Invalidate the state once all the products have loaded.
-      await _invalidate();
-
       return Unit.unit;
     }).mapErr((err) {
       debugPrint(err.toString());
@@ -99,8 +97,6 @@ class Products extends _$Products {
     final product =
         await (database.into(database.product).insertReturning(data));
     debugPrint("product created: $product");
-
-    await _invalidate();
     return product;
   }
 
@@ -117,8 +113,6 @@ class Products extends _$Products {
       debugPrint("updating product with: $data");
       await database.update(database.product).replace(data);
       debugPrint("product updated");
-
-      await _invalidate();
     });
   }
 
@@ -147,7 +141,6 @@ class Products extends _$Products {
             .then((products) => products.first);
       });
       debugPrint("product deleted: $uuid");
-      await _invalidate();
       return Unit.unit;
     });
   }
@@ -172,8 +165,6 @@ class Products extends _$Products {
             stock: product.stock - count,
           ));
       debugPrint("product updated");
-
-      await _invalidate();
     });
   }
 
@@ -183,20 +174,5 @@ class Products extends _$Products {
           ..where((p) => p.uuid.equals(uuid)))
         .getSingleOrNull()
         .then((p) => Option.from(p));
-  }
-
-  Future<List<ProductData>> _find() {
-    final database = ref.watch(databaseProvider);
-    return database.select(database.product).get();
-  }
-
-  Future<void> _invalidate() async {
-    // This will cause "build" on our notifier to asynchronously be called again,
-    // and will notify listeners when doing so.
-    ref.invalidateSelf();
-
-    // (Optional) We can then wait for the new state to be computed.
-    // This ensures "addTodo" does not complete until the new state is available.
-    await future;
   }
 }

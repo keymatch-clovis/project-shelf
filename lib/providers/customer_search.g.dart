@@ -6,7 +6,7 @@ part of 'customer_search.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$customerSearchHash() => r'e920bcbcac7e8c915de285ec301cd8cc8bc9c77b';
+String _$customerSearchHash() => r'8025547442064621889c97aa3ae328b0150dc21c';
 
 /// See also [CustomerSearch].
 @ProviderFor(CustomerSearch)

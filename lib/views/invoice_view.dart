@@ -104,7 +104,7 @@ class InvoiceView extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    const SizedBox(height: H8),
+                    const SizedBox(height: H_8),
                     Text(
                       CopCurrency.fromCents(totalInvoice).formattedValue,
                       style: TEXT_2XL.merge(FONT_BOLD).merge(LEADING_XS),

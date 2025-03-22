@@ -568,6 +568,8 @@ class CustomerMementoData extends DataClass
   final DateTime date;
   final String data;
   final int version;
+
+  /// Foreign keys.
   final String customerUuid;
   const CustomerMementoData(
       {required this.uuid,
@@ -781,7 +783,9 @@ class $InvoiceTable extends Invoice with TableInfo<$InvoiceTable, InvoiceData> {
   @override
   late final GeneratedColumn<int> number = GeneratedColumn<int>(
       'number', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'));
   @override
   late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
       'date', aliasedName, false,
