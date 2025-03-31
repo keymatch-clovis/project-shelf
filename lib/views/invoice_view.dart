@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:project_shelf/components/dialog/print_invoice_dialog.dart';
-import 'package:project_shelf/components/pill.dart';
-import 'package:project_shelf/components/text_fields/custom_text_field.dart';
+import 'package:project_shelf/shared/presentation/widgets/dialog/print_invoice_dialog.dart';
+import 'package:project_shelf/shared/presentation/widgets/pill.dart';
+import 'package:project_shelf/shared/presentation/widgets/text_fields/custom_text_field.dart';
 import 'package:project_shelf/database/database.dart';
 import 'package:project_shelf/lib/constants.dart';
 import 'package:project_shelf/lib/cop_currency.dart';

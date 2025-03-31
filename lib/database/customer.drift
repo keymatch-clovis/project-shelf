@@ -1,0 +1,41 @@
+import 'city.drift';
+
+create table if not exists customer (
+    uuid text primary key,
+    name text not null,
+    phone text not null,
+    address text not null,
+    businessName text,
+
+    city integer not null references city(id)
+);
+
+-- Named SQL Queries
+getCustomers: 
+    select customer.**, city.** from customer
+    join city on (customer.city = city.id);
+
+getCustomerByUuid: 
+    select customer.**, city.** from customer
+    join city on (customer.city = city.id)
+    where uuid = :uuid
+    limit 1;
+
+getPopulatedCustomers:
+    select customer.**, city.** as "city" from customer customer
+    join city city on (customer.city = city.id);
+
+insertCustomer:
+    insert into customer (uuid, name, phone, address, businessName, city)
+    values (:uuid, :name, :phone, :address, :businessName, :city)
+    returning uuid;
+
+updateCustomer:
+    update customer
+    set name = :name, phone = :phone, address = :address, businessName = :businessName, city = :city
+    where uuid = :uuid;
+
+deleteCustomer:
+    delete from customer
+    where uuid = :uuid;
+

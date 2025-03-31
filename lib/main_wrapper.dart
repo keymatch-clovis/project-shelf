@@ -3,8 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:oxidized/oxidized.dart';
-import 'package:project_shelf/components/dialog/loading_dialog.dart';
-import 'package:project_shelf/providers/cities.dart';
+import 'package:project_shelf/shared/presentation/widgets/dialog/loading_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MainWrapper extends ConsumerStatefulWidget {
@@ -41,8 +40,8 @@ class MainWrapperState extends ConsumerState<MainWrapper> {
 
     // Do stuff on first open.
     if (firstOpen.unwrap()) {
-      await ref.watch(citiesProvider.notifier).loadLocalData();
-
+      // await ref.watch(citiesRepositoryProvider.notifier).loadLocalData();
+      //
       await prefs.setBool("isFirstOpen", false);
       firstOpen = Option.some(false);
     }

@@ -13,7 +13,7 @@ import 'package:oxidized/oxidized.dart';
 import 'package:print_bluetooth_thermal/print_bluetooth_thermal.dart';
 import 'package:project_shelf/database/database.dart';
 import 'package:project_shelf/lib/cop_currency.dart';
-import 'package:project_shelf/lib/error.dart';
+import 'package:project_shelf/data/error.dart';
 import 'package:project_shelf/lib/util.dart';
 import 'package:project_shelf/providers/cities.dart';
 import 'package:project_shelf/providers/customers.dart';
@@ -277,55 +277,6 @@ class Invoices extends _$Invoices {
       debugPrint(err.toString());
       return FileLoadError.INCORRECT_FILE_FORMAT;
     });
-  }
-
-  Future<void> create({
-    required InvoiceCompanion data,
-    required List<InvoiceProduct> invoiceProducts,
-  }) async {
-    final database = ref.watch(databaseProvider);
-
-    await database.transaction(() async {
-      debugPrint("Creating invoice with data: $data");
-      final invoice =
-          await database.into(database.invoice).insertReturning(data);
-      debugPrint("Invoice created: $invoice");
-
-      debugPrint("Adding products: $invoiceProducts to invoice: $invoice");
-      for (final invoiceProduct in invoiceProducts) {
-        debugPrint("Removing stock from product");
-        await ref.read(productsProvider.notifier).removeFromStock(
-              product: invoiceProduct.product,
-              count: invoiceProduct.count,
-            );
-
-        debugPrint("Adding: $invoiceProduct");
-        final productInvoice = await database
-            .into(database.productInvoice)
-            .insertReturning(ProductInvoiceCompanion.insert(
-              price: Value(invoiceProduct.price.realValue),
-              discount: Value(invoiceProduct.discount.realValue),
-              count: invoiceProduct.count,
-              productUuid: invoiceProduct.product.uuid,
-              invoiceUuid: invoice.uuid,
-            ));
-        debugPrint("$productInvoice added to $invoice");
-      }
-    });
-
-    await _invalidate();
-  }
-
-  Future<ProductInvoiceData> addProduct(ProductInvoiceCompanion data) async {
-    final database = ref.watch(databaseProvider);
-
-    debugPrint("Adding product to invoice: $data");
-    final productInvoice =
-        await database.into(database.productInvoice).insertReturning(data);
-    debugPrint("Product added to invoice: $productInvoice");
-
-    await _invalidate();
-    return productInvoice;
   }
 
   Future<Option<InvoiceWithProducts>> findByUuid(String invoiceUuid) async {

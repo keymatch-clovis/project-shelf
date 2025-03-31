@@ -3,10 +3,10 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:project_shelf/components/selectors/city_selector.dart';
-import 'package:project_shelf/components/text_fields/custom_text_field.dart';
+import 'package:project_shelf/shared/presentation/widgets/selectors/city_selector.dart';
+import 'package:project_shelf/shared/presentation/widgets/text_fields/custom_text_field.dart';
+import 'package:project_shelf/data/repository/customers_repository.dart';
 import 'package:project_shelf/database/database.dart';
-import 'package:project_shelf/providers/customers.dart';
 
 class CustomerView extends HookConsumerWidget {
   final CustomerData _customer;
@@ -39,7 +39,7 @@ class CustomerView extends HookConsumerWidget {
             ),
             CitySelector(
               readOnly: true,
-              cityRowId: customer.value.cityRowId,
+              cityRowId: customer.value.city,
             ),
             CustomTextField(
               readOnly: true,
@@ -84,7 +84,7 @@ class CustomerView extends HookConsumerWidget {
 
               if (result != null && result) {
                 await ref
-                    .read(customersProvider.notifier)
+                    .read(customersRepositoryProvider.notifier)
                     .delete(_customer.uuid);
 
                 if (context.mounted) {

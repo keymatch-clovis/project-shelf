@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:project_shelf/components/text_fields/custom_text_field.dart';
+import 'package:project_shelf/shared/presentation/widgets/text_fields/custom_text_field.dart';
 import 'package:project_shelf/providers/preferences.dart';
 import 'package:project_shelf/util/text_formatter.dart';
 

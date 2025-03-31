@@ -1,3 +1,7 @@
+// NOTE: I don't really know how to do migrations with the SQL API, so I have
+// to use the database member, that's why I have to ignore this alert.
+// ignore_for_file: invalid_use_of_visible_for_overriding_member
+
 import 'dart:io';
 
 import 'package:drift/drift.dart';
@@ -9,28 +13,12 @@ import 'package:drift/native.dart';
 import 'package:oxidized/oxidized.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:project_shelf/database/city.dart';
-import 'package:project_shelf/database/customer.dart';
-import 'package:project_shelf/database/customer_memento.dart';
-import 'package:project_shelf/database/invoice.dart';
-import 'package:project_shelf/database/product.dart';
-import 'package:project_shelf/database/product_invoice.dart';
-import 'package:project_shelf/database/product_memento.dart';
-import 'package:uuid/uuid.dart';
 import 'package:project_shelf/database/database.steps.dart';
 
 part 'database.g.dart';
 
 @DriftDatabase(
-  tables: [
-    City,
-    Customer,
-    CustomerMemento,
-    Invoice,
-    Product,
-    ProductInvoice,
-    ProductMemento,
-  ],
+  include: {"tables.drift"},
 )
 class ShelfDatabase extends _$ShelfDatabase {
   // After generating code, this class needs to define a `schemaVersion` getter
@@ -46,7 +34,7 @@ class ShelfDatabase extends _$ShelfDatabase {
   ShelfDatabase.withExecutor(super.executor);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   static LazyDatabase _openConnection(Option<Uint8List> bytes) {
     return LazyDatabase(() async {
@@ -99,7 +87,29 @@ class ShelfDatabase extends _$ShelfDatabase {
   static final _upgrade = migrationSteps(
     from1To2: (m, schema) async {
       // From 1 to 2: Mark invoice number as unique.
+      debugPrint("Migrating database v1 to v2");
       await m.alterTable(TableMigration(schema.invoice));
+    },
+    from2To3: (m, schema) async {
+      // From 2 to 3:
+      //   Change city name field from city to name.
+      //   Change city id field from rowId to id.
+      debugPrint("Migrating database v2 to v3");
+      final invoiceProduct = InvoiceProduct(schema.database.attachedDatabase);
+      final table = City(schema.database.attachedDatabase);
+
+      // Change product_invoice to invoiceProduct.
+      await m.renameTable(invoiceProduct, "product_invoice");
+
+      await m.alterTable(
+        TableMigration(
+          table,
+          columnTransformer: {
+            table.name: const CustomExpression("city"),
+            table.id: const CustomExpression("rowId"),
+          },
+        ),
+      );
     },
   );
 }

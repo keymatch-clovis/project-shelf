@@ -2,8 +2,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jiffy/jiffy.dart';
-import 'package:project_shelf/lib/constants.dart';
 import 'package:project_shelf/navigation/app_navigation.dart';
+import 'package:project_shelf/shared/constants.dart';
 
 void main() async {
   debugPaintSizeEnabled = false;

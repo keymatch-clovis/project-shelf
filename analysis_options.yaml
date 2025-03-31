@@ -31,5 +31,6 @@ linter:
 analyzer:
   errors:
     constant_identifier_names: ignore
+    avoid_print: ignore
   plugins:
     - custom_lint

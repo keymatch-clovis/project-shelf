@@ -1,0 +1,24 @@
+import 'customer.drift';
+
+create table if not exists customerMemento (
+    uuid text not null primary key,
+    date datetime not null,
+    data text not null,
+    version integer not null,
+
+    customer text not null references customer(uuid)
+);
+
+-- Named SQL Queries
+getCustomerMementos:
+    select * from customerMemento
+    where customer = :customerUuid;
+
+insertCustomerMemento:
+    insert into customerMemento (uuid, date, data, version, customer)
+    values (:uuid, :date, :data, :version, :customer)
+    returning uuid;
+
+deleteCustomerMementoByCustomer:
+    delete from customerMemento
+    where customer = :uuid;

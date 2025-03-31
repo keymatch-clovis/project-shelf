@@ -1,0 +1,13 @@
+create table if not exists city (
+    id int not null primary key autoincrement,
+    name text not null,
+    department text not null
+);
+
+-- Named SQL Queries
+getCities: select * from city;
+getCityById: select * from city where id = :id;
+
+insertCity:
+    insert into city (name, department)
+    values (:name, :department);

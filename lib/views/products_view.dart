@@ -2,11 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:project_shelf/components/pill.dart';
-import 'package:project_shelf/components/product_search_anchor.dart';
-import 'package:project_shelf/database/database.dart';
-import 'package:project_shelf/lib/constants.dart';
-import 'package:project_shelf/providers/product/products.dart';
+import 'package:project_shelf/shared/constants.dart';
 
 class ProductsView extends ConsumerWidget {
   final String? restorationId;
@@ -36,19 +32,19 @@ class ProductsView extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              ProductSearchAnchor(
-                builder: (context, controller) {
-                  return FloatingActionButton(
-                    heroTag: null,
-                    child: FaIcon(FontAwesomeIcons.magnifyingGlass),
-                    onPressed: () => controller.openView(),
-                  );
-                },
-                onTap: (product) => context.go(
-                  "/products/product",
-                  extra: product,
-                ),
-              ),
+              // ProductSearchAnchor(
+              //   builder: (context, controller) {
+              //     return FloatingActionButton(
+              //       heroTag: null,
+              //       child: FaIcon(FontAwesomeIcons.magnifyingGlass),
+              //       onPressed: () => controller.openView(),
+              //     );
+              //   },
+              //   onTap: (product) => context.go(
+              //     "/products/product",
+              //     extra: product,
+              //   ),
+              // ),
               const SizedBox(width: 12),
               FloatingActionButton(
                 heroTag: null,
@@ -66,16 +62,17 @@ class ProductsView extends ConsumerWidget {
 class _ProductList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final products = ref.watch(productsProvider);
+    // final products = ref.watch(productsRepositoryProvider);
 
-    return switch (products) {
-      AsyncData(:final value) => renderList(value),
-      AsyncError(:final error) => Text("error: $error"),
-      _ => const Center(child: CircularProgressIndicator.adaptive()),
-    };
+    // return switch (products) {
+    //   AsyncData(:final value) => renderList(value),
+    //   AsyncError(:final error) => Text("error: $error"),
+    //   _ => const Center(child: CircularProgressIndicator.adaptive()),
+    // };
+    return const Center(child: CircularProgressIndicator.adaptive());
   }
 
-  Widget renderList(List<ProductData> list) {
+  Widget renderList(List<dynamic> list) {
     if (list.isEmpty) {
       return Center(child: Text("Sin productos", style: TEXT_STONE_600));
     }
@@ -83,20 +80,20 @@ class _ProductList extends ConsumerWidget {
     return ListView.separated(
       itemCount: list.length,
       separatorBuilder: (_, __) => Divider(height: 0),
-      itemBuilder: (context, index) => _ListItem(list[index].asProduct()),
+      itemBuilder: (context, index) => _ListItem(list[index]),
     );
   }
 }
 
 class _ListItem extends StatelessWidget {
-  final Product item;
+  final dynamic item;
 
   const _ListItem(this.item);
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      onTap: () => context.go("/products/product", extra: item.data),
+      onTap: () => context.go("/products/product", extra: item),
       tileColor: Colors.white,
       title: Row(
         children: [
@@ -105,7 +102,7 @@ class _ListItem extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(item.data.name, style: TEXT_SM),
+                Text(item.name, style: TEXT_SM),
               ],
             ),
           ),
@@ -113,17 +110,18 @@ class _ListItem extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Pill(
-                iconData: FontAwesomeIcons.xmark,
-                color: STONE_200,
-                textColor: STONE_600,
-                text: item.formattedStock,
-              ),
-              const SizedBox(width: W3XS),
-              Text(
-                "${item.formattedValue}\$",
-                style: TEXT_LG.merge(FONT_BOLD),
-              ),
+              Text("A"),
+              // Pill(
+              //   iconData: FontAwesomeIcons.xmark,
+              //   color: STONE_200,
+              //   textColor: STONE_600,
+              //   text: item.formattedStock,
+              // ),
+              // const SizedBox(width: W3XS),
+              // Text(
+              //   "${item.formattedValue}\$",
+              //   style: TEXT_LG.merge(FONT_BOLD),
+              // ),
             ],
           ),
           const SizedBox(width: WSM),

@@ -4,10 +4,10 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:project_shelf/components/selectors/city_selector.dart';
-import 'package:project_shelf/components/text_fields/custom_text_field.dart';
+import 'package:project_shelf/shared/presentation/widgets/selectors/city_selector.dart';
+import 'package:project_shelf/shared/presentation/widgets/text_fields/custom_text_field.dart';
+import 'package:project_shelf/data/repository/customers_repository.dart';
 import 'package:project_shelf/database/database.dart';
-import 'package:project_shelf/providers/customers.dart';
 import 'package:project_shelf/util/text_formatter.dart';
 
 class CreateCustomerView extends HookConsumerWidget {
@@ -99,14 +99,13 @@ class CreateCustomerView extends HookConsumerWidget {
             disabledElevation: 0,
             onPressed: () async {
               if (formKey.value.currentState!.validate()) {
-                await ref.read(customersProvider.notifier).create(
-                      CustomerCompanion.insert(
+                await ref.read(customersRepositoryProvider.notifier).create(
+                      CustomerData(
                         name: name.value,
                         phone: phone.value,
                         address: address.value,
-                        cityRowId: cityRowId.value!,
-                        businessName:
-                            drift.Value.absentIfNull(businessName.value),
+                        city: cityRowId.value!,
+                        businessName: businessName.value,
                       ),
                     );
 

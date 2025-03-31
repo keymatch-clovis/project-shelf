@@ -1,5 +1,5 @@
 import 'package:oxidized/oxidized.dart';
-import 'package:project_shelf/lib/error.dart';
+import 'package:project_shelf/data/error.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:print_bluetooth_thermal/print_bluetooth_thermal.dart';
 

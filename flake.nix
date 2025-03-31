@@ -56,6 +56,7 @@
                   packages = with pkgs; [ 
                     flutter
                     androidComposition.androidsdk
+                    gradle
                     android-tools
                     jdk17
                     sqlite

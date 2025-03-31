@@ -1,0 +1,47 @@
+import 'product.drift';
+import 'customer.drift';
+
+create table if not exists invoice (
+    uuid text not null primary key,
+    number integer not null unique,
+    date datetime not null,
+    discount integer not null default 0,
+
+    customer text not null references customer(uuid)
+);
+
+create table if not exists invoiceProduct (
+    count integer not null default 0,
+    price integer not null default 0,
+    discount integer not null default 0,
+
+    invoice text not null references invoice(uuid),
+    product text not null references product(uuid),
+
+    primary key(invoice, product)
+);
+
+-- Named SQL Queries
+getInvoices: select * from invoice;
+getInvoiceByUuid: select * from invoice where uuid = :uuid;
+
+insertInvoice:
+    insert into invoice (uuid, number, date, discount, customer)
+    values (:uuid, :number, :date, :discount, :customer)
+    returning uuid;
+
+insertInvoiceProduct:
+    insert into invoiceProduct (count, price, discount, invoice, product)
+    values (:count, :price, :discount, :invoice, :product);
+
+getInvoiceProductByProduct:
+    select * from invoiceProduct
+    where product = :uuid;
+
+getInvoiceProductByInvoice:
+    select * from invoiceProduct
+    where invoice = :uuid;
+
+deleteInvoiceProduct:
+    delete from invoiceProduct
+    where invoice = :uuid;

@@ -1,0 +1,24 @@
+import 'product.drift';
+
+create table if not exists productMemento (
+    uuid text not null primary key,
+    date datetime not null,
+    data text not null,
+    version integer not null,
+
+    product text not null references product(uuid)
+);
+
+-- Named SQL Queries
+getProductMementos:
+    select * from productMemento
+    where product = :uuid;
+
+insertProductMemento:
+    insert into productMemento (uuid, date, data, version, product)
+    values (:uuid, :date, :data, :version, :product)
+    returning uuid;
+
+deleteProductMementoByProduct:
+    delete from productMemento
+    where product = :uuid;

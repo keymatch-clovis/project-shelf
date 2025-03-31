@@ -2,8 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:project_shelf/components/customer_search_anchor.dart';
-import 'package:project_shelf/providers/customers.dart';
+import 'package:project_shelf/shared/presentation/widgets/customer_search_anchor.dart';
+import 'package:project_shelf/data/repository/customers_repository.dart';
+import 'package:project_shelf/database/database.dart';
+import 'package:project_shelf/providers/database.dart';
+
+final customersProvider = FutureProvider((ref) async {
+  return ref.watch(databaseProvider).getPopulatedCustomers().get();
+});
 
 class CustomersView extends ConsumerWidget {
   final String? restorationId;
@@ -46,7 +52,7 @@ class CustomersView extends ConsumerWidget {
 }
 
 class _CustomerList extends ConsumerWidget {
-  Widget renderList(List<CustomerWithCity> list) {
+  Widget renderList(List<GetPopulatedCustomersResult> list) {
     if (list.isEmpty) {
       return Center(child: Text("Sin clientes"));
     }
@@ -58,7 +64,7 @@ class _CustomerList extends ConsumerWidget {
         title: _ListItem(list[index]),
         onTap: () => context.go(
           "/customers/customer",
-          extra: list[index].customer,
+          extra: list[index].toCustomerData(),
         ),
       ),
     );
@@ -77,7 +83,7 @@ class _CustomerList extends ConsumerWidget {
 }
 
 class _ListItem extends StatelessWidget {
-  final CustomerWithCity data;
+  final GetPopulatedCustomersResult data;
 
   const _ListItem(this.data);
 

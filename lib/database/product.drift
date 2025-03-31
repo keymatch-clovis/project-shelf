@@ -1,0 +1,29 @@
+create table if not exists product (
+    uuid text not null primary key,
+    name text not null,
+    price integer not null default 0,
+    stock integer not null default 0
+);
+ O
+-- Named SQL Queries
+getProducts: select * from product;
+getProductByUuid: select * from product where uuid = :uuid limit 1;
+
+removeProductStock:
+    update product
+    set stock = stock - :amount
+    where uuid = :uuid;
+
+insertProduct:
+    insert into product (uuid, name, price, stock)
+    values (:uuid, :name, :price, :stock)
+    returning uuid;
+
+updateProduct:
+    update product
+    set name = :name, price = :price, stock = :stock
+    where uuid = :uuid;
+
+deleteProduct:
+    delete from product
+    where uuid = :uuid;

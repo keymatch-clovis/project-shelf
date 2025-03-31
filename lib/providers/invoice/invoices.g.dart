@@ -6,7 +6,7 @@ part of 'invoices.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$invoicesHash() => r'98abce23dc718d4154db1e69fb5779e9a6467f51';
+String _$invoicesHash() => r'4f93d6b9135bbafead92b45e23d1f1128755760f';
 
 /// See also [Invoices].
 @ProviderFor(Invoices)

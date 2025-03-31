@@ -4,7 +4,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:project_shelf/components/text_fields/custom_text_field.dart';
+import 'package:project_shelf/shared/presentation/widgets/text_fields/custom_text_field.dart';
 import 'package:project_shelf/database/database.dart';
 import 'package:project_shelf/lib/cop_currency.dart';
 import 'package:project_shelf/providers/product/products.dart';

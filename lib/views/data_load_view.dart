@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:project_shelf/components/dialog/loading_dialog.dart';
-import 'package:project_shelf/lib/error.dart';
+import 'package:project_shelf/shared/presentation/widgets/dialog/loading_dialog.dart';
+import 'package:project_shelf/data/error.dart';
 import 'package:project_shelf/providers/customers.dart';
 import 'package:project_shelf/providers/invoice/invoices.dart';
 import 'package:project_shelf/providers/product/products.dart';

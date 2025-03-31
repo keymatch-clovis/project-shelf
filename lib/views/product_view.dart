@@ -3,9 +3,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:project_shelf/components/dialog/accept_dialog.dart';
-import 'package:project_shelf/components/dialog/loading_dialog.dart';
-import 'package:project_shelf/components/text_fields/custom_text_field.dart';
+import 'package:project_shelf/shared/presentation/widgets/dialog/accept_dialog.dart';
+import 'package:project_shelf/shared/presentation/widgets/dialog/loading_dialog.dart';
+import 'package:project_shelf/shared/presentation/widgets/text_fields/custom_text_field.dart';
 import 'package:project_shelf/database/database.dart';
 import 'package:project_shelf/lib/constants.dart';
 import 'package:project_shelf/lib/cop_currency.dart';
@@ -229,17 +229,7 @@ class _InvoicesList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final invoices = ref.watch(invoicesProvider.select((asyncData) {
-      return asyncData.whenData((invoices) {
-        return invoices.where((i) => i.pr == product.)
-      })
-  }));
-
-    return switch (mementos) {
-      AsyncData(:final value) => renderList(context, value),
-      AsyncError(:final error) => Text("error: $error"),
-      _ => const Center(child: CircularProgressIndicator.adaptive()),
-    };
+    return Text("");
   }
 
   Widget renderList(BuildContext context, ProductMementosState state) {
