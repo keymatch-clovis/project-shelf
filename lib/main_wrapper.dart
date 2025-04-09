@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:oxidized/oxidized.dart';
 import 'package:project_shelf/shared/presentation/widgets/dialog/loading_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class MainWrapper extends ConsumerStatefulWidget {
+class MainWrapper extends StatefulWidget {
   final StatefulNavigationShell navigationShell;
 
   const MainWrapper({super.key, required this.navigationShell});
@@ -15,7 +14,7 @@ class MainWrapper extends ConsumerStatefulWidget {
   MainWrapperState createState() => MainWrapperState();
 }
 
-class MainWrapperState extends ConsumerState<MainWrapper> {
+class MainWrapperState extends State<MainWrapper> {
   int selectedIndex = 0;
   bool isFirstOpen = true;
 

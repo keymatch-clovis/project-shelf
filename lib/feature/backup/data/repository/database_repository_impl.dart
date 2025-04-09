@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'package:oxidized/oxidized.dart';
 import 'package:project_shelf/feature/backup/domain/repository/database_repository.dart';
-import 'package:project_shelf/shared/data/data_source/database_data_source.dart';
+import 'package:project_shelf/shared/data/data_source/sqlite/sqlite_data_source.dart';
 
 class DatabaseRepositoryImpl implements DatabaseRepository {
   final DatabaseDataSource _dataSource;

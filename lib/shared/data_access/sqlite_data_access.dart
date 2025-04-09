@@ -3,31 +3,32 @@ import "dart:typed_data";
 
 import "package:oxidized/oxidized.dart";
 import "package:path/path.dart";
-import "package:project_shelf/shared/data/data_source/tables/customer.dart";
-import "package:project_shelf/shared/data/data_source/tables/customer_memento.dart";
-import "package:project_shelf/shared/data/data_source/tables/invoice.dart";
-import "package:project_shelf/shared/data/data_source/tables/invoice_product.dart";
-import "package:project_shelf/shared/data/data_source/tables/product.dart";
-import "package:project_shelf/shared/data/data_source/tables/product_memento.dart";
 import "package:sqflite/sqflite.dart";
 import "package:sqflite/sqflite_dev.dart";
-import "package:project_shelf/shared/data/data_source/tables/city.dart";
+import "package:project_shelf/shared/data_access/tables/customer.dart";
+import "package:project_shelf/shared/data_access/tables/customer_memento.dart";
+import "package:project_shelf/shared/data_access/tables/invoice.dart";
+import "package:project_shelf/shared/data_access/tables/invoice_product.dart";
+import "package:project_shelf/shared/data_access/tables/product.dart";
+import "package:project_shelf/shared/data_access/tables/product_memento.dart";
+import "package:project_shelf/shared/data_access/tables/city.dart";
 
-class DatabaseDataSource {
+class SqliteDataAccess {
   Option<Database> _database = const Option.none();
 
-  Option<String> get databasePath => _database.map((db) => db.path);
+  Database get db => _database.unwrap();
+  String get databasePath => _database.unwrap().path;
 
-  Future<void> open({Option<Uint8List> bytes = const Option.none()}) async {
+  Future<void> openDatabase(
+      {Option<Uint8List> bytes = const Option.none()}) async {
     final dbPath = await _getDatabasePath("shelf.sqlite");
     final dbFile = File(dbPath);
 
-    // If we have a database already opened, we have to close this one to open
-    // another.
-    if (_database.isSome()) {
+    // We have to close the current database, if there is any, to open another.
+    _database.map((db) {
       print("Closing database");
-      await _database.unwrap().close();
-    }
+      db.close();
+    });
 
     // If bytes provided, write them to the database location before opening.
     // We will assume the data is correctly backed up before doing this. >_>
@@ -37,7 +38,7 @@ class DatabaseDataSource {
     }
 
     print("Opening database");
-    _database = Option.some(await sqfliteDatabaseFactoryDefault.openDatabase(
+    _database = Option.from(await sqfliteDatabaseFactoryDefault.openDatabase(
       dbPath,
       options: OpenDatabaseOptions(
         version: 3,

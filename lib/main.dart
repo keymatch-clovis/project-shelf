@@ -1,34 +1,33 @@
 import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jiffy/jiffy.dart';
-import 'package:project_shelf/navigation/app_navigation.dart';
+import 'package:project_shelf/router_provider.dart';
 import 'package:project_shelf/shared/constants.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
   debugPaintSizeEnabled = false;
   await Jiffy.setLocale('es');
 
+  // > Think of Main as the dirtiest of all the dirty components.
+  // > -- Clean Architecture
+
   runApp(
     ProviderScope(
-      child: RestorationScope(
-        restorationId: 'main',
-        child: ShelfApp(),
-      ),
+      child: ShelfApp(),
     ),
   );
 }
 
-class ShelfApp extends StatefulWidget {
+class ShelfApp extends ConsumerWidget {
   const ShelfApp({super.key});
 
   @override
-  State<StatefulWidget> createState() => _ShelfAppState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.watch(routerProvider);
 
-class _ShelfAppState extends State<ShelfApp> {
-  @override
-  Widget build(BuildContext context) {
     return MaterialApp.router(
       restorationScopeId: 'app',
       title: 'Project Shelf',
@@ -39,7 +38,7 @@ class _ShelfAppState extends State<ShelfApp> {
         scaffoldBackgroundColor: STONE_100,
         useMaterial3: true,
       ),
-      routerConfig: AppNavigation.router,
+      routerConfig: router,
     );
   }
 }
