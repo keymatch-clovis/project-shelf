@@ -1,6 +1,4 @@
-import 'package:flutter/foundation.dart';
-
-class ProductViewModel with ChangeNotifier {
+class ProductViewModel {
   String name;
   String price;
   String stock;

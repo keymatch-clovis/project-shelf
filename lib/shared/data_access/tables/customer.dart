@@ -5,7 +5,7 @@ void createCustomerTable(Batch batch) {
   batch.execute("""
     CREATE TABLE IF NOT EXISTS customer (
       uuid          TEXT PRIMARY KEY,
-      name          TEXT NOT NULL
+      name          TEXT NOT NULL,
       phone         TEXT NOT NULL,
       address       TEXT NOT NULL,
       business_name TEXT,

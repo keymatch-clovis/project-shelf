@@ -46,7 +46,12 @@ const EI_8 = EdgeInsets.all(M_8);
 const EI_16 = EdgeInsets.all(M_16);
 const EI_24 = EdgeInsets.all(M_24);
 
-final BORDER = Border.all(color: STONE_400);
+const BORDER = Border(
+  top: BorderSide(color: STONE_400),
+  right: BorderSide(color: STONE_400),
+  bottom: BorderSide(color: STONE_400),
+  left: BorderSide(color: STONE_400),
+);
 const BORDER_T = Border(top: BorderSide(color: STONE_400));
 
 const ROUNDED_MD = BorderRadius.all(Radius.circular(6));

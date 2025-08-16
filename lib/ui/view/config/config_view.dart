@@ -1,26 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:project_shelf/shared/constants.dart';
 
-
-class ConfigurationView extends ConsumerWidget {
-  final String? restorationId;
-
-  const ConfigurationView({this.restorationId, super.key});
+class ConfigView extends StatelessWidget {
+  const ConfigView({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return Scaffold(
-      restorationId: restorationId,
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Configuración'),
+        title: Text('Configuración', style: TEXT_GREEN_800.merge(FONT_BOLD)),
       ),
       body: Container(
-        margin: const EdgeInsets.all(18),
+        margin: EI_16,
         child: Column(
           children: [
+            Card(
+              child: ListTile(
+                title: Row(
+                  children: [
+                    Text("Cargar Datos de Prueba"),
+                    Spacer(),
+                    FaIcon(FontAwesomeIcons.chevronRight),
+                  ],
+                ),
+                onTap: () => context.go('/config/debug/load-data'),
+              ),
+            ),
+            const SizedBox(height: H_8),
             Card(
               child: ListTile(
                 title: Row(

@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+    <string name="googleSignInOptions:B1ED5CB126DA937D9C9FBA648926D5E5">{&quot;scopes&quot;:[&quot;email&quot;,&quot;https:\/\/www.googleapis.com\/auth\/drive.appdata&quot;,&quot;openid&quot;,&quot;profile&quot;],&quot;idTokenRequested&quot;:false,&quot;forceCodeForRefreshToken&quot;:false,&quot;serverAuthRequested&quot;:false}</string>
+    <string name="defaultGoogleSignInAccount">B1ED5CB126DA937D9C9FBA648926D5E5</string>
+    <string name="googleSignInAccount:B1ED5CB126DA937D9C9FBA648926D5E5">{&quot;id&quot;:&quot;116299746722126487960&quot;,&quot;email&quot;:&quot;zamyacorp@gmail.com&quot;,&quot;displayName&quot;:&quot;Zamya&quot;,&quot;givenName&quot;:&quot;Zamya&quot;,&quot;photoUrl&quot;:&quot;https:\/\/lh3.googleusercontent.com\/a\/ACg8ocLmo6-C81auHxQ-esU9r_kHzGSWi-SuuZD_jpdfuXIU3i3vAlo&quot;,&quot;expirationTime&quot;:1749499741,&quot;obfuscatedIdentifier&quot;:&quot;B1ED5CB126DA937D9C9FBA648926D5E5&quot;,&quot;grantedScopes&quot;:[&quot;email&quot;,&quot;https:\/\/www.googleapis.com\/auth\/drive.appdata&quot;,&quot;https:\/\/www.googleapis.com\/auth\/userinfo.email&quot;,&quot;https:\/\/www.googleapis.com\/auth\/userinfo.profile&quot;,&quot;openid&quot;,&quot;profile&quot;]}</string>
+</map>

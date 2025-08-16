@@ -1,12 +1,18 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:project_shelf/main_wrapper.dart';
+import 'package:project_shelf/ui/view/config/config_view.dart';
+import 'package:project_shelf/ui/view/config/debug_load_data_view.dart';
 import 'package:project_shelf/ui/view/product/product_list_view.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _productsNavigatorKey = GlobalKey<NavigatorState>(
   debugLabel: 'products-shell',
+);
+final _configNavigatorKey = GlobalKey<NavigatorState>(
+  debugLabel: 'config-shell',
 );
 
 const INITIAL_LOCATION = '/products';
@@ -31,6 +37,39 @@ final routerProvider = Provider.autoDispose((ref) {
                   key: state.pageKey,
                 ),
                 routes: [
+                  // GoRoute(
+                  //   path: 'create',
+                  //   builder: (context, state) =>
+                  //       CreateProductView(key: state.pageKey),
+                  // ),
+                  // GoRoute(
+                  //   path: 'product',
+                  //   builder: (context, state) => ProductView(
+                  //     state.extra as ProductData,
+                  //     key: state.pageKey,
+                  //   ),
+                  // ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            navigatorKey: _configNavigatorKey,
+            routes: [
+              GoRoute(
+                path: '/config',
+                builder: (context, state) => ConfigView(
+                  key: state.pageKey,
+                ),
+                routes: [
+                  /// Debug routes.
+                  if (kDebugMode) ...[
+                    GoRoute(
+                      path: '/debug/load-data',
+                      builder: (_, state) =>
+                          DebugLoadDataView(key: state.pageKey),
+                    ),
+                  ],
                   // GoRoute(
                   //   path: 'create',
                   //   builder: (context, state) =>

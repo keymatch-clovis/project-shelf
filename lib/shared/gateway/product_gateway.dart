@@ -10,4 +10,5 @@ abstract interface class ProductGateway {
   Future<Product> findByUuid(String uuid);
   Future<void> deleteByUuid(String uuid);
   Future<Product> update(String uuid);
+  Future<void> deleteAll();
 }

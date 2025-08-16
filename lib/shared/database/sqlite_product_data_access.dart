@@ -59,4 +59,10 @@ class SqliteProductDataAccess implements ProductGateway {
     // TODO: implement update
     throw UnimplementedError();
   }
+
+  @override
+  Future<void> deleteAll() {
+    print("Deleting all products");
+    return _dataAccess.db.delete("product");
+  }
 }

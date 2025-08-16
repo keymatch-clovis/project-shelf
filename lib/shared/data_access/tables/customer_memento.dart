@@ -5,7 +5,7 @@ void createCustomerMementoTable(Batch batch) {
   batch.execute("""
     CREATE TABLE IF NOT EXISTS customer_memento (
       uuid          TEXT PRIMARY KEY,
-      date          INTEGER NOT NULL
+      date          INTEGER NOT NULL,
       data          TEXT NOT NULL,
       version       INTEGER NOT NULL,
       customer      TEXT NOT NULL REFERENCES customer(uuid)

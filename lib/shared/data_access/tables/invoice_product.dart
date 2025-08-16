@@ -6,7 +6,7 @@ void createInvoiceProductTable(Batch batch) {
     CREATE TABLE IF NOT EXISTS invoice_product (
       count     INTEGER NOT NULL,
       price     INTEGER NOT NULL,
-      discount  INTEGER NOT NULL DEFAULT 0
+      discount  INTEGER NOT NULL DEFAULT 0,
       invoice   TEXT NOT NULL REFERENCES invoice(uuid),
       product   TEXT NOT NULL REFERENCES product(uuid),
       PRIMARY KEY (invoice, product)

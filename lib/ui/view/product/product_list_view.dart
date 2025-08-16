@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:project_shelf/providers.dart';
+import 'package:project_shelf/provider.dart';
 import 'package:project_shelf/shared/constants.dart';
 import 'package:project_shelf/ui/components/product_list.dart';
 
@@ -12,17 +12,14 @@ class ProductListView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final asyncData = ref.watch(productListViewModelProvider);
+    final asyncValue = ref.watch(productListViewModelProvider);
 
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text(
-          'Productos',
-          style: TEXT_GREEN_800.merge(FONT_BOLD),
-        ),
+        title: Text('Productos', style: TEXT_GREEN_800.merge(FONT_BOLD)),
       ),
-      body: ProductList(),
+      body: ProductList(asyncValue.whenData((data) => data.products)),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           border: BORDER_T,
